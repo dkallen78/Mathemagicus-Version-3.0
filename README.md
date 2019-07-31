@@ -8,7 +8,15 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 ### Up next: the overworld logic.
 
-In version 2.0 the biggest single function was the overworld function at nearly 2,000 lines. The biggest chunk of that was the book that took me weeks to make the first time and will probably take me a week to get it back in my head.
+In version 2.0 the biggest single function was the overworld function at nearly 2,000 lines. The biggest chunk of that was the book that took me weeks to make the first time and will probably take me a week to get it back in my head. I'm going to keep putting that back in, one section at a time, improving what I can along the way.
+
+## 2019/07/30
+
+### Update
+
+I'm building the overworld menu. The biggest change so far is instead of having the four dungeons laid out in a table, I have a menu similar to the one I used for character selection. In fact, I made the whole menu making process a function that takes customized objects as variables. I also made the player variable from an object into a class. I even used a getter! 
+
+I'm in the middle of putting in the Liber Mathemagicus. I have to change a bunch of variables along the way and I'm also making the code easier to read by using helper functions. I'm happy w/ how it's going but no one wants to look at my older work to say if I'm improving. I'm going to have to rely on my own opinion of myself. I like it.
 
 ## 2019/07/29
 
