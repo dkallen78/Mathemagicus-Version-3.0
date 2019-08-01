@@ -8,7 +8,13 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 ### Up next: the overworld logic.
 
-In version 2.0 the biggest single function was the overworld function at nearly 2,000 lines. The biggest chunk of that was the book that took me weeks to make the first time and will probably take me a week to get it back in my head. I'm going to keep putting that back in, one section at a time, improving what I can along the way.
+Now that the book is done I need to figure out what else to do before I get to the dungeons/catacombs. I want to implement a system where the player can choose their difficulty/level. That means having different timer speeds and being able to select the problem difficulty after having unlocked it. I need to get that set up before I get too far ahead in any of the dungeon stuff.
+
+## 2019/07/31
+
+### Update
+
+I've got the Liber Mathemagicus up and running. I've cut out a lot of the redundancy. Right now I'm at under 2,100 lines, which is aver 300 fewer than v2.0. I've probably got some more to clean up but I'm happy with where thing are right now. 
 
 ## 2019/07/30
 
