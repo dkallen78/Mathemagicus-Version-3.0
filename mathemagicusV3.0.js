@@ -1,3 +1,4 @@
+
 //-------------------------------------------------------------------//
 //Logic helper functions                                             //
 //-------------------------------------------------------------------//
@@ -23,6 +24,22 @@ function isPrime(number) {
   //is a prime, false if there is not
   return primes.includes(number);
 }
+//
+//This function is my version of the
+//array.indexOf() function, just customized
+//for my array of arrays
+//array is the array to be searched
+//index is the index whose value we want
+//to return
+function findMonster(array, index) {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i][0] == index) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 
 //-------------------------------------------------------------------//
 //Display helper functions                                           //
@@ -54,7 +71,8 @@ function insertLineBreak(element) {
 //Inserts a text node into a DOM element
 //element is the element into which the node
 //is inserted
-//text is the text that comprises the node
+//text is a string that comprises the text
+//of the node
 function insertTextNode(element, text) {
   let node = document.createTextNode(text);
   element.appendChild(node);
@@ -319,13 +337,6 @@ function clearMenu(selector) {
 class Player {
   constructor() {
     this.name = "";                 //The player's name
-    /*this.possessive = function() {  //The possessive form of the player's name
-      if (this.name.charAt(this.name.length - 1) === "s") {
-        return this.name + "'";
-      } else {
-        return this.name + "'s";
-      }
-    }*/
     this.health = 10;               //The player's health
     this.maxHealth = 10;            //The player's maximum health (used for healing)
     this.damage = 1;                //The base damage done by the player
@@ -352,7 +363,6 @@ class Player {
         dealt: 0,                   //Total damage dealt
         healed: 0                   //Total health recovered
       },
-      monstersKilled: 0,
       fortyTwo: 0,                  //Total answers equal to 42
       lastSecond: 0,                //Questions answered w/ less than 1 second left
       flash: 0,                     //Questions answered in less than 1 second
@@ -367,7 +377,25 @@ class Player {
         subtraction: [0, 0],
         multiplication: [0, 0],
         division: [0, 0]
+      },
+      //
+      //Keeps track of the number of monsters the
+      //player has killed and which monsters have
+      //been killed
+      monsters: {
+        killed: 0,                  //Total number of monsters killed
+        //
+        //These arrays hold two values in each node.
+        //monstersKilled[x][0] is the index of the monster
+        //that has been killed.
+        //monstersKilled[x][1] is the number of that
+        //monster that have been killed.
+        addition: [],
+        subtraction: [],
+        multiplication: [],
+        division: []
       }
+
     }
     //
     //Spell related stats
@@ -387,7 +415,8 @@ class Player {
       star: 0                       //Nova spells
     }
   }
-
+  //
+  //This gets the possesive form of the players name
   get possessive() {
     if (this.name.charAt(this.name.length - 1) === "s") {
     return this.name + "'";
@@ -402,7 +431,7 @@ function testBook() {
   player.name = "Shady";
   player.maxHealth = 100;
   player.damage = 10;
-  player.level.addition = 1;
+  player.level.addition = 11;
   player.stats.averages.addition = [100, 100];
   player.level.subtraction = 1;
   player.stats.averages.subtraction = [100, 100];
@@ -414,6 +443,18 @@ function testBook() {
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
   player.spells.learned = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  player.stats.monsters.addition = [[0, 1], [1, 5], [2, 10], [3, 20], [30, 20]];
+  player.stats.monsters.subtraction = [[0, 1], [1, 5], [2, 10], [3, 20]];
+  player.stats.monsters.multiplication = [[0, 1], [1, 5], [2, 10], [3, 20]];
+  player.stats.monsters.division = [[0, 1], [1, 5], [2, 10], [3, 20]];
+  player.spells.cast = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+  player.stats.monsters.killed = 150;
+  player.stats.fortyTwo = 55;
+  player.stats.flash = 20;
+  player.stats.primes = 1;
+  player.stats.damage.dealt = 2000;
+  player.stats.damage.received = 200;
+  player.stats.damage.healed = 200;
 
 
   overworld(player);
@@ -692,14 +733,25 @@ function overworld(player) {
         spud();
         break;
       case 4:     //Liber mathemagicus
-        liberMathemagicus();
+        //
+        //This loads monster data from an outside file that
+        //the book may need.
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            let monsterData = JSON.parse(this.responseText);
+            liberMathemagicus(monsterData);
+          }
+        };
+        xmlhttp.open("GET", "./monsterData.json", true);
+        xmlhttp.send();
         break;
     }
   }
   //
   //Controls the Liber Mathemagicus, the book that is
   //the status information for the player
-  function liberMathemagicus() {
+  function liberMathemagicus(monsterData) {
     let spellBookContent = [
       ["Fibonacci's Associative Spell", "fibonacciSpellBook1.gif"],
       ["Fibonacci's Distributive Spell", "fibonacciSpellBook2.gif"],
@@ -712,13 +764,6 @@ function overworld(player) {
       ["Fermet's Polymorph Monster Spell", "cubeSpellBook.gif"],
       ["Brahe's Nova Spell", "starSpellBook.gif"]
     ];
-
-    let possesive = null;
-    if (player.name.charAt(player.name.length - 1) === "s") {
-      possessive = "'";
-    } else {
-      possessive = "'s";
-    }
     //
     //This function returns to the overworld menu
     //from the Liber Mathemagicus
@@ -730,6 +775,46 @@ function overworld(player) {
         playArea.style.filter = "brightness(100%)";
         overworld(player);
       }, 500);
+    }
+    //
+    //Puts the page title on the target page
+    //text is text of the title in a string
+    //target is the element the title will be
+    //posted to
+    //size is the size of the text in ems.
+    //defaults to 1em
+    function makePageTitle(text, target, size = 1.5) {
+      let p = document.createElement("p");
+      p.style.textAlign = "center";
+      p.style.fontWeight = "bold";
+      p.style.textDecoration = "underline";
+      p.style.fontSize = size + "em";
+      insertTextNode(p, text);
+      target.appendChild(p);
+    }
+    //
+    //Checks which of the arrow keys was pressed and
+    //executes a function depending on which one
+    function checkKeys(key, right, left) {
+      switch (key) {
+        case 37:
+          document.onkeyup = "";
+          pageRight();
+          break;
+        case 39:
+          document.onkeyup = "";
+          pageLeft();
+          break;
+      }
+    }
+    //
+    //These two functions are left empty so they
+    //can save a few lines in the book page functions
+    let pageLeft = function() {
+
+    }
+    let pageRight = function() {
+
     }
     //
     //This function handles the animation of turning
@@ -880,7 +965,6 @@ function overworld(player) {
       //This is an event listener to use the arrows to
       //turn the pages
       document.onkeyup = function(e) {
-        console.log("hey");
         e = e || window.event;
         if (e.keyCode === 39) {
           document.onkeyup = "";
@@ -920,35 +1004,19 @@ function overworld(player) {
       //Makes the buttons to turn the pages
       let pageTurnButtons = turnPageButtons(tableOfContents);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
-      turnButton[0].onclick = function() {turnPageRight(tableOfContents, makeTitlePage);}
-      turnButton[1].onclick = function() {turnPageLeft(tableOfContents, statusPage);}
+      pageRight = function() {turnPageRight(tableOfContents, makeTitlePage);}
+      turnButton[0].onclick = pageRight;
+      pageLeft = function() {turnPageLeft(tableOfContents, statusPage);}
+      turnButton[1].onclick = pageLeft;
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        switch (e.keyCode) {
-          case 37:
-            document.onkeyup = "";
-            turnPageRight(tableOfContents, makeTitlePage);
-            break;
-          case 39:
-            document.onkeyup = "";
-            turnPageLeft(tableOfContents, statusPage);
-            break;
-        }
+        checkKeys(e.keyCode, pageRight, pageLeft);
       }
 
-      let p = document.createElement("p");
-      p.style.textAlign = "center";
-      p.style.fontSize = "1.5em";
-      p.style.fontWeight = "bold";
-      p.style.textDecoration = "underline";
-      let br = document.createElement("br");
-      let node = document.createTextNode("Table of Contents");
-      p.appendChild(node);
-      p.appendChild(br);
-      tableOfContents.appendChild(p);
+      makePageTitle("Table of Contents", tableOfContents);
       //
       //Makes the parts for the chapters on the Table of
       //Contents page
@@ -978,7 +1046,7 @@ function overworld(player) {
       p = chapterEntry(spellsPage, "Spells", "A list of the spells " + player.name + " has learned.");
       tableOfContents.appendChild(p);
 
-      p = chapterEntry(spud, "Monsters", "A list of the monsters " + player.name + " has encountered.");
+      p = chapterEntry(monstersPage, "Monsters", "A list of the monsters " + player.name + " has encountered.");
       tableOfContents.appendChild(p);
 
       p = chapterEntry(spud, "Achievements", "A list of the achievements " + player.name + " has earned.");
@@ -990,6 +1058,30 @@ function overworld(player) {
     //This function makes the layout of the status
     //page of the player's book
     function statusPage() {
+      //
+      //Displays the player's stats for the different operations
+      //target is the element the stats will be added to
+      //text is the text string that will be added
+      //level is the player's level for that operation
+      //average is the array w/ the average info
+      function makeStats(target, text, level, average) {
+        insertTextNode(target, text + level);
+        insertLineBreak(target);
+        let averageInfo = appendAverageInfo(average);
+        target.appendChild(averageInfo);
+        insertLineBreak(target);
+      }
+      //
+      //Adds the two lines with even more stats to the book
+      //array is the array w/ the average info
+      function appendAverageInfo(array) {
+        let span = document.createElement("span");
+        insertTextNode(span, "Average Answer Time: " + array[0].toFixed(2));
+        insertLineBreak(span);
+        insertTextNode(span, "Questions Answered: " + array[1]);
+        return span;
+      }
+
       let status = document.createElement("div");
       status.className = "bookPage";
       status.id = "statusPage";
@@ -1007,20 +1099,16 @@ function overworld(player) {
       //Makes the buttons to turn the pages
       let pageTurnButtons = turnPageButtons(status);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
-      turnButton[0].onclick = function() {turnPageRight(status, contentsPage);}
-      turnButton[1].onclick = function() {turnPageLeft(status, spellsPage);}
+      pageRight = function() {turnPageRight(status, contentsPage);}
+      turnButton[0].onclick = pageRight;
+      pageLeft = function() {turnPageLeft(status, spellsPage);}
+      turnButton[1].onclick = pageLeft;
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        if (e.keyCode === 37) {
-          document.onkeyup = "";
-          turnPageRight(status, contentsPage);
-        } else if (e.keyCode === 39) {
-          document.onkeyup = "";
-          turnPageLeft(status, spellsPage);
-        }
+        checkKeys(e.keyCode, pageRight, pageLeft);
       }
       //
       //This block makes and places the <div> and <image>
@@ -1041,72 +1129,34 @@ function overworld(player) {
       //
       //This makes the players name
       let p = document.createElement("p");
-      let node1 = document.createTextNode(player.name);
-      let strong = document.createElement("strong");
-      let underline = document.createElement("u");
-      strong.appendChild(node1);
-      underline.appendChild(strong);
-      p.appendChild(underline);
+      insertTextNode(p, player.name);
       p.style.textAlign = "right";
       p.style.marginRight = "10px";
       p.style.fontSize = "1.5em";
       p.style.marginBottom = "10px";
+      p.style.fontWeight = "bold";
+      p.style.textDecoration = "underline";
       status.appendChild(p);
       //
       //This displays the max health and damage of the player
       p = document.createElement("p");
       p.style.marginTop = "-27px";
-      node1 = document.createTextNode("Max Health: " + player.maxHealth);
-      let node2 = document.createTextNode("Max Damage: " + player.damage);
-      p.appendChild(node1);
-      let br = document.createElement("br");
-      p.appendChild(br);
-      p.appendChild(node2);
+      insertTextNode(p, "Max Health: " + player.maxHealth);
+      insertLineBreak(p);
+      insertTextNode(p, "Max Damage: " + player.damage);
       status.appendChild(p);
       //
       //This displays the total monsters killed
       p = document.createElement("p");
-      node1 = document.createTextNode("Monsters Killed: " + player.stats.monstersKilled);
-      p.appendChild(node1);
+      insertTextNode(p, "Monsters Killed: " + player.stats.monstersKilled);
       status.appendChild(p);
       //
-      //This long chunk displays the different levels of the player
+      //This displays the different levels of the player
       p = document.createElement("p");
-      let node = document.createTextNode("Addition Level: " + player.level.addition);
-      p.appendChild(node);
-      br = document.createElement("br");
-      p.appendChild(br);
-      let averageInfo = appendAverageInfo(player.stats.averages.addition);
-      p.appendChild(averageInfo);
-      br = document.createElement("br");
-      p.appendChild(br)
-
-      node = document.createTextNode("Subtraction Level: " + player.level.subtraction);
-      p.appendChild(node);
-      br = document.createElement("br");
-      p.appendChild(br)
-      averageInfo = appendAverageInfo(player.stats.averages.subtraction);
-      p.appendChild(averageInfo);
-      br = document.createElement("br");
-      p.appendChild(br);
-
-
-      node = document.createTextNode("Multiplication Level: " + player.level.multiplication);
-      p.appendChild(node);
-      br = document.createElement("br");
-      p.appendChild(br)
-      averageInfo = appendAverageInfo(player.stats.averages.multiplication);
-      p.appendChild(averageInfo);
-      br = document.createElement("br");
-      p.appendChild(br);
-
-      node = document.createTextNode("Division Level: " + player.level.division);
-      p.appendChild(node);
-      br = document.createElement("br");
-      p.appendChild(br)
-      averageInfo = appendAverageInfo(player.stats.averages.division);
-      p.appendChild(averageInfo);
-
+      makeStats(p, "Addition Level: ", player.level.addition, player.stats.averages.addition);
+      makeStats(p, "Subtraction Level: ", player.level.subtraction, player.stats.averages.subtraction);
+      makeStats(p, "Multiplication Level: ", player.level.multiplication, player.stats.averages.multiplication);
+      makeStats(p, "Division Level: ", player.level.division, player.stats.averages.division);
       status.appendChild(p);
 
       let saveGame = document.createElement("input");
@@ -1117,17 +1167,6 @@ function overworld(player) {
       status.appendChild(saveGame);
 
       return status;
-
-      function appendAverageInfo(array) {
-        let span = document.createElement("span");
-        let node = document.createTextNode("Average Answer Time: " + array[0].toFixed(2));
-        span.appendChild(node);
-        let br = document.createElement("br");
-        span.appendChild(br);
-        node = document.createTextNode("Questions Answered: " + array[1]);
-        span.appendChild(node);
-        return span;
-      }
     }
     //
     //This function makes the layout of the spells
@@ -1136,6 +1175,17 @@ function overworld(player) {
       let spells = document.createElement("div");
       spells.className = "bookPage";
       spells.id = "spellsPage";
+      //
+      //Determines the function of the page turning butttons
+      if (player.spells.learned[0] >= 0) {
+        pageLeft = function() {
+          turnPageLeft(spells, spellDetailPage, player.spells.learned[0]);
+        }
+      } else {
+        pageLeft = function() {
+          turnPageLeft(spells, monstersPage);
+        }
+      }
       //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
@@ -1150,56 +1200,29 @@ function overworld(player) {
       //Makes the buttons to turn the pages
       let pageTurnButtons = turnPageButtons(spells);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
-      turnButton[0].onclick = function() {turnPageRight(spells, statusPage);}
-      if (player.spells.learned[0] >= 0) {
-        turnButton[1].onclick = function() {turnPageLeft(spells, spellDetailPage, player.spells.learned[0]);}
-      } else {
-        turnButton[1].onclick = function() {turnPageLeft(spells, monstersPage);}
-      }
+      pageRight = function() {turnPageRight(spells, statusPage);}
+      turnButton[0].onclick = pageRight;
+      turnButton[1].onclick = pageLeft;
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        if (e.keyCode === 37) {
-          document.onkeyup = "";
-          turnPageRight(spells, statusPage);
-        } else if (e.keyCode === 39) {
-          document.onkeyup = "";
-          if (player.spells.learned[0] >= 0) {
-            turnPageLeft(spells, spellDetailPage, player.spells.learned[0]);
-          } else {
-            turnPageLeft(spells, monstersPage);
-          }
-        }
+        checkKeys(e.keyCode, pageRight, pageLeft);
       }
-
-      if (player.name.charAt(player.name.length - 1) == "s") {
-        var text = document.createTextNode(player.name + "' Spells");
-      } else {
-        var text = document.createTextNode(player.name + "'s Spells");
-      }
-      var p = document.createElement("p");
-      var br = document.createElement("br");
-      var underline = document.createElement("u");
-      var strong = document.createElement("strong");
-      strong.appendChild(text);
-      underline.appendChild(strong);
-      p.appendChild(underline);
-      p.appendChild(br);
-      spells.appendChild(p);
+      //
+      //Inserts the title of the Spell Page
+      makePageTitle(player.possessive + " Spells", spells);
       //
       //Iterates through the spells the player has acquired
       //and places them in the spells object
       for (let index in player.spells.learned) {
-        span = document.createElement("span");
-        br = document.createElement("br");
-        text = document.createTextNode(spellBookContent[player.spells.learned[index]][0]);
+        let span = document.createElement("span");
         span.onclick = function() {
           turnPageLeft(spells, spellDetailPage, (index - 1));
         }
-        span.appendChild(text);
-        span.appendChild(br);
+        insertTextNode(span, spellBookContent[player.spells.learned[index]][0])
+        insertLineBreak(span);
         spells.appendChild(span);
         index++;
       }
@@ -1214,6 +1237,26 @@ function overworld(player) {
       spell.className = "bookPage";
       spell.id = "spellsDetailPage";
       //
+      //Determines the function of the page turning butttons
+      if (player.spells.learned.indexOf(index) === 0) {
+        pageRight = function() {
+          turnPageRight(spell, spellsPage);
+        }
+      } else {
+        pageRight = function() {
+          turnPageRight(spell, spellDetailPage, (index - 1));
+        }
+      }
+      if (index < (player.spells.learned.length - 1)) {
+        pageLeft = function() {
+          turnPageLeft(spell, spellDetailPage, (index + 1));
+        }
+      } else {
+        pageLeft = function() {
+          turnPageLeft(spell, monstersPage);
+        }
+      }
+      //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
       let quickButtons = makeQuickButtons(spell);
@@ -1227,41 +1270,19 @@ function overworld(player) {
       //Makes the buttons to turn the pages
       let pageTurnButtons = turnPageButtons(spell);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
-      if (player.spells.learned.indexOf(index) === 0) {
-        turnButton[0].onclick = function() {turnPageRight(spell, spellsPage);}
-      } else {
-        turnButton[0].onclick = function() {turnPageRight(spell, spellDetailPage, (index - 1));}
-      }
-      if (index < (player.spells.learned.length - 1)) {
-        turnButton[1].onclick = function() {turnPageLeft(spell, spellDetailPage, (index + 1));}
-      } else {
-        turnButton[1].onclick = function() {turnPageLeft(spell, monstersPage);}
-      }
+      turnButton[0].onclick = pageRight;
+      turnButton[1].onclick = pageLeft;
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        if (e.keyCode === 37 && turnPageEnabled) {
-          document.onkeyup = "";
-          if (player.spells.learned.indexOf(index) === 0) {
-            turnPageRight(spell, spellsPage);
-          } else {
-            turnPageRight(spell, spellDetailPage, (index - 1));
-          }
-        } else if (e.keyCode === 39 && turnPageEnabled) {
-          document.onkeyup = "";
-          if (index < (player.spells.learned.length - 1)) {
-            turnPageLeft(spell, spellDetailPage, (index + 1));
-          } else {
-            turnPageLeft(spell, monstersPage);
-          }
-        }
+        checkKeys(e.keyCode, pageRight, pageLeft);
       }
 
-      var spellDiv = document.createElement("div");
+      let spellDiv = document.createElement("div");
       spellDiv.id = "spellDetailDiv";
-      var spellImg = document.createElement("img");
+      let spellImg = document.createElement("img");
       spellImg.src = "./scrolls/" + spellBookContent[player.spells.learned[index]][1];
       spellImg.style.height = "330px";
       spellDiv.appendChild(spellImg);
@@ -1269,8 +1290,716 @@ function overworld(player) {
 
       return spell;
     }
+    //
+    //This function makes the main monster page
+    //of my monster book
+    function monstersPage() {
+      //
+      //Does the work of making and placing the HTML elements
+      //for the monster types onto the page
+      function showTypeInfo(destination, target, text, typeArray) {
+        let span = document.createElement("span");
+        insertTextNode(span, text);
+        if (typeof(typeArray[0]) === "object") {
+          span.onclick = function() {turnPageLeft(monsters, monsterBasePage, destination);}
+        } else {
+          span.onclick = "";
+        }
+        target.appendChild(span);
+        insertTextNode(target, ": " + typeArray.length);
+        insertLineBreak(target);
+      }
+
+      let monsters = document.createElement("div");
+      monsters.className = "bookPage";
+      monsters.id = "monsterPage";
+      //
+      //Determines the function of the page turning butttons
+      if (player.spells.learned[0] >= 0) {
+        pageRight = function() {
+          turnPageRight(monsters, spellDetailPage, (player.spells.learned.length - 1));
+        }
+      } else {
+        pageRight = function() {
+          turnPageRight(monsters,spellsPage);
+        }
+      }
+      if (typeof(player.stats.monsters.addition[0]) === "object") {
+        pageLeft = function() {
+          turnPageLeft(monsters, monsterBasePage, "+");
+        }
+      } else {
+        pageLeft = function() {
+          turnPageLeft(monsters, achievementsPage);
+        }
+      }
+      //
+      //Makes the Quick Buttons and makes sure they link
+      //to the right page
+      let quickButtons = makeQuickButtons(monsters);
+      let quickButton = quickButtons.getElementsByClassName("quickButtons");
+      quickButton[0].onclick = function() {turnPageRight(monsters, contentsPage);}
+      quickButton[1].onclick = function() {turnPageRight(monsters, statusPage);}
+      quickButton[2].onclick = function() {turnPageRight(monsters, spellsPage);}
+      quickButton[4].onclick = function() {turnPageLeft(monsters, achievementsPage);}
+      quickButton[3].parentNode.removeChild(quickButton[3]);
+      //
+      //Makes the buttons to turn the pages
+      let pageTurnButtons = turnPageButtons(monsters);
+      let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
+      turnButton[0].onclick = pageRight;
+      turnButton[1].onclick = pageLeft;
+      //
+      //Starts the event listener so the reader can navigate
+      //with the arrow keys
+      document.onkeyup = function(e) {
+        e = e || window.event;
+        checkKeys(e.keyCode, pageRight, pageLeft);
+      }
+      makePageTitle("Capitulum Prodigium", monsters, 1.5);
+      //
+      //Puts the number of monsters killed of each
+      //type onto the page
+      showTypeInfo("+", monsters, "Addition Monsters", player.stats.monsters.addition);
+      showTypeInfo("-", monsters, "Subtraction Monsters", player.stats.monsters.subtraction);
+      showTypeInfo("*", monsters, "Multiplication Monsters", player.stats.monsters.multiplication);
+      showTypeInfo("/", monsters, "Division Monsters", player.stats.monsters.division);
+
+      return monsters;
+    }
+    //
+    //This function makes the base page for each
+    //type of monster
+    //monsterClass is a string that determines which
+    //base page to create (+, -, *, /)
+    function monsterBasePage(monsterClass) {
+      //
+      //Sets the values to be usesd to display the monster names
+      //and to be passed to the Monster Detail Page
+      function setArrayValues(playerInfo, monsterInfo) {
+        monsterArray = playerInfo;
+        monsterFiles = monsterInfo.files;
+        monsterNames = monsterInfo.names;
+      }
+      //
+      //Inserts a <td> into my table of monster names
+      //target is the DOM element into which the DOM
+      //element is inserted
+      //index is the index of the monster to display
+      //in the array of monsters the player has defeated
+      function insertTableCell(target, index) {
+        let td = document.createElement("td");
+        insertTextNode(td, (monsterArray[index][0] + 1) + ". " + monsterNames[monsterArray[index][0]]);
+        td.onclick = function() {turnPageLeft(monsterList, monsterDetailPage, [monsterClass, monsterArray[index][0]]);}
+        target.appendChild(td);
+      }
+
+      let monsterList = document.createElement("div");
+      monsterList.className = "bookPage";
+      monsterList.id = "monsterListPage";
+
+      let monsterArray = null;
+      let monsterFiles = null;
+      let monsterNames = null;
+      let last = null;
+      //
+      //Makes the Quick Buttons and makes sure they link
+      //to the right page
+      let quickButtons = makeQuickButtons(monsterList);
+      let quickButton = quickButtons.getElementsByClassName("quickButtons");
+      quickButton[0].onclick = function() {turnPageRight(monsterList, contentsPage);}
+      quickButton[1].onclick = function() {turnPageRight(monsterList, statusPage);}
+      quickButton[2].onclick = function() {turnPageRight(monsterList, spellsPage);}
+      quickButton[3].onclick = function() {turnPageRight(monsterList, monstersPage);}
+      quickButton[4].onclick = function() {turnPageLeft(monsterList, achievementsPage);}
+
+      let pageTurnButtons = turnPageButtons(monsterList);
+      let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
+      //
+      //This sets up the book page based on the value
+      //of the monsterClass parameter
+      switch (monsterClass) {
+        case "+":
+          setArrayValues(player.stats.monsters.addition, monsterData.addition);
+          makePageTitle("Addition Monsters", monsterList)
+          pageRight = function() {turnPageRight(monsterList, monstersPage);}
+          pageLeft = function() {
+            turnPageLeft(monsterList, monsterDetailPage, ["+", player.stats.monsters.addition[0][0]]);
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick = pageLeft;
+
+          document.onkeyup = function(e) {
+            e = e || window.event;
+            checkKeys(e.keyCode, pageRight, pageLeft);
+          }
+          break;
+        case "-":
+          setArrayValues(player.stats.monsters.subtraction, monsterData.subtraction);
+          makePageTitle("Subtraction Monsters", monsterList)
+          last = (player.stats.monsters.addition.length - 1);
+          pageRight = function() {
+            turnPageRight(monsterList, monsterDetailPage, ["+", player.stats.monsters.addition[last][0]]);
+          }
+          pageLeft = function() {
+            turnPageLeft(monsterList, monsterDetailPage, ["-", player.stats.monsters.subtraction[0][0]]);
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick = pageLeft;
+
+          document.onkeyup = function(e) {
+            e = e || window.event;
+            checkKeys(e.keyCode, pageRight, pageLeft);
+          }
+          break;
+        case "*":
+          setArrayValues(player.stats.monsters.multiplication, monsterData.multiplication);
+          makePageTitle("Multiplication Monsters", monsterList)
+          last = (player.stats.monsters.subtraction.length - 1);
+          pageRight = function() {
+            turnPageRight(monsterList, monsterDetailPage, ["-", player.stats.monsters.subtraction[last][0]]);
+          }
+          pageLeft = function() {
+            turnPageLeft(monsterList, monsterDetailPage, ["*", player.stats.monsters.multiplication[0][0]]);
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick = pageLeft;
+
+          document.onkeyup = function(e) {
+            e = e || window.event;
+            checkKeys(e.keyCode, pageRight, pageLeft);
+          }
+          break;
+        case "/":
+          setArrayValues(player.stats.monsters.division, monsterData.division);
+          makePageTitle("Division Monsters", monsterList)
+          last = (player.stats.monsters.multiplication.length - 1);
+          pageRight = function() {
+            turnPageRight(monsterList, monsterDetailPage, ["*", player.stats.monsters.multiplication[last][0]]);
+          }
+          pageLeft = function() {
+            turnPageLeft(monsterList, monsterDetailPage, ["/", player.stats.monsters.division[0][0]]);
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick = pageLeft;
+
+          document.onkeyup = function(e) {
+            e = e || window.event;
+            checkKeys(e.keyCode, pageRight, pageLeft);
+          }
+          break;
+      }
+      //
+      //Makes the table that displays the names of the
+      //monsters the player has defeated
+      let table = document.createElement("table");
+      table.id = "monsterListTable";
+      for (let i = 0; i < monsterArray.length; i += 3) {
+        let tr = document.createElement("tr");
+        insertTableCell(tr, i);
+        if (typeof(monsterArray[i + 1]) === "object") {
+          insertTableCell(tr, i + 1);
+        }
+        if (typeof(monsterArray[i + 2]) === "object") {
+          insertTableCell(tr, i + 2);
+        }
+        table.appendChild(tr);
+      }
+
+      monsterList.appendChild(table);
+
+      return monsterList;
+    }
+    //
+    //This function makes the individual monster pages
+    //in the monster book
+    //currentMonster is an array.
+    //currentMonster[0] is a string that tells the function
+    //which class the monster is (+, -, *, /)
+    //currentMonster[1] is the index of the monster in the
+    //...Monsters/...MonsterNames arrays
+    function monsterDetailPage(currentMonster) {
+      //
+      //Sets the values to be usesd to display the monster names
+      //and to be passed to the Monster Detail Page
+      function setArrayValues(playerInfo, monsterInfo) {
+        monsterArray = playerInfo;
+        monsterFiles = monsterInfo.files;
+        monsterNames = monsterInfo.names;
+        imgSrcString = monsterInfo.path;
+        currentIndex = findMonster(monsterArray, currentMonster[1]);
+      }
+
+      let monsterArray = null;
+      let monsterFiles = null;
+      let monsterNames = null;
+      let imgSrcString = null;
+      let currentIndex = null;
+
+      let monsterDetail = document.createElement("div");
+      monsterDetail.className = "bookPage";
+      monsterDetail.id = "monsterDetailPage";
+      //
+      //Makes the Quick Buttons and makes sure they link
+      //to the right page
+      let quickButtons = makeQuickButtons(monsterDetail);
+      let quickButton = quickButtons.getElementsByClassName("quickButtons");
+      quickButton[0].onclick = function() {turnPageRight(monsterDetail, contentsPage);}
+      quickButton[1].onclick = function() {turnPageRight(monsterDetail, statusPage);}
+      quickButton[2].onclick = function() {turnPageRight(monsterDetail, spellsPage);}
+      quickButton[3].onclick = function() {turnPageRight(monsterDetail, monstersPage);}
+      quickButton[4].onclick = function() {turnPageLeft(monsterDetail, achievementsPage);}
+
+      let pageTurnButtons = turnPageButtons(monsterDetail);
+      let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
+
+      switch (currentMonster[0]) {
+        case "+":
+          setArrayValues(player.stats.monsters.addition, monsterData.addition);
+          if (currentIndex === 0) {
+            pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "+");}
+          } else {
+            let next = (findMonster(monsterArray, currentMonster[1]) - 1);
+            pageRight = function() {
+              turnPageRight(monsterDetail, monsterDetailPage, ["+", monsterArray[next][0]]);
+            }
+          }
+          if ((currentIndex) < (monsterArray.length - 1)) {
+            let next = (findMonster(monsterArray, currentMonster[1]) + 1);
+            pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["+", monsterArray[next][0]]);}
+          } else {
+            if ((player.stats.monsters.subtraction[0] + 1)) {
+              pageLeft = function() {turnPageLeft(monsterDetail, monsterBasePage, "-");}
+            } else {
+              pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
+            }
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick = pageLeft;
+          break;
+        case "-":
+          setArrayValues(player.stats.monsters.subtraction, monsterData.subtraction);
+          if (currentIndex === 0) {
+            pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "-");}
+          } else {
+            let next = (findMonster(monsterArray, currentMonster[1]) - 1);
+            pageRight = function() {turnPageRight(monsterDetail, monsterDetailPage, ["-", monsterArray[next][0]]);}
+          }
+          if ((currentIndex) < (monsterArray.length - 1)) {
+            let next = (findMonster(monsterArray, currentMonster[1]) + 1);
+            pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["-", monsterArray[next][0]]);}
+          } else {
+            if ((player.stats.monsters.multiplication[0] + 1)) {
+              pageLeft = function() {turnPageLeft(monsterDetail, monsterBasePage, "*");}
+            } else {
+              pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
+            }
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick = pageLeft;
+          break;
+        case "*":
+          setArrayValues(player.stats.monsters.multiplication, monsterData.multiplication);
+          if (currentIndex === 0) {
+            pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "*");}
+          } else {
+            let next = (findMonster(monsterArray, currentMonster[1]) - 1);
+            pageRight = function() {turnPageRight(monsterDetail, monsterDetailPage, ["*", monsterArray[next][0]]);}
+          }
+          if ((currentIndex) < (monsterArray.length - 1)) {
+            let next = (findMonster(monsterArray, currentMonster[1]) + 1);
+            pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["*", monsterArray[next][0]]);}
+          } else {
+            if ((player.stats.monsters.division[0] + 1)) {
+              pageLeft = function() {turnPageLeft(monsterDetail, monsterBasePage, "/");}
+            } else {
+              pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
+            }
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick= pageLeft;
+          break;
+        case "/":
+          setArrayValues(player.stats.monsters.division, monsterData.division);
+          if (currentIndex === 0) {
+            pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "/");}
+          } else {
+            let next = (findMonster(monsterArray, currentMonster[1]) - 1);
+            pageRight = function() {turnPageRight(monsterDetail, monsterDetailPage, ["/", monsterArray[next][0]]);}
+          }
+          if ((currentIndex) < (monsterArray.length - 1)) {
+            let next = (findMonster(monsterArray, currentMonster[1]) + 1);
+            pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["/", monsterArray[next][0]]);}
+          } else {
+            pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
+          }
+          turnButton[0].onclick = pageRight;
+          turnButton[1].onclick = pageLeft;
+          break;
+      }
+      //
+      //Starts the event listener so the reader can navigate
+      //with the arrow keys
+      document.onkeyup = function(e) {
+        e = e || window.event;
+        checkKeys(e.keyCode, pageRight, pageLeft);
+      }
+
+      makePageTitle((currentMonster[1] + 1) + ". " + monsterNames[currentMonster[1]], monsterDetail);
+      //
+      //Number of monsters killed
+      p = document.createElement("p");
+      insertTextNode(p, "Number Killed: " + monsterArray[currentIndex][1]);
+      monsterDetail.appendChild(p);
+      //
+      //Level of monster
+      p = document.createElement("p");
+      if (currentMonster[1] < 30) {
+        var monsterLevel = Math.ceil((currentMonster[1] + 1) / 3);
+        insertTextNode(p, "Level " + monsterLevel);
+      } else {
+        var monsterLevel = ((currentMonster[1] % 30) * 2) + 2;
+        insertTextNode(p, "Level " + monsterLevel + " Boss");
+      }
+      monsterDetail.appendChild(p);
+      //
+      //Hit points of monster
+      //Only visible after 5 or more have been killed
+      if (monsterArray[currentIndex][1] > 4) {
+        p = document.createElement("p");
+        if (currentMonster[1] < 30) {
+          insertTextNode(p, "Hit Points: " + Number(monsterLevel + 1));
+        } else {
+          insertTextNode(p, "Hit Points: " + ((monsterLevel * 2) + (monsterLevel / 2) + 5));
+        }
+        monsterDetail.appendChild(p);
+      }
+      //
+      //Damage monster inflicts
+      //Only visible after 10 or more have been killed
+      if (monsterArray[currentIndex][1] > 9) {
+        p = document.createElement("p");
+        insertTextNode(p, "Damage: " + Math.ceil((currentMonster[1] + 1) / 9));
+        monsterDetail.appendChild(p);
+      }
+      //
+      //Range of problem difficulty for monster
+      //Only visible after 20 or more have been killed
+      if (monsterArray[currentIndex][1] > 19) {
+        switch (currentMonster[0]) {
+          case "+":
+            var floor1 = 0;
+            var floor2 = 0;
+            var ceiling1 = monsterLevel * 10;
+            var ceiling2 = ceiling1;
+            var operation = "+";
+            break;
+          case "-":
+            var floor1 = 1;
+            var floor2 = 0;
+            var ceiling1 = monsterLevel * 10;
+            var ceiling2 = ceiling1;
+            var operation = "-";
+            break;
+          case "*":
+            var floor1 = 1;
+            var floor2 = 0;
+            var ceiling1 = monsterLevel + 5;
+            var ceiling2 = ((monsterLevel + 5) - ((((monsterLevel % 2) + monsterLevel) / 2) - 1));
+            var operation = "*";
+            break;
+          case "/":
+            var floor1 = 1;
+            var floor2 = 1;
+            var ceiling1 = 5 * ((monsterLevel + 5) - ((((monsterLevel % 2) + monsterLevel) / 2) - 1));
+            var ceiling2 = monsterLevel + 5;
+            var operation = "/";
+            break;
+        }
+
+        p = document.createElement("p");
+        insertTextNode(p, "Attack: (" + floor1 + " - " + ceiling1 + ") " + operation + " (" + floor2 +
+                          " - " + ceiling2 + ")");
+        monsterDetail.appendChild(p);
+      }
+
+      let monsterDetailDiv = document.createElement("div");
+      monsterDetailDiv.id = "monsterDetailDiv";
+      if (monsterArray[currentIndex][1] < 5) {
+        monsterDetailDiv.style.border = "3px solid black";
+      } else if (monsterArray[currentIndex][1] < 10) {
+        monsterDetailDiv.style.border = "3px solid #cd7f32";
+      } else if (monsterArray[currentIndex][1] < 20) {
+        monsterDetailDiv.style.border = "3px solid #c0c0c0";
+      } else {
+        monsterDetailDiv.style.border = "3px solid #d4af37";
+      }
+      let monsterDetailImg = document.createElement("img");
+      monsterDetailImg.id = "monsterImg";
+      monsterDetailImg.src = imgSrcString + monsterFiles[currentMonster[1]];
+      monsterDetailDiv.appendChild(monsterDetailImg);
+      monsterDetail.appendChild(monsterDetailDiv);
+
+      return monsterDetail;
+    }
+    //
+    //This function makes the achievements page
+    function achievementsPage() {
+      //
+      //This determines whether an achievement is triggered
+      //target is the element that contains the image
+      //value is the value that will trigger the achievement
+      //threshold are the specific values that trigger
+      //the achievement
+      //text is the text that will appear when the player
+      //hovers over the achievement image
+      //colors are the three background colors that correspond
+      //to the different levels of the achievement
+      function setAchievement(target, value, threshold, text, colors = ["#cd7f32", "#c0c0c0", "#d4af37"]) {
+        if (value >= threshold[0]) {
+          target.lastChild.style.filter = "opacity(100%)";
+          target.lastChild.title = value + " " + text;
+          if (value >= threshold[2]) {
+            target.firstChild.style.backgroundColor = colors[2];
+          } else if (value >= threshold[1]) {
+            target.firstChild.style.backgroundColor = colors[1];
+          } else {
+            target.firstChild.style.backgroundColor = colors[0];
+          }
+        } else {
+          target.firstChild.style.filter = "opacity(30%)";
+        }
+      }
+      //
+      //Determines whether a dungeon achievement is triggered
+      //target is the element that contains the image
+      //monsters holds the value to check for the gold level
+      //level holds the value to check for the silver level
+      //dungeon holds a string indicating the dungeon
+      function setDungeonAchievement(target, monsters, level, dungeon) {
+        if (monsters.length === 35) {
+          target.lastChild.style.filter = "opacity(100%)";
+          target.lastChild.title = "Defeated one of every monster in the " + dungeon + " Catacomb.";
+          target.firstChild.style.backgroundColor = "#d4af37";
+        } else if (level > 10) {
+          target.firstChild.style.backgroundColor = "#c0c0c0";
+          target.lastChild.title = "Completed the " + dungeon + " Catacomb."
+        } else if (level > 0) {
+          target.firstChild.style.backgroundColor = "#cd7f32";
+          target.lastChild.title = "Unlocked the " + dungeon + " Catacomb."
+        } else {
+          target.lastChild.style.filter = "opacity(30%)";
+        }
+      }
+      //
+      //This does a lot of the boring work to make
+      //an image for the achievement table
+      //imgSource is the file name for the image
+      //returns a <td> element to put in a <tr>
+      function makeAchievementElement(imgSource) {
+        let tr = document.createElement("tr");
+        let td = document.createElement("td");
+        let img = document.createElement("img");
+        let div = document.createElement("div");
+        div.style.borderRadius = "5px";
+        img.src = "./icons/" + imgSource;
+        img.className = "achievementImg";
+        div.appendChild(img);
+        td.appendChild(div);
+        return td;
+      }
+      //
+      //Used to get the sum of all elements in an array
+      function getSum(total, num) {
+        return total + num;
+      }
+
+      let achievementPage = document.createElement("div");
+      achievementPage.className = "bookPage";
+      achievementPage.id = "achievementPage";
+      //
+      //Makes the Quick Buttons and makes sure they link
+      //to the right page
+      let quickButtons = makeQuickButtons(achievementPage);
+      let quickButton = quickButtons.getElementsByClassName("quickButtons");
+      quickButton[0].onclick = function() {turnPageRight(achievementPage, contentsPage);}
+      quickButton[1].onclick = function() {turnPageRight(achievementPage, statusPage);}
+      quickButton[2].onclick = function() {turnPageRight(achievementPage, spellsPage);}
+      quickButton[3].onclick = function() {turnPageRight(achievementPage, monstersPage);}
+      quickButton[4].parentNode.removeChild(quickButton[4]);
+      //
+      //Makes the buttons to turn the pages
+      let pageTurnButtons = turnPageButtons(achievementPage);
+      let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
+      if (Array.isArray(player.stats.monsters.division[0])) {
+        let index = player.stats.monsters.division.length - 1;
+        pageRight = function() {
+          turnPageRight(achievementPage, monsterDetailPage, ["/", player.stats.monsters.division[index][0]]);
+        }
+      } else if (Array.isArray(player.stats.monsters.multiplication[0])) {
+        let index = player.stats.monsters.multiplication.length - 1;
+        pageRight = function() {
+          turnPageRight(achievementPage, monsterDetailPage, ["*", player.stats.monsters.multiplication[index][0]]);
+        }
+      } else if (Array.isArray(player.stats.monsters.subtraction[0])) {
+        let index = player.stats.monsters.subtraction.length - 1;
+        pageRight = function() {
+          turnPageRight(achievementPage, monsterDetailPage, ["-", player.stats.monsters.subtraction[index][0]]);
+        }
+      } else if (Array.isArray(player.stats.monsters.addition[0])) {
+        let index = player.stats.monsters.addition.length - 1;
+        pageRight = function() {
+          turnPageRight(achievementPage, monsterDetailPage, ["+", player.stats.monsters.addition[index][0]]);
+        }
+      } else {
+        pageRight = function() {turnPageRight(achievementPage, monstersPage);}
+      }
+      turnButton[0].onclick = pageRight;
+      turnButton[1].parentNode.removeChild(turnButton[1]);
+
+      document.onkeyup = function(e) {
+        e = e || window.event;
+        if (e.keyCode === 37) {
+          document.onkeyup = "";
+          pageRight();
+        }
+      }
+
+      makePageTitle(player.possessive + " Achievements", achievementPage);
+
+      let table = document.createElement("table");
+      table.id = "achievementTable"
+      let tr = document.createElement("tr");
+
+      //
+      //This controls the achievement for total number of
+      //monsters killed
+      let td = makeAchievementElement("graveyard.png");
+      setAchievement(td, player.stats.monsters.killed, [100, 200, 500], "monsters killed.");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for total questions
+      //answered in less than 1 second
+      td = makeAchievementElement("sprint.png");
+      if (player.stats.flash === 1) {
+        var flashText = "question answered in less than 1 second.";
+      } else {
+        var flashText = "questions answered in less than 1 second.";
+      }
+      setAchievement(td, player.stats.flash, [1, 10, 50], flashText);
+      tr.appendChild(td);
+      //
+      //This controls the achievement for total number of
+      //questions answered with less than 1 second remaining
+      td = makeAchievementElement("stopwatch.png");
+      if (player.stats.lastSecond === 1) {
+        var slowText = "question answered with less than 1 second remaining.";
+      } else {
+        var slowText = "questions answered with less than 1 second remaining.";
+      }
+      setAchievement(td, player.stats.lastSecond, [1, 10, 50], slowText);
+      tr.appendChild(td);
+      //
+      //This controls the achievement for total number of
+      //answers equal to 42
+      td = makeAchievementElement("dolphin.png");
+      if (player.stats.fortyTwo === 1) {
+        var dolphinText = "answer equal to 42.";
+      } else {
+        var dolphinText = "answers equal to 42.";
+      }
+      setAchievement(td, player.stats.fortyTwo, [1, 21, 42], dolphinText);
+      tr.appendChild(td);
+      //
+      //This controls the achievement for total number of
+      //answers equal to a prime number
+      td = makeAchievementElement("prime.png");
+      if (player.stats.primes === 1) {
+        var primeText = "answer equal to a prime number.";
+      } else {
+        var primeText = "answers equal to a prime number.";
+      }
+      setAchievement(td, player.stats.primes, [1, 20, 100], primeText);
+      tr.appendChild(td);
+      table.appendChild(tr);
+
+      tr = document.createElement("tr");
+      //
+      //This controls the achievement that tracks the
+      //total amount of damage done to enemies
+      td = makeAchievementElement("bleeding-wound.png");
+      let bloodPalette = ["#ff9393", "#ff5656", "#b70000"];
+      setAchievement(td, player.stats.damage.dealt, [200, 1000, 1500], "damage inflicted on monsters.", bloodPalette);
+      tr.appendChild(td);
+      //
+      //This controls the achievement for tracking how
+      //much damage the player has received
+      td = makeAchievementElement("heart-minus.png");
+      setAchievement(td, player.stats.damage.received, [10, 20, 50], "damage inflicted on " + player.name + ".");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for tracking how
+      //much health the player has recovered
+      td = makeAchievementElement("medical-pack.png");
+      setAchievement(td, player.stats.damage.healed, [10, 20, 50], "health recovered.");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for how much damage
+      //the player has inflicted with spells
+      td = makeAchievementElement("fire-ray.png");
+      let attackSpells = (player.spells.cast[3] + player.spells.cast[9]);
+      setAchievement(td, attackSpells, [5, 10, 25], "attack spells cast.");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for how many times the
+      //player has used the fibonacci magic
+      td = makeAchievementElement("help.png");
+      let hintSpells = (player.spells.cast[0] + player.spells.cast[1] + player.spells.cast[2] + player.spells.cast[10] + player.spells.cast[11]);
+      setAchievement(td, hintSpells, [5, 10, 25], "Fibonacci spells cast.");
+      tr.appendChild(td);
+      table.appendChild(tr);
+
+      tr = document.createElement("tr");
+      //
+      //This controls the achievement for how many spells
+      //the player has cast*/
+      td = makeAchievementElement("spell-book.png");
+      let totalSpellsCast = player.spells.cast.reduce(getSum);
+      setAchievement(td, totalSpellsCast, [10, 50, 100], "spells cast.");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for the players progress
+      //through the addition dungeon
+      td = makeAchievementElement("laurels-plus.png");
+      setDungeonAchievement(td, player.stats.monsters.addition, player.level.addition, "Addition");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for the players progress
+      //through the subtraction dungeon
+      td = makeAchievementElement("laurels-minus.png");
+      setDungeonAchievement(td, player.stats.monsters.subtraction, player.level.subtraction, "Subtraction");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for the players progress
+      //through the multiplication dungeon
+      td = makeAchievementElement("laurels-times.png");
+      setDungeonAchievement(td, player.stats.monsters.multiplication, player.level.multiplication, "Multiplication");
+      tr.appendChild(td);
+      //
+      //This controls the achievement for the players progress
+      //through the division dungeon
+      td = makeAchievementElement("laurels-divide.png");
+      setDungeonAchievement(td, player.stats.monsters.division, player.level.division, "Division");
+      tr.appendChild(td);
+
+      table.appendChild(tr);
+
+      achievementPage.appendChild(table);
+
+      return achievementPage;
 
 
+    }
 
 
     playArea.style.filter = "brightness(0%)";

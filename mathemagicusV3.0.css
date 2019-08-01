@@ -414,12 +414,6 @@ on the townIntro() screen*/
 .overworldMenuImg:hover {
   filter: brightness(140%);
 }
-
-
-
-#dungeonTable img:focus {
-  filter: brightness(140%);
-}
 /*
 This controls the position of the button returns
 the player to the overworld menu*/
@@ -496,6 +490,7 @@ monster book*/
 .quickButtons:hover {
   background-color: rgba(255,255,255,0.125);
 }
+
 /*
 Sets the background of the cover of the monster book*/
 #titlePage {
@@ -514,6 +509,8 @@ Styles the title of the monster book*/
                -2px 0px black,
                0px -2px black;
 }
+
+
 /*
 These three selectors handle the styling of
 the table of contents*/
