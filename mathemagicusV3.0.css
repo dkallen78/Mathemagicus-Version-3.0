@@ -1,3 +1,7 @@
+/*-------------------------------------------------------------
+/ Play Area Styles                                            /
+/------------------------------------------------------------*/
+
 /*
 Styles the play area where the game takes place*/
 #playArea {
@@ -104,6 +108,23 @@ the playArea for a flashing visual effect I have*/
   z-index: 2;
   background-color: rgba(141, 0, 249, 0.5);
 }
+
+.buttonHover {
+  transition: all 500ms;
+}
+
+.buttonHover:hover {
+  background-color: #777777;
+}
+
+/*-------------------------------------------------------------
+/ Game Intro Styles                                           /
+/------------------------------------------------------------*/
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - New Game Page                           /
+/------------------------------------------------------------*/
+
 /*
 Styles the Mathemagicus title on the initial screen*/
 #titleDiv {
@@ -182,6 +203,11 @@ Styles the text input for the player's name*/
   width: 200px;
   height: 40px;
 }
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - Character Select Page                   /
+/------------------------------------------------------------*/
+
 /*
 Styles the <div> that my NPC cameo image is in*/
 #tellah {
@@ -299,6 +325,11 @@ selection screen*/
   margin: auto;
   z-index: 1;
 }
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - Story Introduction Page                 /
+/------------------------------------------------------------*/
+
 /*
 This handles the animation for my blinking "next" button*/
 @keyframes nextButtonBlink {
@@ -345,6 +376,14 @@ on the townIntro() screen*/
 #skipButton:hover {
   background-color: #777777;
 }
+
+/*-------------------------------------------------------------
+/ Overworld Styles                                            /
+/------------------------------------------------------------*/
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Overworld Menu                           /
+/------------------------------------------------------------*/
 
 #overworldMenuText {
   margin-top: 20px;
@@ -408,16 +447,86 @@ on the townIntro() screen*/
   right: 0;
   margin: auto;
   z-index: 1;
+}
+
+.overworldMenuHover {
   transition: filter 500ms;
 }
 
-.overworldMenuImg:hover {
+.overworldMenuHover:hover {
   filter: brightness(140%);
 }
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Overworld Menu - Dungeon Level Menu      /
+/------------------------------------------------------------*/
+
+#dungeonSelectDiv {
+  position: relative;
+  left: 25%;
+  margin-top: 25px;
+  transition: filter 1000ms;
+}
+
+.dungeonSelectButton {
+  display: flex;
+  margin: 0 auto;
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
+  background-color: #999999;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+.dungeonSelectBlink {
+  display: flex;
+  margin: 0 auto;
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
+  background-color: #999999;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+@keyframes dungeonSelectBlink {
+  from {background-color: #999999;}
+  to {background-color: #bbbbbb;}
+}
+
+.dungeonSelectBlink:hover, .dungeonSelectBlink:focus {
+  animation-name: dungeonSelectBlink;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+}
+
+#menuReturnButton {
+  position: absolute;
+  margin-left: 8.5%;
+  margin-top: 5.5%;
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
+  background-color: #999999;
+  border: 2px solid black;
+  border-radius: 5px;
+  z-index: 2;
+  transition: all 500ms;
+}
+
+#menuReturnButton:hover {
+  background-color: #bbbbbb;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus                       /
+/------------------------------------------------------------*/
+
 /*
 This controls the position of the button returns
 the player to the overworld menu*/
-#returnButton {
+#bookReturnButton {
   display: table;
   margin: 0 auto;
   margin-top: 5px;
@@ -430,14 +539,13 @@ the player to the overworld menu*/
   border-radius: 5px;
 }
 
-@keyframes returnButtonBlink {
+@keyframes bookReturnButtonBlink {
   from {background-color: #999999;}
   to {background-color: #bbbbbb;}
 }
 
-#returnButton:hover, #returnButton:focus {
-  /*background-color: #bbbbbb;*/
-  animation-name: returnButtonBlink;
+#bookReturnButton:hover, #bookReturnButton:focus {
+  animation-name: bookReturnButtonBlink;
   animation-duration: 500ms;
   animation-iteration-count: infinite;
 }
@@ -492,6 +600,45 @@ monster book*/
 }
 
 /*
+These feve selectors control how the page turning
+buttons are displayed and styled in the monster book*/
+#pageTurnButtons {
+  position: absolute;
+  bottom: 30px;
+}
+
+#leftPageButton, #rightPageButton {
+  position: absolute;
+  background-color: rgba(255,255,255,0.25);
+  border-radius: 5px;
+  border: 1px solid black;
+  font-family: monospace;
+  transition: border 500ms, background-color 500ms;
+}
+
+#leftPageButton {
+  left: 10px;
+}
+
+#rightPageButton {
+  left: 385px;
+}
+
+#leftPageButton:hover, #rightPageButton:hover {
+  border: 1px solid white;
+  background-color: rgba(125,125,125,0.125);
+}
+
+#leftPageButton:focus, #rightPageButton:focus {
+  border: 1px solid white;
+  background-color: rgba(125,125,125,0.125);
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Title Page          /
+/------------------------------------------------------------*/
+
+/*
 Sets the background of the cover of the monster book*/
 #titlePage {
   background-image: url(./book/bookCover.gif);
@@ -510,6 +657,9 @@ Styles the title of the monster book*/
                0px -2px black;
 }
 
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Table of Contents   /
+/------------------------------------------------------------*/
 
 /*
 These three selectors handle the styling of
@@ -534,6 +684,11 @@ the table of contents*/
   background-color: rgba(255,255,255,0.25);
   cursor: default;
 }
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Status Page         /
+/------------------------------------------------------------*/
+
 /*
 These two selectors control the positioning and
 size of the player cameo on the status page of
@@ -594,6 +749,11 @@ look of the save game button*/
   border: 1px solid white;
   background-color: rgba(255,255,255,0.125);
 }
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Spells Page         /
+/------------------------------------------------------------*/
+
 /*
 These four selectors control the appearance and
 behavior of the elements on the spell page of
@@ -619,40 +779,11 @@ the monster book*/
   background-color: rgba(255,255,255,0.25);
   cursor: default;
 }
-/*
-These feve selectors control how the page turning
-buttons are displayed and styled in the monster book*/
-#pageTurnButtons {
-  position: absolute;
-  bottom: 30px;
-}
 
-#leftPageButton, #rightPageButton {
-  position: absolute;
-  background-color: rgba(255,255,255,0.25);
-  border-radius: 5px;
-  border: 1px solid black;
-  font-family: monospace;
-  transition: border 500ms, background-color 500ms;
-}
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Monsters Page       /
+/------------------------------------------------------------*/
 
-#leftPageButton {
-  left: 10px;
-}
-
-#rightPageButton {
-  left: 385px;
-}
-
-#leftPageButton:hover, #rightPageButton:hover {
-  border: 1px solid white;
-  background-color: rgba(125,125,125,0.125);
-}
-
-#leftPageButton:focus, #rightPageButton:focus {
-  border: 1px solid white;
-  background-color: rgba(125,125,125,0.125);
-}
 /*
 The next four selectors control the style and display
 of the elements on the base monster page of the
@@ -680,6 +811,11 @@ monster book*/
   background-color: rgba(255,255,255,0.25);
   cursor: default;
 }
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Monster List Page   /
+/------------------------------------------------------------*/
+
 /*
 These four selectors control the behavior and display of
 the table on the monster list pages of the monster book*/
@@ -704,6 +840,11 @@ the table on the monster list pages of the monster book*/
   background-color: rgba(255,255,255,0.25);
   cursor: default;
 }
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Monster Detail Page /
+/------------------------------------------------------------*/
+
 /*
 These two elements control the appearance of the
 elements on the monster detail pages of the
@@ -728,6 +869,11 @@ monster book*/
   border-radius: 5px;
 }
 
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Achievements Page   /
+/------------------------------------------------------------*/
+
+
 #achievementTable {
   margin: auto;
   margin-top: 10px;
@@ -739,6 +885,11 @@ monster book*/
   border: 3px solid white;
   border-radius: 5px;
 }
+
+/*-------------------------------------------------------------
+/ Underworld Styles                                           /
+/------------------------------------------------------------*/
+
 /*
 This styles the box that tells the player what level of the dungeon they're on*/
 #levelDiv {

@@ -126,15 +126,28 @@ function typer(text, target, callback, i = 0) {
   }
 }
 //
+//Returns a button element
+//value is the text that appears on the button
+//callback is what it does when clicked
+//id is the button ID
+//className is the button class
+function makeButton(callback, value, id = "", className = 0) {
+  const button = document.createElement("input");
+  button.type = "button";
+  button.value = value;
+  button.onclick = callback;
+  button.id = id;
+  if (className) {
+    button.classList.add(className);
+  }
+  return button;
+}
+//
 //Puts a button that says "next" onto the screen
 //target is the element the button will be appended to
 //nextFunction is the the function called when it's clicked
 function makeNextButton(target, nextFunction) {
-  const nextButton = document.createElement("input");
-  nextButton.type = "button";
-  nextButton.value = "Next";
-  nextButton.id = "nextButton";
-  nextButton.onclick = nextFunction;
+  const nextButton = makeButton(nextFunction, "Next", "nextButton");
   target.appendChild(nextButton);
   setTimeout(function() {
     nextButton.focus();
@@ -147,6 +160,14 @@ function makeNextButton(target, nextFunction) {
 //callback is the function that is run when the menu
 //item is selected
 function menuMaker(selector, imgData, callback) {
+  //
+  //Turns off all the event listeners before
+  //leaving the menu
+  function clickFunction() {
+    menuImgMiddle.onclick = "";
+    document.onkeyup = "";
+    callback(imgData);
+  }
   //
   //This visually shifts the menu to the
   //left. It's triggered by the RIGHT arrow
@@ -170,16 +191,14 @@ function menuMaker(selector, imgData, callback) {
     menuDivRight.id = selector.menuDiv.idMiddle;
     menuDivMiddle = menuDivRight;
     menuImgMiddle = menuImgRight;
-    menuImgMiddle.onclick = function() {
-      callback(imgData);
-    };
+    menuImgMiddle.onclick = clickFunction;
     //
     //This makes a new right <div> to replace the one that
     //was shifted to the middle
     menuDivRight = document.createElement("div");
     menuDivRight.id = selector.menuDiv.idRight;
     menuImgRight = document.createElement("img");
-    menuImgRight.className = selector.imgClass;
+    menuImgRight.classList.add(selector.imgClass, selector.hoverClass);
     menuImgRight.src = imgData.path + imgData.sprites[(imgData.index + 1) % imgData.sprites.length][0];
     menuDivRight.appendChild(menuImgRight);
     target.insertBefore(menuDivRight, rightButton);
@@ -207,16 +226,14 @@ function menuMaker(selector, imgData, callback) {
     menuDivLeft.id = selector.menuDiv.idMiddle;
     menuDivMiddle = menuDivLeft;
     menuImgMiddle = menuImgLeft;
-    menuImgMiddle.onclick = function() {
-      callback(imgData);
-    };
+    menuImgMiddle.onclick = clickFunction;
     //
     //This makes a new left <div> to replace the one that
     //was shifted to the middle
     menuDivLeft = document.createElement("div");
     menuDivLeft.id = selector.menuDiv.idLeft;
     menuImgLeft = document.createElement("img");
-    menuImgLeft.className = selector.imgClass;
+    menuImgLeft.classList.add(selector.imgClass, selector.hoverClass);
     menuImgLeft.src = imgData.path +
       imgData.sprites[(imgData.index + (imgData.sprites.length - 1)) % imgData.sprites.length][0];
     menuDivLeft.appendChild(menuImgLeft);
@@ -229,7 +246,7 @@ function menuMaker(selector, imgData, callback) {
     key = key || window.event;
     switch (key) {
       case 13:
-        callback(imgData);
+        clickFunction();
         break;
       case 37:
         shiftRight();
@@ -261,7 +278,7 @@ function menuMaker(selector, imgData, callback) {
   let menuDivLeft = document.createElement("div");
   menuDivLeft.id = selector.menuDiv.idLeft;
   let menuImgLeft = document.createElement("img");
-  menuImgLeft.className = selector.imgClass;
+  menuImgLeft.classList.add(selector.imgClass, selector.hoverClass);
   menuImgLeft.src = imgData.path + imgData.sprites[imgData.sprites.length - 1][0];
   menuDivLeft.appendChild(menuImgLeft);
   //
@@ -270,12 +287,9 @@ function menuMaker(selector, imgData, callback) {
   let menuDivMiddle = document.createElement("div");
   menuDivMiddle.id = selector.menuDiv.idMiddle;
   let menuImgMiddle = document.createElement("img");
-  menuImgMiddle.className = selector.imgClass;
+  menuImgMiddle.classList.add(selector.imgClass, selector.hoverClass);
   menuImgMiddle.src = imgData.path + imgData.sprites[0][0];
-  menuImgMiddle.onclick = function() {
-    document.onkeypress = "";
-    callback(imgData);
-  }
+  menuImgMiddle.onclick = clickFunction;
   menuDivMiddle.appendChild(menuImgMiddle);
   //
   //This <div> is set up outside of the visible play area
@@ -283,25 +297,14 @@ function menuMaker(selector, imgData, callback) {
   let menuDivRight = document.createElement("div");
   menuDivRight.id = selector.menuDiv.idRight;
   let menuImgRight = document.createElement("img");
-  menuImgRight.className = selector.imgClass;
+  menuImgRight.classList.add(selector.imgClass, selector.hoverClass);
   menuImgRight.src = imgData.path + imgData.sprites[1][0];
   menuDivRight.appendChild(menuImgRight);
   //
   //These two blocks put the buttons onscreen that let the
   //player manipulate the menu
-  let leftButton = document.createElement("input");
-  leftButton.id = selector.buttonId.left;
-  leftButton.className = selector.buttonClass;
-  leftButton.type = "button";
-  leftButton.value = "<";
-  leftButton.onclick = shiftRight;
-
-  let rightButton = document.createElement("input");
-  rightButton.id = selector.buttonId.right;
-  rightButton.className = selector.buttonClass;
-  rightButton.type = "button";
-  rightButton.value = ">";
-  rightButton.onclick = shiftLeft;
+  const leftButton = makeButton(shiftRight, "<", selector.buttonId.left, selector.buttonClass);
+  const rightButton = makeButton(shiftLeft, ">", selector.buttonId.right, selector.buttonClass);
   //
   //This block puts all of the elements that have been
   //made onto the webpage
@@ -318,13 +321,26 @@ function menuMaker(selector, imgData, callback) {
 //
 //Clears the DOM elements made by the menuMaker()
 //selector is the same as in the menuMaker()
-function clearMenu(selector) {
-  removeElement(selector.textId);
-  removeElement(selector.buttonId.left);
-  removeElement(selector.menuDiv.idLeft);
-  removeElement(selector.menuDiv.idMiddle);
-  removeElement(selector.menuDiv.idRight);
-  removeElement(selector.buttonId.right);
+//options indicates which elements are to be removed
+function clearMenu(selector, options = [1, 1, 1, 1, 1, 1]) {
+  if (options[0]) {
+    removeElement(selector.textId);
+  }
+  if (options[1]) {
+    removeElement(selector.buttonId.left);
+  }
+  if (options[2]) {
+    removeElement(selector.menuDiv.idLeft);
+  }
+  if (options[3]) {
+    removeElement(selector.menuDiv.idMiddle);
+  }
+  if (options[4]) {
+    removeElement(selector.menuDiv.idRight);
+  }
+  if (options[5]) {
+    removeElement(selector.buttonId.right);
+  }
 }
 
 //-------------------------------------------------------------------//
@@ -433,11 +449,11 @@ function testBook() {
   player.damage = 10;
   player.level.addition = 11;
   player.stats.averages.addition = [100, 100];
-  player.level.subtraction = 1;
+  player.level.subtraction = 8;
   player.stats.averages.subtraction = [100, 100];
-  player.level.multiplication = 1;
+  player.level.multiplication = 5;
   player.stats.averages.multiplication = [100, 100];
-  player.level.division = 1;
+  player.level.division = 2;
   player.stats.averages.division = [100, 100];
   player.stats.monstersKilled = 9;
   player.sprites.path = "./mages/";
@@ -488,25 +504,13 @@ function titleScreen() {
   //
   //These lines put the New Game button in the table
   //and define its attributes
-  let newGameButton = document.createElement("input");
-  newGameButton.type = "button";
-  newGameButton.value = "New Game";
-  newGameButton.className = "startButtons";
-  newGameButton.onclick = function() {
-    //deleteValues();
-    newGame();
-  }
+  const newGameButton = makeButton(newGame, "New Game", "", "startButtons");
   newGameTD.appendChild(newGameButton);
   tableRow.appendChild(newGameTD);
   //
   //These lines put the Continue button in the table
   //and define its attributes
-  let continueButton = document.createElement("input");
-  continueButton.type = "button";
-  continueButton.value = "Continue";
-  continueButton.className = "startButtons";
-  //continueButton.onclick = retrieveValues;
-  continueButton.onclick = testBook;
+  const continueButton = makeButton(testBook, "Continue", "", "startButtons");
   continueTD.appendChild(continueButton);
   tableRow.appendChild(continueTD);
   //
@@ -682,13 +686,9 @@ function storyIntro(player) {
   const introTextDiv = document.getElementById("introTextDiv");
   //
   //a button that lets the player skip the game intro
-  let skipButton = document.createElement("input");
-  skipButton.id = "skipButton";
-  skipButton.type = "button";
-  skipButton.value = "Skip Intro";
-  skipButton.onclick = function() {
+  const skipButton = makeButton(function() {
     overworld(player);
-  }
+  }, "Skip Intro", "skipButton");
   playArea.appendChild(skipButton);
   introPart1();
 }
@@ -721,16 +721,16 @@ function overworld(player) {
     document.onkeyup = "";
     switch(imgData.index) {
       case 0:     //Addition Catacomb
-        spud();
+        dungeonLevelMenu(player.level.addition);
         break;
       case 1:     //Subtraction Catacomb
-        spud();
+        dungeonLevelMenu(player.level.subtraction);
         break;
       case 2:     //Multiplication Catacomb
-        spud();
+        dungeonLevelMenu(player.level.multiplication);
         break;
       case 3:     //Division Catacomb
-        spud();
+        dungeonLevelMenu(player.level.division);
         break;
       case 4:     //Liber mathemagicus
         //
@@ -749,6 +749,63 @@ function overworld(player) {
     }
   }
   //
+  //The sub-menu that pops up before a player gets to the dungeon
+  //level is the player's level in the operation of the
+  //selected dungeon
+  function dungeonLevelMenu(level) {
+    playArea.style.filter = "brightness(0%)";
+    //
+    //Removes the old menu and sets up the screen for
+    //the Dungeon Level Menu
+    clearMenu(overworldMenuSelectors, [1, 1, 1, 0, 1, 1]);
+    let dungeonImg = document.getElementById("overworldDivMiddle");
+    dungeonImg.firstChild.classList.remove(overworldMenuSelectors.hoverClass);
+    dungeonImg.style.transition = "all 0ms";
+    dungeonImg.onclick = "";
+    let dungeonSelectDiv = document.createElement("div");
+    dungeonSelectDiv.id = "dungeonSelectDiv";
+
+    for (let i = 0; i < 10; i++) {
+      let buttonFunction = function() {}
+      let brightness = "brightness(100%)";
+      let className = "dungeonSelectBlink";
+      if (i < level) {
+        buttonFunction = spud;
+      } else {
+        buttonFunction = null;
+        brightness = "brightness(50%)";
+        className = "dungeonSelectButton";
+      }
+      const button = makeButton(buttonFunction, "Level " + (i + 1), "", className);
+      button.style.filter = brightness;
+      dungeonSelectDiv.appendChild(button);
+      insertLineBreak(dungeonSelectDiv);
+    }
+
+    let returnToMenu = makeButton(returnToDungeonMenu, "Return to Menu", "menuReturnButton", "buttonHover");
+    //
+    //This function returns to the overworld menu
+    //from the Liber Mathemagicus
+    function returnToDungeonMenu() {
+      playArea.style.filter = "brightness(0%)";
+      setTimeout(function() {
+        removeElement("menuReturnButton");
+        removeElement("overworldDivMiddle");
+        removeElement("dungeonSelectDiv");
+        playArea.style.filter = "brightness(100%)";
+        overworld(player);
+      }, 500);
+    }
+
+    setTimeout(function() {
+      dungeonImg.style.left = "30px";
+      playArea.appendChild(returnToMenu);
+      playArea.appendChild(dungeonSelectDiv);
+      playArea.style.filter = "brightness(100%)";
+    }, 500);
+
+  }
+  //
   //Controls the Liber Mathemagicus, the book that is
   //the status information for the player
   function liberMathemagicus(monsterData) {
@@ -765,12 +822,17 @@ function overworld(player) {
       ["Brahe's Nova Spell", "starSpellBook.gif"]
     ];
     //
+    //These two functions are left empty so they
+    //can save a few lines in the book page functions
+    let pageLeft = function() {}
+    let pageRight = function() {}
+    //
     //This function returns to the overworld menu
     //from the Liber Mathemagicus
     function returnToMenu() {
       playArea.style.filter = "brightness(0%)";
       setTimeout(function() {
-        removeElement("returnButton");
+        removeElement("bookReturnButton");
         removeElement("monsterBook");
         playArea.style.filter = "brightness(100%)";
         overworld(player);
@@ -806,15 +868,6 @@ function overworld(player) {
           pageLeft();
           break;
       }
-    }
-    //
-    //These two functions are left empty so they
-    //can save a few lines in the book page functions
-    let pageLeft = function() {
-
-    }
-    let pageRight = function() {
-
     }
     //
     //This function handles the animation of turning
@@ -890,18 +943,10 @@ function overworld(player) {
       let pageTurnButtons = document.createElement("div");
       pageTurnButtons.id = "pageTurnButtons";
 
-      let leftButton = document.createElement("input");
-      leftButton.className = "turnPageButtons";
-      leftButton.id = "leftPageButton";
-      leftButton.type = "button";
-      leftButton.value = "<";
+      const leftButton = makeButton(null, "<", "leftPageButton", "turnPageButtons");
       pageTurnButtons.appendChild(leftButton);
 
-      let rightButton = document.createElement("input");
-      rightButton.className = "turnPageButtons";
-      rightButton.id = "rightPageButton";
-      rightButton.type = "button";
-      rightButton.value = ">";
+      const rightButton = makeButton(null, ">", "rightPageButton", "turnPageButtons");
       pageTurnButtons.appendChild(rightButton);
 
       targetElement.appendChild(pageTurnButtons);
@@ -1148,7 +1193,7 @@ function overworld(player) {
       //
       //This displays the total monsters killed
       p = document.createElement("p");
-      insertTextNode(p, "Monsters Killed: " + player.stats.monstersKilled);
+      insertTextNode(p, "Monsters Killed: " + player.stats.monsters.killed);
       status.appendChild(p);
       //
       //This displays the different levels of the player
@@ -1159,11 +1204,7 @@ function overworld(player) {
       makeStats(p, "Division Level: ", player.level.division, player.stats.averages.division);
       status.appendChild(p);
 
-      let saveGame = document.createElement("input");
-      saveGame.id = "saveGame";
-      saveGame.type = "button";
-      saveGame.value = "Save Game";
-      //saveGame.onclick = saveValues;
+      const saveGame = makeButton(null, "Save Game", "saveGame");
       status.appendChild(saveGame);
 
       return status;
@@ -1962,7 +2003,7 @@ function overworld(player) {
       tr = document.createElement("tr");
       //
       //This controls the achievement for how many spells
-      //the player has cast*/
+      //the player has cast
       td = makeAchievementElement("spell-book.png");
       let totalSpellsCast = player.spells.cast.reduce(getSum);
       setAchievement(td, totalSpellsCast, [10, 50, 100], "spells cast.");
@@ -2001,18 +2042,13 @@ function overworld(player) {
 
     }
 
-
     playArea.style.filter = "brightness(0%)";
     //
     //Makes the button that will return the player to the
     //main overworld menu
-    let returnButton = document.createElement("input");
-    returnButton.id = "returnButton";
-    returnButton.type = "button";
-    returnButton.value = "Return to Menu";
-    returnButton.onclick = returnToMenu;
+    const bookReturnButton = makeButton(returnToMenu, "Return to Menu", "bookReturnButton");
     let fragment = document.createDocumentFragment();
-    fragment.appendChild(returnButton);
+    fragment.appendChild(bookReturnButton);
     //
     //This block creates the <div> that holds all the
     //pages of the book and the title page
@@ -2026,6 +2062,7 @@ function overworld(player) {
     //then puts the new graphics onscreen before fading back
     setTimeout(function() {
       clearMenu(overworldMenuSelectors);
+      clearElement(playArea);
       playArea.appendChild(fragment);
       playArea.style.filter = "brightness(100%)";
     }, 500);
@@ -2071,6 +2108,7 @@ function overworld(player) {
       idRight: "overworldDivRight"
     },
     imgClass: "overworldMenuImg",
+    hoverClass: "overworldMenuHover",
     buttonClass: "overworldButtons",
     buttonId: {
       left: "overworldButtonLeft",
@@ -2079,5 +2117,6 @@ function overworld(player) {
   };
   //
   //Makes the overworld menu and puts it on the screen
+  checkLevels();
   menuMaker(overworldMenuSelectors, menuData, menuSelection);
 }
