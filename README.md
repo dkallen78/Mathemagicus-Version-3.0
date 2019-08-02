@@ -8,7 +8,15 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 ### Up next: the overworld logic.
 
-Now that the book is done I need to figure out what else to do before I get to the dungeons/catacombs. I want to implement a system where the player can choose their difficulty/level. That means having different timer speeds and being able to select the problem difficulty after having unlocked it. I need to get that set up before I get too far ahead in any of the dungeon stuff.
+Now that I have a simple menu in place for a player to choose their level I need to put one more thing into place for the player to choose how much time they have to answer a question. I'm also going to go through the style sheet and try to condense that as well. I've learned a bit more about classes that will help me consense things. 
+
+I'm torn on whether or not to implement a "responsive design" at this point. I like the idea of it, in principle, but I don't like forcing the player into one a one-size-fits-all play area. We'll see...
+
+## 2019.08.01
+
+### Update
+
+I've condensed more of the code but I haven't added a lot in yet. My big project for the day was putting in an extra menu layer when the player chooses a dungeon so they can choose their difficulty. I've also started taking a closer look at the CSS. I should have been rewriting that from the start as well... Still, I'm happy w/ what I've gotten done w/out even having a full day of work.
 
 ## 2019/07/31
 
