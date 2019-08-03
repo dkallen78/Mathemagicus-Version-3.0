@@ -12,6 +12,12 @@ Now that I have a simple menu in place for a player to choose their level I need
 
 I'm torn on whether or not to implement a "responsive design" at this point. I like the idea of it, in principle, but I don't like forcing the player into one a one-size-fits-all play area. We'll see...
 
+## 2019.08.02
+
+### Update
+
+More consensing of code to make more things simpler (I hope). I'm putting the final touches on the menu before the player enters the catacombs and actually does some math. 
+
 ## 2019.08.01
 
 ### Update
