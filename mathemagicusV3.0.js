@@ -60,6 +60,16 @@ function removeElement(elementID) {
   element.parentNode.removeChild(element);
 }
 //
+//Inserts multiple elements into a fragment to be
+//appended to another element
+function insertElements() {
+  let fragment = document.createDocumentFragment();
+  for (let i = 0; i < arguments.length; i++) {
+    fragment.appendChild(arguments[i]);
+  }
+  return fragment;
+}
+//
 //Inserts a <br /> element into the DOM
 //element is the parent element into which the
 //<br /> will be inserted
@@ -76,6 +86,17 @@ function insertLineBreak(element) {
 function insertTextNode(element, text) {
   let node = document.createTextNode(text);
   element.appendChild(node);
+}
+//
+//Puts a button that says "next" onto the screen
+//element is the element the button will be appended to
+//nextFunction is the the function called when it's clicked
+function insertButton(element, text, nextFunction) {
+  const button = makeButton(nextFunction, text, "nextButton");
+  element.appendChild(button);
+  setTimeout(function() {
+    nextButton.focus();
+  }, 100);
 }
 //
 //This function displays text one letter at a time
@@ -126,40 +147,64 @@ function typer(text, target, callback, i = 0) {
   }
 }
 //
+//makes a <div> element and assigns an ID and class
+//id is a string
+//additional parameters are added as classes
+function makeDiv(id) {
+  let div = document.createElement("div");
+  div.id = id;
+  if (arguments.length > 1) {
+    for (let i = 1; i < arguments.length; i++) {
+      div.classList.add(arguments[i]);
+    }
+  }
+  return div;
+}
+//
+//makes an <img> element and assigns a src and id
+//src is a string
+//id is a string
+//additional parameters are added as classes
+function makeImg(src) {
+  let img = document.createElement("img");
+  img.src = src;
+  if (arguments.length > 1) {
+    img.id = arguments[1];
+  }
+  if (arguments.length > 2) {
+    for (let i = 2; i < arguments.length; i++) {
+      img.classList.add(arguments[i]);
+    }
+  }
+  return img;
+}
+//
 //Returns a button element
-//value is the text that appears on the button
+//text is the text that appears on the button
 //callback is what it does when clicked
 //id is the button ID
-//className is the button class
-function makeButton(callback, value, id = "", className = 0) {
-  const button = document.createElement("input");
+//additional parameters are added as classes
+function makeButton(callback, text, id = "") {
+  const button = document.createElement("button");
+  insertTextNode(button, text);
   button.type = "button";
-  button.value = value;
   button.onclick = callback;
   button.id = id;
-  if (className) {
-    button.classList.add(className);
+  if (arguments.length > 3) {
+    for (let i = 3; i < arguments.length; i++) {
+      button.classList.add(arguments[i]);
+    }
   }
   return button;
 }
-//
-//Puts a button that says "next" onto the screen
-//target is the element the button will be appended to
-//nextFunction is the the function called when it's clicked
-function makeNextButton(target, nextFunction) {
-  const nextButton = makeButton(nextFunction, "Next", "nextButton");
-  target.appendChild(nextButton);
-  setTimeout(function() {
-    nextButton.focus();
-  }, 100);
-}
+
 //
 //This makes my menus
 //selector is an object w/ ID and class information
 //imgData is an object with image information
 //callback is the function that is run when the menu
 //item is selected
-function menuMaker(selector, imgData, callback) {
+function menuMaker(selector, imgData, callback, index = 0) {
   //
   //Turns off all the event listeners before
   //leaving the menu
@@ -195,11 +240,9 @@ function menuMaker(selector, imgData, callback) {
     //
     //This makes a new right <div> to replace the one that
     //was shifted to the middle
-    menuDivRight = document.createElement("div");
-    menuDivRight.id = selector.menuDiv.idRight;
-    menuImgRight = document.createElement("img");
-    menuImgRight.classList.add(selector.imgClass, selector.hoverClass);
-    menuImgRight.src = imgData.path + imgData.sprites[(imgData.index + 1) % imgData.sprites.length][0];
+    menuDivRight = makeDiv(selector.menuDiv.idRight);
+    let srcPath = imgData.path + imgData.sprites[(imgData.index + 1) % imgData.sprites.length][0];
+    menuImgRight = makeImg(srcPath, "", selector.imgClass, selector.hoverClass)
     menuDivRight.appendChild(menuImgRight);
     target.insertBefore(menuDivRight, rightButton);
   }
@@ -230,12 +273,10 @@ function menuMaker(selector, imgData, callback) {
     //
     //This makes a new left <div> to replace the one that
     //was shifted to the middle
-    menuDivLeft = document.createElement("div");
-    menuDivLeft.id = selector.menuDiv.idLeft;
-    menuImgLeft = document.createElement("img");
-    menuImgLeft.classList.add(selector.imgClass, selector.hoverClass);
-    menuImgLeft.src = imgData.path +
+    menuDivLeft = makeDiv(selector.menuDiv.idLeft);
+    let srcPath = imgData.path +
       imgData.sprites[(imgData.index + (imgData.sprites.length - 1)) % imgData.sprites.length][0];
+    menuImgLeft = makeImg(srcPath, "", selector.imgClass, selector.hoverClass)
     menuDivLeft.appendChild(menuImgLeft);
     target.insertBefore(menuDivLeft, menuDivMiddle);
   }
@@ -266,39 +307,34 @@ function menuMaker(selector, imgData, callback) {
   }, 100);
   //
   //Puts text above the central menu item
-  let menuSelectText = document.createElement("div");
-  menuSelectText.id = selector.textId;
-  menuSelectText.innerHTML = selector.text;
+  let menuSelectText = makeDiv(selector.textId);
+  insertTextNode(menuSelectText, selector.text);
   setTimeout(function() {
     menuSelectText.innerHTML = imgData.sprites[imgData.index][imgData.sprites[0].length - 1];
   }, 2000);
+
+  let leftIndex = index - 1;
+  if (leftIndex < 0) leftIndex = imgData.sprites.length - 1;
+  let rightIndex = index + 1
+  if (rightIndex >= imgData.sprites.length) rightIndex = 0;
   //
   //This <div> is set up outside of the visible play area
   //ready to slide onscreen when an arrow is clicked
-  let menuDivLeft = document.createElement("div");
-  menuDivLeft.id = selector.menuDiv.idLeft;
-  let menuImgLeft = document.createElement("img");
-  menuImgLeft.classList.add(selector.imgClass, selector.hoverClass);
-  menuImgLeft.src = imgData.path + imgData.sprites[imgData.sprites.length - 1][0];
+  let menuDivLeft = makeDiv(selector.menuDiv.idLeft);
+  let menuImgLeft = makeImg(imgData.path + imgData.sprites[leftIndex][0], "", selector.imgClass, selector.hoverClass);
   menuDivLeft.appendChild(menuImgLeft);
   //
   //This <div> is the visible menu selection. If it
   //is clicked, it will trigger the callback function
-  let menuDivMiddle = document.createElement("div");
-  menuDivMiddle.id = selector.menuDiv.idMiddle;
-  let menuImgMiddle = document.createElement("img");
-  menuImgMiddle.classList.add(selector.imgClass, selector.hoverClass);
-  menuImgMiddle.src = imgData.path + imgData.sprites[0][0];
+  let menuDivMiddle = makeDiv(selector.menuDiv.idMiddle);
+  let menuImgMiddle = makeImg(imgData.path + imgData.sprites[index][0], "", selector.imgClass, selector.hoverClass);
   menuImgMiddle.onclick = clickFunction;
   menuDivMiddle.appendChild(menuImgMiddle);
   //
   //This <div> is set up outside of the visible play area
   //ready to slide onscreen when an arrow is clicked
-  let menuDivRight = document.createElement("div");
-  menuDivRight.id = selector.menuDiv.idRight;
-  let menuImgRight = document.createElement("img");
-  menuImgRight.classList.add(selector.imgClass, selector.hoverClass);
-  menuImgRight.src = imgData.path + imgData.sprites[1][0];
+  let menuDivRight = makeDiv(selector.menuDiv.idRight);
+  let menuImgRight = makeImg(imgData.path + imgData.sprites[rightIndex][0], "", selector.imgClass, selector.hoverClass);
   menuDivRight.appendChild(menuImgRight);
   //
   //These two blocks put the buttons onscreen that let the
@@ -308,13 +344,7 @@ function menuMaker(selector, imgData, callback) {
   //
   //This block puts all of the elements that have been
   //made onto the webpage
-  let fragment = document.createDocumentFragment();
-  fragment.appendChild(menuSelectText);
-  fragment.appendChild(leftButton);
-  fragment.appendChild(menuDivLeft);
-  fragment.appendChild(menuDivMiddle);
-  fragment.appendChild(menuDivRight);
-  fragment.appendChild(rightButton);
+  let fragment = insertElements(menuSelectText, leftButton, menuDivLeft, menuDivMiddle, menuDivRight, rightButton);
   let target = document.getElementById(selector.target);
   target.appendChild(fragment);
 }
@@ -480,217 +510,220 @@ function testBook() {
 //Game Intro functions                                               //
 //-------------------------------------------------------------------//
 
-//
-//This function sets up the title screen of Mathemagicus
-function titleScreen() {
-
-  const playArea = document.getElementById("playArea");
-  clearElement(playArea);
+function gameStart() {
   //
-  //These five lines put the title on the screen
-  let titleDiv = document.createElement("div");
-  titleDiv.id = "titleDiv";
-  let title = document.createTextNode("Mathemagicus");
-  titleDiv.appendChild(title);
-  playArea.appendChild(titleDiv);
-  //
-  //This block sets up the <table> that the New Game
-  //and Continue buttons will be placed in
-  let titleScreenButtons = document.createElement("table");
-  titleScreenButtons.id = "titleScreenButtons";
-  let tableRow = document.createElement("tr");
-  let newGameTD = document.createElement("td");
-  let continueTD = document.createElement("td");
-  //
-  //These lines put the New Game button in the table
-  //and define its attributes
-  const newGameButton = makeButton(newGame, "New Game", "", "startButtons");
-  newGameTD.appendChild(newGameButton);
-  tableRow.appendChild(newGameTD);
-  //
-  //These lines put the Continue button in the table
-  //and define its attributes
-  const continueButton = makeButton(testBook, "Continue", "", "startButtons");
-  continueTD.appendChild(continueButton);
-  tableRow.appendChild(continueTD);
-  //
-  //Finally, we put the buttons we put in our <tr>
-  //into the <table> we made, then put that <table>
-  //into our playArea
-  titleScreenButtons.appendChild(tableRow);
-  playArea.appendChild(titleScreenButtons);
-}
-//
-//The New Game screen with player name input
-function newGame() {
-  const playArea = document.getElementById("playArea");
-  removeElement("titleScreenButtons");
-  //
-  //This block displays the "Enter your name" prompt
-  let enterNameDiv = document.createElement("div");
-  enterNameDiv.id = "enterNameDiv";
-  enterNameDiv.className = "textBox";
-  let enterName = document.createTextNode("Please enter your name:");
-  enterNameDiv.appendChild(enterName);
-  insertLineBreak(enterNameDiv);
-  //
-  //This block displays the text input box
-  let nameTextBox = document.createElement("input");
-  nameTextBox.type = "text";
-  nameTextBox.id = "nameTextBox";
-  nameTextBox.setAttribute("onKeyUp", "if(event.keyCode===13) chooseCharacter()")
-  enterNameDiv.appendChild(nameTextBox);
-  insertLineBreak(enterNameDiv);
-  //
-  //This puts it all into the playArea and puts the focus on the nameTextBox
-  playArea.appendChild(enterNameDiv);
-  document.getElementById("nameTextBox").focus();
-}
-//
-//The Choose Character screen where the player picks
-//their avatar
-function chooseCharacter() {
-  //
-  //Saves the sprite info from the avatar they player chose
-  //then calls the townIntro() function
-  function saveCharacterData(imgData) {
-    player.sprites.path = imgData.path;
-    player.sprites.files = imgData.sprites[imgData.index];
+  //This function sets up the title screen of Mathemagicus
+  function titleScreen() {
+    const playArea = document.getElementById("playArea");
+    clearElement(playArea);
     //
-    //Removes elements used for character selection before
-    //moving to the townIntro screen
-    clearMenu(avatarMenuSelectors);
-    document.onkeyup = "";
-
-    storyIntro(player);
+    //These five lines put the title on the screen
+    let titleDiv = makeDiv("titleDiv");
+    insertTextNode(titleDiv, "Mathemagicus");
+    //
+    //This block sets up the <table> that the New Game
+    //and Continue buttons will be placed in
+    let titleScreenButtons = document.createElement("table");
+    titleScreenButtons.id = "titleScreenButtons";
+    let tableRow = document.createElement("tr");
+    let newGameTD = document.createElement("td");
+    let continueTD = document.createElement("td");
+    //
+    //These lines put the New Game button in the table
+    //and define its attributes
+    const newGameButton = makeButton(newGame, "New Game", "", "startButtons");
+    newGameTD.appendChild(newGameButton);
+    tableRow.appendChild(newGameTD);
+    //
+    //These lines put the Continue button in the table
+    //and define its attributes
+    const continueButton = makeButton(testBook, "Continue", "", "startButtons");
+    continueTD.appendChild(continueButton);
+    tableRow.appendChild(continueTD);
+    //
+    //Puts the buttons from the <tr> into the <table>
+    //then puts that <table> into the playArea
+    titleScreenButtons.appendChild(tableRow);
+    let fragment = insertElements(titleDiv, titleScreenButtons);
+    playArea.appendChild(fragment);
   }
   //
-  //Creates a new object for the player and their data
-  player = new Player();
-  player.name = document.getElementById("nameTextBox").value
+  //The New Game screen with player name input
+  function newGame() {
+    const playArea = document.getElementById("playArea");
+    removeElement("titleScreenButtons");
+    //
+    //This block displays the "Enter your name" prompt
+    let enterNameDiv = makeDiv("enterNameDiv", "textBox");
+    insertTextNode(enterNameDiv, "Please enter your name:");
+    insertLineBreak(enterNameDiv);
+    //
+    //This block displays the text input box
+    let nameTextBox = document.createElement("input");
+    nameTextBox.type = "text";
+    nameTextBox.id = "nameTextBox";
+    enterNameDiv.appendChild(nameTextBox);
+    insertLineBreak(enterNameDiv);
+    //
+    //This puts it all into the playArea and puts the focus on the nameTextBox
+    playArea.appendChild(enterNameDiv);
+    nameTextBox.focus();
+    //
+    //Listens for the enter key
+    setTimeout(function() {
+      document.onkeyup = function(e) {
+        e = e || window.event;
+        if (e.keyCode === 13) {
+          document.onkeyup = "";
+          chooseCharacter();
+        };
+      }
+    }, 100);
+  }
+  //
+  //The Choose Character screen where the player picks
+  //their avatar
+  function chooseCharacter() {
+    //
+    //Saves the sprite info from the avatar they player chose
+    //then calls the townIntro() function
+    function saveCharacterData(imgData) {
+      player.sprites.path = imgData.path;
+      player.sprites.files = imgData.sprites[imgData.index];
+      //
+      //Removes elements used for character selection before
+      //moving to the townIntro screen
+      clearMenu(avatarMenuSelectors);
+      document.onkeyup = "";
 
-  removeElement("titleDiv");
-  removeElement("enterNameDiv")
-  //
-  //This block puts the NPC cameo on the screen
-  let tellahDiv = document.createElement("div");
-  let tellahImg = document.createElement("img");
-  tellahImg.src = "Tellah.gif";
-  tellahImg.id = "tellahImg";
-  tellahDiv.id = "tellah";
-  tellahDiv.appendChild(tellahImg);
-  playArea.appendChild(tellahDiv);
-  //
-  //Object with data for the menu maker
-  let avatarMenuSelectors = {
-    target: "playArea",
-    textId: "characterSelectText",
-    text: "Choose your mage:",
-    menuDiv: {
-      idLeft: "characterDivLeft",
-      idMiddle: "characterDivMiddle",
-      idRight: "characterDivRight"
-    },
-    imgClass: "characterImg",
-    buttonClass: "selectButtons",
-    buttonId: {
-      left: "leftButton",
-      right: "rightButton"
+      storyIntro();
     }
-  };
-  //
-  //This object holds the information for accessing the mage sprites
-  let mageData = {
-    sprites: [
-      ["mage0.gif", "mage0fight.gif", "mage0hurt.gif", "mage0dead.gif", "Black Mage"],
-      ["mage1.gif", "mage1fight.gif", "mage1hurt.gif", "mage1dead.gif", "White Mage"],
-      ["mage2.gif", "mage2fight.gif", "mage2hurt.gif", "mage2dead.gif", "Turban Mage"],
-      ["mage3.gif", "mage3fight.gif", "mage3hurt.gif", "mage3dead.gif", "Blue Mage"],
-      ["mage4.gif", "mage4fight.gif", "mage4hurt.gif", "mage4dead.gif", "Red Mage"],
-      ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"],
-      ["mage6.gif", "mage6fight.gif", "mage6hurt.gif", "mage6dead.gif", "Green Mage"]
-    ],
-    path: "./mages/",
-    index: 0
-  };
-  //
-  //This block is wrapped in a setTimeout because the typer()
-  //function is listening for any key to be pressed and this
-  //gives enough time for the computer to register the release
-  //of the enter key from the name input of the previous screen
-  setTimeout(function() {
     //
-    //This block puts the text box onto the screen that will
-    //display the intro text
-    let introTextDiv = document.createElement("div");
-    introTextDiv.className = "textBox";
-    introTextDiv.id = "introTextDiv";
-    playArea.appendChild(introTextDiv);
+    //Saves the player's name
+    player.name = document.getElementById("nameTextBox").value
 
+    removeElement("titleDiv");
+    removeElement("enterNameDiv")
     //
-    //This is the intro text for character selection
-    let introText = "Welcome to Arithmeticia. You must be " + player.name +
-                    ", the mage that we sent for. Let me get a better look at you.";
-    typer(introText, introTextDiv, function () {
-      menuMaker(avatarMenuSelectors, mageData, saveCharacterData);
-    });
-  }, 100);
+    //This block puts the NPC cameo on the screen
+    let tellahDiv = makeDiv("tellah");
+    let tellahImg = makeImg("Tellah.gif", "tellahImg");
+    tellahDiv.appendChild(tellahImg);
+    //
+    //Object with data for the menu maker
+    let avatarMenuSelectors = {
+      target: "playArea",
+      textId: "characterSelectText",
+      text: "Choose your mage:",
+      menuDiv: {
+        idLeft: "characterDivLeft",
+        idMiddle: "characterDivMiddle",
+        idRight: "characterDivRight"
+      },
+      imgClass: "characterImg",
+      buttonClass: "selectButtons",
+      buttonId: {
+        left: "leftButton",
+        right: "rightButton"
+      }
+    };
+    //
+    //This object holds the information for accessing the mage sprites
+    let mageData = {
+      sprites: [
+        ["mage0.gif", "mage0fight.gif", "mage0hurt.gif", "mage0dead.gif", "Black Mage"],
+        ["mage1.gif", "mage1fight.gif", "mage1hurt.gif", "mage1dead.gif", "White Mage"],
+        ["mage2.gif", "mage2fight.gif", "mage2hurt.gif", "mage2dead.gif", "Turban Mage"],
+        ["mage3.gif", "mage3fight.gif", "mage3hurt.gif", "mage3dead.gif", "Blue Mage"],
+        ["mage4.gif", "mage4fight.gif", "mage4hurt.gif", "mage4dead.gif", "Red Mage"],
+        ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"],
+        ["mage6.gif", "mage6fight.gif", "mage6hurt.gif", "mage6dead.gif", "Green Mage"]
+      ],
+      path: "./mages/",
+      index: 0
+    };
+    //
+    //This block is wrapped in a setTimeout because the typer()
+    //function is listening for any key to be pressed and this
+    //gives enough time for the computer to register the release
+    //of the enter key from the name input of the previous screen
+    setTimeout(function() {
+      //
+      //This block puts the text box onto the screen that will
+      //display the intro text
+      let introTextDiv = makeDiv("introTextDiv", "textBox");
+      let fragment = insertElements(tellahDiv, introTextDiv);
+      playArea.appendChild(fragment);
 
-
-}
-//
-//The Story Intro screen that gives the game a bit of story
-function storyIntro(player) {
-  //
-  //These functions display the text for the story
-  //introduction of the game
-  function introPart1() {
-    clearElement(introTextDiv);
-    let textString = "Ah, that's better. We asked you to come because we have a monster problem. ";
-    typer(textString, introTextDiv, function() {
-      makeNextButton(introTextDiv, introPart2);
-    });
-  }
-  function introPart2() {
-    clearElement(introTextDiv);
-    let textString = "The old catacombs beneath the city are overrun with monsters and they've been attacking the townsfolk. ";
-    typer(textString, introTextDiv, function() {
-      makeNextButton(introTextDiv, introPart3);
-    });
-  }
-  function introPart3() {
-    clearElement(introTextDiv);
-    let textString = "We need you to clear out the old catacombs to make our town safe again. ";
-    typer(textString, introTextDiv, function() {
-      makeNextButton(introTextDiv, introPart4);
-    });
-  }
-  function introPart4() {
-    clearElement(introTextDiv);
-    let textString = "Only one catacomb is open right now. The other three are sealed with some kind of magic. ";
-    typer(textString, introTextDiv, function() {
-      makeNextButton(introTextDiv, introPart5);
-    });
-  }
-  function introPart5() {
-    clearElement(introTextDiv);
-    let textString = "Here are the catacombs. Thank you so much for your help getting rid of those monsters. ";
-    typer(textString, introTextDiv, function() {
-      makeNextButton(introTextDiv, function() {
-        overworld(player);
+      //
+      //This is the intro text for character selection
+      let introText = "Welcome to Arithmeticia. You must be " + player.name +
+                      ", the mage that we sent for. Let me get a better look at you.";
+      typer(introText, introTextDiv, function () {
+        menuMaker(avatarMenuSelectors, mageData, saveCharacterData);
       });
-    });
+    }, 100);
+
+
+  }
+  //
+  //The Story Intro screen that gives the game a bit of story
+  function storyIntro() {
+    //
+    //These functions display the text for the story
+    //introduction of the game
+    function introPart1() {
+      clearElement(introTextDiv);
+      let textString = "Ah, that's better. We asked you to come because we have a monster problem. ";
+      typer(textString, introTextDiv, function() {
+        insertButton(introTextDiv, "Next", introPart2);
+      });
+    }
+    function introPart2() {
+      clearElement(introTextDiv);
+      let textString = "The old catacombs beneath the city are overrun with monsters and they've been attacking the townsfolk. ";
+      typer(textString, introTextDiv, function() {
+        insertButton(introTextDiv, "Next", introPart3);
+      });
+    }
+    function introPart3() {
+      clearElement(introTextDiv);
+      let textString = "We need you to clear out the old catacombs to make our town safe again. ";
+      typer(textString, introTextDiv, function() {
+        insertButton(introTextDiv, "Next", introPart4);
+      });
+    }
+    function introPart4() {
+      clearElement(introTextDiv);
+      let textString = "Only one catacomb is open right now. The other three are sealed with some kind of magic. ";
+      typer(textString, introTextDiv, function() {
+        insertButton(introTextDiv, "Next", introPart5);
+      });
+    }
+    function introPart5() {
+      clearElement(introTextDiv);
+      let textString = "Here are the catacombs. Thank you so much for your help getting rid of those monsters. ";
+      typer(textString, introTextDiv, function() {
+        insertButton(introTextDiv, "Next", function() {
+          overworld(player);
+        });
+      });
+    }
+
+    const playArea = document.getElementById("playArea");
+    const introTextDiv = document.getElementById("introTextDiv");
+    //
+    //a button that lets the player skip the game intro
+    const skipButton = makeButton(function() {
+      overworld(player);
+    }, "Skip Intro", "skipButton");
+    playArea.appendChild(skipButton);
+    introPart1();
   }
 
-  const playArea = document.getElementById("playArea");
-  const introTextDiv = document.getElementById("introTextDiv");
-  //
-  //a button that lets the player skip the game intro
-  const skipButton = makeButton(function() {
-    overworld(player);
-  }, "Skip Intro", "skipButton");
-  playArea.appendChild(skipButton);
-  introPart1();
+  player = new Player();
+
+  titleScreen();
 }
 
 //-------------------------------------------------------------------//
@@ -701,24 +734,20 @@ function storyIntro(player) {
 //Everything that happens in the overworld happens in this function
 function overworld(player) {
   //
-  //This checks the players level to see which dungeons
-  //are accessible
-  function checkLevels() {
-    if (player.level.subtraction) {
-      menuData.sprites[1][0] = "subtractionDoorOpen.gif";
-    }
-    if (player.level.multiplication) {
-      menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
-    }
-    if (player.level.division) {
-      menuData.sprites[3][0] = "divisionDoorOpen.gif";
-    }
+  //Does everything that needs to be done to launch the
+  //Overworld Menu
+  function launchOverworldMenu(selectors, imgData, callback, index = 0) {
+    if (player.level.subtraction) menuData.sprites[1][0] = "subtractionDoorOpen.gif";
+    if (player.level.multiplication) menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
+    if (player.level.division) menuData.sprites[3][0] = "divisionDoorOpen.gif";
+    menuMaker(selectors, imgData, callback, index);
   }
   //
   //Determines what to do next based on the player's
   //menu selection
   function menuSelection(imgData) {
     document.onkeyup = "";
+    menuData.index = imgData.index;
     switch(imgData.index) {
       case 0:     //Addition Catacomb
         dungeonLevelMenu(player.level.addition);
@@ -753,36 +782,6 @@ function overworld(player) {
   //level is the player's level in the operation of the
   //selected dungeon
   function dungeonLevelMenu(level) {
-    playArea.style.filter = "brightness(0%)";
-    //
-    //Removes the old menu and sets up the screen for
-    //the Dungeon Level Menu
-    clearMenu(overworldMenuSelectors, [1, 1, 1, 0, 1, 1]);
-    let dungeonImg = document.getElementById("overworldDivMiddle");
-    dungeonImg.firstChild.classList.remove(overworldMenuSelectors.hoverClass);
-    dungeonImg.style.transition = "all 0ms";
-    dungeonImg.onclick = "";
-    let dungeonSelectDiv = document.createElement("div");
-    dungeonSelectDiv.id = "dungeonSelectDiv";
-
-    for (let i = 0; i < 10; i++) {
-      let buttonFunction = function() {}
-      let brightness = "brightness(100%)";
-      let className = "dungeonSelectBlink";
-      if (i < level) {
-        buttonFunction = spud;
-      } else {
-        buttonFunction = null;
-        brightness = "brightness(50%)";
-        className = "dungeonSelectButton";
-      }
-      const button = makeButton(buttonFunction, "Level " + (i + 1), "", className);
-      button.style.filter = brightness;
-      dungeonSelectDiv.appendChild(button);
-      insertLineBreak(dungeonSelectDiv);
-    }
-
-    let returnToMenu = makeButton(returnToDungeonMenu, "Return to Menu", "menuReturnButton", "buttonHover");
     //
     //This function returns to the overworld menu
     //from the Liber Mathemagicus
@@ -793,14 +792,54 @@ function overworld(player) {
         removeElement("overworldDivMiddle");
         removeElement("dungeonSelectDiv");
         playArea.style.filter = "brightness(100%)";
-        overworld(player);
+        launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, menuData.index);
       }, 500);
     }
 
+    playArea.style.filter = "brightness(0%)";
+
+    let dungeonImg = document.getElementById("overworldDivMiddle");
+    dungeonImg.firstChild.classList.remove(overworldMenuSelectors.hoverClass);
+    dungeonImg.style.transition = "all 0ms";
+    dungeonImg.onclick = "";
+
+    let timerSelectDiv = makeDiv("timerSelectDiv");
+
+    function clickTimerButton() {
+
+    }
+
+    for (let i = 0; i < 4; i++) {
+      let button = makeButton(clickTimerButton, "", i, "timerSelectButtons");
+      timerSelectDiv.appendChild(button);
+      //insertLineBreak(timerSelectDiv);
+    }
+    let dungeonSelectDiv = makeDiv("dungeonSelectDiv");
+    //
+    //Makes and styles the buttons to select the
+    //dungeon level
+    for (let i = 0; i < 10; i++) {
+      let buttonFunction = function() {spud();}
+      let brightness = "brightness(100%)";
+      let className2 = "buttonHover";
+      if (i + 1 > level) {
+        buttonFunction = null;
+        brightness = "brightness(50%)";
+        className2 = null;
+      }
+      const button = makeButton(buttonFunction, "Level " + (i + 1), "", "dungeonSelectButton", className2);
+      button.style.filter = brightness;
+      dungeonSelectDiv.appendChild(button);
+      insertLineBreak(dungeonSelectDiv);
+    }
+
+    let returnToMenu = makeButton(returnToDungeonMenu, "Return to Menu", "menuReturnButton", "buttonHover");
+
     setTimeout(function() {
+      clearMenu(overworldMenuSelectors, [1, 1, 1, 0, 1, 1]);
       dungeonImg.style.left = "30px";
-      playArea.appendChild(returnToMenu);
-      playArea.appendChild(dungeonSelectDiv);
+      dungeonImg.style.bottom = "35px";
+      playArea.appendChild(insertElements(returnToMenu, timerSelectDiv, dungeonSelectDiv));
       playArea.style.filter = "brightness(100%)";
     }, 500);
 
@@ -835,7 +874,7 @@ function overworld(player) {
         removeElement("bookReturnButton");
         removeElement("monsterBook");
         playArea.style.filter = "brightness(100%)";
-        overworld(player);
+        launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, 4);
       }, 500);
     }
     //
@@ -857,7 +896,7 @@ function overworld(player) {
     //
     //Checks which of the arrow keys was pressed and
     //executes a function depending on which one
-    function checkKeys(key, right, left) {
+    function checkKeys(key) {
       switch (key) {
         case 37:
           document.onkeyup = "";
@@ -940,8 +979,7 @@ function overworld(player) {
     //targetElement is the DOM object to which the
     //turn page buttons will be displayed
     function turnPageButtons(targetElement) {
-      let pageTurnButtons = document.createElement("div");
-      pageTurnButtons.id = "pageTurnButtons";
+      let pageTurnButtons = makeDiv("pageTurnButtons");
 
       const leftButton = makeButton(null, "<", "leftPageButton", "turnPageButtons");
       pageTurnButtons.appendChild(leftButton);
@@ -959,46 +997,33 @@ function overworld(player) {
     //targetElement is the DOM object to which the
     //quick buttons will be displayed
     function makeQuickButtons(targetElement) {
-      //
-      //Puts together a quick button for the Quick
-      //Button link bar
-      function quickButton(name) {
-        let button = document.createElement("input");
-        button.className = "quickButtons";
-        button.type = "button";
-        button.value = name;
-        return button;
-      }
 
-      let quickButtonDiv = document.createElement("div");
-      quickButtonDiv.id = "quickButtonDiv";
+      let quickButtonDiv = makeDiv("quickButtonDiv");
 
-      let contentsButton = quickButton("TOC");
-      quickButtonDiv.appendChild(contentsButton);
+      let button = makeButton(null, "ToC", "", "quickButtons");
+      quickButtonDiv.appendChild(button);
 
-      let statusButton = quickButton("Status");
-      quickButtonDiv.appendChild(statusButton);
+      button = makeButton(null, "Status", "", "quickButtons");
+      quickButtonDiv.appendChild(button);
 
-      let spellsButton = quickButton("Spells");
-      quickButtonDiv.appendChild(spellsButton);
+      button = makeButton(null, "Spells", "", "quickButtons");
+      quickButtonDiv.appendChild(button);
 
-      let monstersButton = quickButton("Monsters");
-      quickButtonDiv.appendChild(monstersButton);
+      button = makeButton(null, "Monsters", "", "quickButtons");
+      quickButtonDiv.appendChild(button);
 
-      let achievementsButton = quickButton("Achievements");
-      quickButtonDiv.appendChild(achievementsButton);
+      button = makeButton(null, "Achievements", "", "quickButtons");
+      quickButtonDiv.appendChild(button);
 
       targetElement.appendChild(quickButtonDiv);
-
       return quickButtonDiv;
     }
     //
     //This function makes the cover of my book even
     //though it is called title page
     function makeTitlePage() {
-      let titlePage = document.createElement("div");
-      titlePage.className = "bookPage";
-      titlePage.id = "titlePage";
+
+      let titlePage = makeDiv("titlePage", "bookPage");
       //
       //This block puts the button on the corners to
       //turn the page
@@ -1032,9 +1057,7 @@ function overworld(player) {
     //table of contents page. I need to make it
     //look better
     function contentsPage() {
-      let tableOfContents = document.createElement("div");
-      tableOfContents.className = "bookPage";
-      tableOfContents.id = "tableOfContents";
+      let tableOfContents = makeDiv("tableOfContents", "bookPage");
       //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
@@ -1058,7 +1081,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode, pageRight, pageLeft);
+        checkKeys(e.keyCode);
       }
 
       makePageTitle("Table of Contents", tableOfContents);
@@ -1085,7 +1108,7 @@ function overworld(player) {
         return p;
       }
 
-      p = chapterEntry(statusPage, "Status", "A list of " + player.possessive + " progress.");
+      let p = chapterEntry(statusPage, "Status", "A list of " + player.possessive + " progress.");
       tableOfContents.appendChild(p);
 
       p = chapterEntry(spellsPage, "Spells", "A list of the spells " + player.name + " has learned.");
@@ -1127,9 +1150,7 @@ function overworld(player) {
         return span;
       }
 
-      let status = document.createElement("div");
-      status.className = "bookPage";
-      status.id = "statusPage";
+      let status = makeDiv("statusPage", "bookPage");
       //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
@@ -1153,22 +1174,19 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode, pageRight, pageLeft);
+        checkKeys(e.keyCode);
       }
       //
       //This block makes and places the <div> and <image>
       //elements for the status page of the book
-      let playerCameoDiv = document.createElement("div");
-      playerCameoDiv.id = "playerCameoDiv";
+      let playerCameoDiv = makeDiv("playerCameoDiv");
       playerCameoDiv.onclick = function() {
         playerCameoImg.src = player.sprites.path + player.sprites.files[1];
         setTimeout(function() {
           playerCameoImg.src = player.sprites.path + player.sprites.files[0];
         }, 1000);
       }
-      let playerCameoImg = document.createElement("img");
-      playerCameoImg.id = "playerCameoImg";
-      playerCameoImg.src = player.sprites.path + player.sprites.files[0];
+      let playerCameoImg = makeImg(player.sprites.path + player.sprites.files[0], "playerCameoImg");
       playerCameoDiv.appendChild(playerCameoImg);
       status.appendChild(playerCameoDiv);
       //
@@ -1213,9 +1231,7 @@ function overworld(player) {
     //This function makes the layout of the spells
     //page of the player's book.
     function spellsPage() {
-      let spells = document.createElement("div");
-      spells.className = "bookPage";
-      spells.id = "spellsPage";
+      let spells = makeDiv("spellsPage", "bookPage");
       //
       //Determines the function of the page turning butttons
       if (player.spells.learned[0] >= 0) {
@@ -1249,7 +1265,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode, pageRight, pageLeft);
+        checkKeys(e.keyCode);
       }
       //
       //Inserts the title of the Spell Page
@@ -1274,9 +1290,7 @@ function overworld(player) {
     //This function handles the individual spell pages
     //index is the index of player.spells.learned
     function spellDetailPage(index) {
-      let spell = document.createElement("div");
-      spell.className = "bookPage";
-      spell.id = "spellsDetailPage";
+      let spell = makeDiv("spellsDetailPage", "bookPage");
       //
       //Determines the function of the page turning butttons
       if (player.spells.learned.indexOf(index) === 0) {
@@ -1318,13 +1332,11 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode, pageRight, pageLeft);
+        checkKeys(e.keyCode);
       }
 
-      let spellDiv = document.createElement("div");
-      spellDiv.id = "spellDetailDiv";
-      let spellImg = document.createElement("img");
-      spellImg.src = "./scrolls/" + spellBookContent[player.spells.learned[index]][1];
+      let spellDiv = makeDiv("spellDetailDiv");
+      let spellImg = makeImg("./scrolls/" + spellBookContent[player.spells.learned[index]][1]);
       spellImg.style.height = "330px";
       spellDiv.appendChild(spellImg);
       spell.appendChild(spellDiv);
@@ -1351,9 +1363,7 @@ function overworld(player) {
         insertLineBreak(target);
       }
 
-      let monsters = document.createElement("div");
-      monsters.className = "bookPage";
-      monsters.id = "monsterPage";
+      let monsters = makeDiv("monsterPage", "bookPage");
       //
       //Determines the function of the page turning butttons
       if (player.spells.learned[0] >= 0) {
@@ -1395,7 +1405,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode, pageRight, pageLeft);
+        checkKeys(e.keyCode);
       }
       makePageTitle("Capitulum Prodigium", monsters, 1.5);
       //
@@ -1435,9 +1445,7 @@ function overworld(player) {
         target.appendChild(td);
       }
 
-      let monsterList = document.createElement("div");
-      monsterList.className = "bookPage";
-      monsterList.id = "monsterListPage";
+      let monsterList = makeDiv("monsterListPage", "bookPage");
 
       let monsterArray = null;
       let monsterFiles = null;
@@ -1469,11 +1477,6 @@ function overworld(player) {
           }
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
-
-          document.onkeyup = function(e) {
-            e = e || window.event;
-            checkKeys(e.keyCode, pageRight, pageLeft);
-          }
           break;
         case "-":
           setArrayValues(player.stats.monsters.subtraction, monsterData.subtraction);
@@ -1488,10 +1491,6 @@ function overworld(player) {
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
 
-          document.onkeyup = function(e) {
-            e = e || window.event;
-            checkKeys(e.keyCode, pageRight, pageLeft);
-          }
           break;
         case "*":
           setArrayValues(player.stats.monsters.multiplication, monsterData.multiplication);
@@ -1506,10 +1505,6 @@ function overworld(player) {
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
 
-          document.onkeyup = function(e) {
-            e = e || window.event;
-            checkKeys(e.keyCode, pageRight, pageLeft);
-          }
           break;
         case "/":
           setArrayValues(player.stats.monsters.division, monsterData.division);
@@ -1524,11 +1519,12 @@ function overworld(player) {
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
 
-          document.onkeyup = function(e) {
-            e = e || window.event;
-            checkKeys(e.keyCode, pageRight, pageLeft);
-          }
           break;
+      }
+
+      document.onkeyup = function(e) {
+        e = e || window.event;
+        checkKeys(e.keyCode);
       }
       //
       //Makes the table that displays the names of the
@@ -1577,9 +1573,7 @@ function overworld(player) {
       let imgSrcString = null;
       let currentIndex = null;
 
-      let monsterDetail = document.createElement("div");
-      monsterDetail.className = "bookPage";
-      monsterDetail.id = "monsterDetailPage";
+      let monsterDetail = makeDiv("monsterDetailPage", "bookPage");
       //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
@@ -1683,7 +1677,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode, pageRight, pageLeft);
+        checkKeys(e.keyCode);
       }
 
       makePageTitle((currentMonster[1] + 1) + ". " + monsterNames[currentMonster[1]], monsterDetail);
@@ -1764,8 +1758,7 @@ function overworld(player) {
         monsterDetail.appendChild(p);
       }
 
-      let monsterDetailDiv = document.createElement("div");
-      monsterDetailDiv.id = "monsterDetailDiv";
+      let monsterDetailDiv = makeDiv("monsterDetailDiv");
       if (monsterArray[currentIndex][1] < 5) {
         monsterDetailDiv.style.border = "3px solid black";
       } else if (monsterArray[currentIndex][1] < 10) {
@@ -1775,9 +1768,7 @@ function overworld(player) {
       } else {
         monsterDetailDiv.style.border = "3px solid #d4af37";
       }
-      let monsterDetailImg = document.createElement("img");
-      monsterDetailImg.id = "monsterImg";
-      monsterDetailImg.src = imgSrcString + monsterFiles[currentMonster[1]];
+      let monsterDetailImg = makeImg(imgSrcString + monsterFiles[currentMonster[1]], "monsterImg");
       monsterDetailDiv.appendChild(monsterDetailImg);
       monsterDetail.appendChild(monsterDetailDiv);
 
@@ -1840,11 +1831,9 @@ function overworld(player) {
       function makeAchievementElement(imgSource) {
         let tr = document.createElement("tr");
         let td = document.createElement("td");
-        let img = document.createElement("img");
         let div = document.createElement("div");
+        let img = makeImg("./icons/" + imgSource, "", "achievementImg");
         div.style.borderRadius = "5px";
-        img.src = "./icons/" + imgSource;
-        img.className = "achievementImg";
         div.appendChild(img);
         td.appendChild(div);
         return td;
@@ -1855,9 +1844,7 @@ function overworld(player) {
         return total + num;
       }
 
-      let achievementPage = document.createElement("div");
-      achievementPage.className = "bookPage";
-      achievementPage.id = "achievementPage";
+      let achievementPage = makeDiv("achievementPage", "bookPage");
       //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
@@ -2052,8 +2039,7 @@ function overworld(player) {
     //
     //This block creates the <div> that holds all the
     //pages of the book and the title page
-    let monsterBook = document.createElement("div");
-    monsterBook.id = "monsterBook";
+    let monsterBook = makeDiv("monsterBook");
     let titlePage = makeTitlePage();
     monsterBook.appendChild(titlePage);
     fragment.appendChild(monsterBook);
@@ -2115,8 +2101,8 @@ function overworld(player) {
       right: "overworldButtonRight"
     }
   };
+
   //
   //Makes the overworld menu and puts it on the screen
-  checkLevels();
-  menuMaker(overworldMenuSelectors, menuData, menuSelection);
+  launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection);
 }
