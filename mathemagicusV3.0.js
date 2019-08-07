@@ -52,12 +52,13 @@ function clearElement(element) {
   element.innerHTML = "";
 }
 //
-//This removes one HTML element from another one
-//child is the element to be removed
-//parent is the element to remove child from
-function removeElement(elementID) {
-  let element = document.getElementById(elementID);
-  element.parentNode.removeChild(element);
+//Removes elements from their parent
+//parameters are the ID of the element
+function removeElement() {
+  for (let i = 0; i < arguments.length; i++) {
+    let element = document.getElementById(arguments[i]);
+    element.parentNode.removeChild(element);
+  }
 }
 //
 //Inserts multiple elements into a fragment to be
@@ -73,9 +74,11 @@ function insertElements() {
 //Inserts a <br /> element into the DOM
 //element is the parent element into which the
 //<br /> will be inserted
-function insertLineBreak(element) {
-  let lineBreak = document.createElement("br");
-  element.appendChild(lineBreak);
+function insertLineBreak(element, repeat = 1) {
+  for (let i = 0; i < repeat; i++) {
+    let lineBreak = document.createElement("br");
+    element.appendChild(lineBreak);
+  }
 }
 //
 //Inserts a text node into a DOM element
@@ -95,7 +98,7 @@ function insertButton(element, text, nextFunction) {
   const button = makeButton(nextFunction, text, "nextButton");
   element.appendChild(button);
   setTimeout(function() {
-    nextButton.focus();
+    button.focus();
   }, 100);
 }
 //
@@ -148,11 +151,12 @@ function typer(text, target, callback, i = 0) {
 }
 //
 //makes a <div> element and assigns an ID and class
-//id is a string
+//first parameter assigns a string to an ID
 //additional parameters are added as classes
-function makeDiv(id) {
+function makeDiv() {
   let div = document.createElement("div");
-  div.id = id;
+  if (arguments.length > 0) {div.id = arguments[0]}
+  //div.id = id;
   if (arguments.length > 1) {
     for (let i = 1; i < arguments.length; i++) {
       div.classList.add(arguments[i]);
@@ -197,13 +201,13 @@ function makeButton(callback, text, id = "") {
   }
   return button;
 }
-
 //
 //This makes my menus
 //selector is an object w/ ID and class information
 //imgData is an object with image information
 //callback is the function that is run when the menu
 //item is selected
+//index is the starting menu item
 function menuMaker(selector, imgData, callback, index = 0) {
   //
   //Turns off all the event listeners before
@@ -372,6 +376,22 @@ function clearMenu(selector, options = [1, 1, 1, 1, 1, 1]) {
     removeElement(selector.buttonId.right);
   }
 }
+//
+//Makes a fade-in/fade-out transition effect
+//element is a DOM element to add
+//target is a DOM element to which element
+//will be added
+//speed is the speed in ms of the transitions
+//callback is a function to call during the transition
+function fadeTransition(element, target, speed = 500, callback = null) {
+  target.style.filter = "brightness(0%)";
+  setTimeout(function() {
+    clearElement(target);
+    if (element != null) {target.appendChild(element);}
+    if (callback != null) {callback();}
+    target.style.filter = "brightness(100%)";
+  }, speed);
+}
 
 //-------------------------------------------------------------------//
 //Object functions                                                   //
@@ -395,6 +415,12 @@ class Player {
       multiplication: 0,
       division: 0
     }
+    /*this.currentLevel = {
+      "addition": this.level.addition,
+      "subtraction": this.level.subtraction,
+      "multiplication": this.level.multiplication,
+      "division": this.level.division
+    }*/
     //
     //Avatar sprites for the player
     this.sprites = {
@@ -461,6 +487,8 @@ class Player {
       star: 0                       //Nova spells
     }
   }
+
+
   //
   //This gets the possesive form of the players name
   get possessive() {
@@ -502,8 +530,18 @@ function testBook() {
   player.stats.damage.received = 200;
   player.stats.damage.healed = 200;
 
+  let xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      let monsterData = JSON.parse(this.responseText);
+      catacombs(player, "addition", 2, 4, monsterData);
+    }
+  };
+  xmlhttp.open("GET", "./monsterData.json", true);
+  xmlhttp.send();
 
-  overworld(player);
+  //catacombs(player, "addition", 0, 4, monsterData)
+  //overworld(player);
 }
 
 //-------------------------------------------------------------------//
@@ -750,16 +788,16 @@ function overworld(player) {
     menuData.index = imgData.index;
     switch(imgData.index) {
       case 0:     //Addition Catacomb
-        dungeonLevelMenu(player.level.addition);
+        dungeonLevelMenu(player.level.addition, "addition");
         break;
       case 1:     //Subtraction Catacomb
-        dungeonLevelMenu(player.level.subtraction);
+        dungeonLevelMenu(player.level.subtraction, "subtraction");
         break;
       case 2:     //Multiplication Catacomb
-        dungeonLevelMenu(player.level.multiplication);
+        dungeonLevelMenu(player.level.multiplication, "multiplication");
         break;
       case 3:     //Division Catacomb
-        dungeonLevelMenu(player.level.division);
+        dungeonLevelMenu(player.level.division, "division");
         break;
       case 4:     //Liber mathemagicus
         //
@@ -781,45 +819,105 @@ function overworld(player) {
   //The sub-menu that pops up before a player gets to the dungeon
   //level is the player's level in the operation of the
   //selected dungeon
-  function dungeonLevelMenu(level) {
+  function dungeonLevelMenu(level, operation) {
+    //
+    //Ojbect to get the right door image
+    const doors = {
+      "addition": menuData.path + menuData.sprites[0][0],
+      "subtraction": menuData.path + menuData.sprites[1][0],
+      "multiplication": menuData.path + menuData.sprites[2][0],
+      "division": menuData.path + menuData.sprites[3][0]
+    }
     //
     //This function returns to the overworld menu
     //from the Liber Mathemagicus
     function returnToDungeonMenu() {
-      playArea.style.filter = "brightness(0%)";
-      setTimeout(function() {
-        removeElement("menuReturnButton");
-        removeElement("overworldDivMiddle");
-        removeElement("dungeonSelectDiv");
-        playArea.style.filter = "brightness(100%)";
+      fadeTransition(null, playArea, 500, function() {
         launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, menuData.index);
-      }, 500);
+      });
+    }
+    //
+    //Handles the logic of what happens when the
+    //timer buttons are clicked
+    function clickTimerButton(newSelection) {
+      let newButton = document.getElementById(selectedTimerButton);
+      newButton.classList.remove("timerButtonClicked");
+      newButton = document.getElementById(newSelection);
+      newButton.classList.add("timerButtonClicked");
+      selectedTimerButton = newSelection;
+      switch(newSelection) {
+        case 0:
+          clearElement(timerSelectBox);
+          insertTextNode(timerSelectBox, "No Timer");
+          break;
+        case 1:
+          clearElement(timerSelectBox);
+          insertTextNode(timerSelectBox, "Slow Timer");
+          break;
+        case 2:
+          clearElement(timerSelectBox);
+          insertTextNode(timerSelectBox, "Normal Timer");
+          break;
+        case 3:
+          clearElement(timerSelectBox);
+          insertTextNode(timerSelectBox, "Fast Timer");
+          break;
+      }
+    }
+    //
+    //Changes the behavior of my level buttons so they
+    //are more similar to radio buttons
+    function checkLevelButton(newSelection) {
+      let newButton = document.getElementById("level" + selectedLevelButton);
+      newButton.classList.remove("levelButtonClicked");
+      newButton = document.getElementById("level" + newSelection);
+      newButton.classList.add("levelButtonClicked");
+      selectedLevelButton = newSelection;
+    }
+    //
+    //Does a bit of prep work before loading the catacombs
+    function enterCatacombs() {
+      //
+      //This loads monster data from an outside file that
+      //the catacomb will need.
+      let xmlhttp = new XMLHttpRequest();
+      xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          let monsterData = JSON.parse(this.responseText);
+          catacombs(player, operation, selectedTimerButton, selectedLevelButton, monsterData);
+        }
+      };
+      xmlhttp.open("GET", "./monsterData.json", true);
+      xmlhttp.send();
     }
 
-    playArea.style.filter = "brightness(0%)";
+    let fragment = document.createDocumentFragment();
+    let returnToMenu = makeButton(returnToDungeonMenu, "Return to Menu", "menuReturnButton", "buttonHover");
+    fragment.appendChild(returnToMenu);
 
-    let dungeonImg = document.getElementById("overworldDivMiddle");
-    dungeonImg.firstChild.classList.remove(overworldMenuSelectors.hoverClass);
-    dungeonImg.style.transition = "all 0ms";
-    dungeonImg.onclick = "";
-
+    let timerSelectBox = makeDiv("timerSelectBox", "textBox");
+    insertTextNode(timerSelectBox, "No Timer");
+    fragment.appendChild(timerSelectBox);
+    //
+    //Makes the buttons to select the timer level
     let timerSelectDiv = makeDiv("timerSelectDiv");
-
-    function clickTimerButton() {
-
-    }
-
+    let selectedTimerButton = 0;
     for (let i = 0; i < 4; i++) {
-      let button = makeButton(clickTimerButton, "", i, "timerSelectButtons");
+      let button = makeButton(function() {
+        clickTimerButton(i)
+      }, "", i, "timerSelectButtons");
       timerSelectDiv.appendChild(button);
-      //insertLineBreak(timerSelectDiv);
     }
-    let dungeonSelectDiv = makeDiv("dungeonSelectDiv");
+    fragment.appendChild(timerSelectDiv);
     //
     //Makes and styles the buttons to select the
     //dungeon level
+    let dungeonSelectDiv = makeDiv("dungeonSelectDiv");
+    let selectedLevelButton = 1;
     for (let i = 0; i < 10; i++) {
-      let buttonFunction = function() {spud();}
+      let buttonFunction = function() {
+        checkLevelButton(i + 1);
+      }
       let brightness = "brightness(100%)";
       let className2 = "buttonHover";
       if (i + 1 > level) {
@@ -827,22 +925,30 @@ function overworld(player) {
         brightness = "brightness(50%)";
         className2 = null;
       }
-      const button = makeButton(buttonFunction, "Level " + (i + 1), "", "dungeonSelectButton", className2);
+      const button = makeButton(buttonFunction, "Level " + (i + 1), "level" + (i + 1), "dungeonSelectButton", className2);
       button.style.filter = brightness;
       dungeonSelectDiv.appendChild(button);
       insertLineBreak(dungeonSelectDiv);
     }
+    fragment.appendChild(dungeonSelectDiv);
 
-    let returnToMenu = makeButton(returnToDungeonMenu, "Return to Menu", "menuReturnButton", "buttonHover");
+    let dungeonImg = makeImg(doors[operation], "dungeonSelectImg");
+    if (level) {
+      dungeonImg.onclick = enterCatacombs;
+      dungeonImg.classList.add("overworldMenuHover");
+    }
 
-    setTimeout(function() {
-      clearMenu(overworldMenuSelectors, [1, 1, 1, 0, 1, 1]);
-      dungeonImg.style.left = "30px";
-      dungeonImg.style.bottom = "35px";
-      playArea.appendChild(insertElements(returnToMenu, timerSelectDiv, dungeonSelectDiv));
-      playArea.style.filter = "brightness(100%)";
-    }, 500);
+    fragment.appendChild(dungeonImg);
 
+    fadeTransition(fragment, playArea, 500, function() {
+      let selectedButton = document.getElementById("0");
+      selectedButton.classList.add("timerButtonClicked");
+      if (level > 0) {
+        let levelButton = document.getElementById("level1");
+        levelButton.classList.add("levelButtonClicked");
+      }
+
+    })
   }
   //
   //Controls the Liber Mathemagicus, the book that is
@@ -871,8 +977,7 @@ function overworld(player) {
     function returnToMenu() {
       playArea.style.filter = "brightness(0%)";
       setTimeout(function() {
-        removeElement("bookReturnButton");
-        removeElement("monsterBook");
+        removeElement("bookReturnButton", "monsterBook");
         playArea.style.filter = "brightness(100%)";
         launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, 4);
       }, 500);
@@ -1117,7 +1222,7 @@ function overworld(player) {
       p = chapterEntry(monstersPage, "Monsters", "A list of the monsters " + player.name + " has encountered.");
       tableOfContents.appendChild(p);
 
-      p = chapterEntry(spud, "Achievements", "A list of the achievements " + player.name + " has earned.");
+      p = chapterEntry(achievementsPage, "Achievements", "A list of the achievements " + player.name + " has earned.");
       tableOfContents.appendChild(p);
 
       return tableOfContents;
@@ -2029,12 +2134,11 @@ function overworld(player) {
 
     }
 
-    playArea.style.filter = "brightness(0%)";
+    let fragment = document.createDocumentFragment();
     //
     //Makes the button that will return the player to the
     //main overworld menu
     const bookReturnButton = makeButton(returnToMenu, "Return to Menu", "bookReturnButton");
-    let fragment = document.createDocumentFragment();
     fragment.appendChild(bookReturnButton);
     //
     //This block creates the <div> that holds all the
@@ -2043,15 +2147,8 @@ function overworld(player) {
     let titlePage = makeTitlePage();
     monsterBook.appendChild(titlePage);
     fragment.appendChild(monsterBook);
-    //
-    //Clears the old screen after it has faded to black
-    //then puts the new graphics onscreen before fading back
-    setTimeout(function() {
-      clearMenu(overworldMenuSelectors);
-      clearElement(playArea);
-      playArea.appendChild(fragment);
-      playArea.style.filter = "brightness(100%)";
-    }, 500);
+
+    fadeTransition(fragment, playArea);
     //
     //The background images for the pages of the book
     let pageBackgrounds = [
@@ -2063,11 +2160,6 @@ function overworld(player) {
   }
 
   let playArea = document.getElementById("playArea");
-  clearElement(playArea);
-
-  function spud() {
-    console.log("spud");
-  }
   //
   //The image data for the overworld menu
   let menuData = {
@@ -2104,5 +2196,400 @@ function overworld(player) {
 
   //
   //Makes the overworld menu and puts it on the screen
-  launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection);
+  fadeTransition(null, playArea, 500, function() {
+    launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection);
+  })
+
+}
+
+//-------------------------------------------------------------------//
+//Catacomb functions                                                 //
+//-------------------------------------------------------------------//
+
+function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
+  //
+  //Holds the value of the players level in the
+  //current catacomb
+  const currentLevel = {
+    "addition": player.level.addition,
+    "subtraction": player.level.subtraction,
+    "multiplication": player.level.multiplication,
+    "division": player.level.division
+  }
+  //
+  //Makes the monster object
+  class Monster {
+    constructor(catacombLevel) {
+      if (currentLevel[operation] > catacombLevel) {
+        this.index = getRandomNumber(0, ((catacombLevel * 3) - 1));
+      } else {
+        this.index = getRandomNumber(((catacombLevel * 3) - 3), ((catacombLevel * 3) - 1));
+      }
+      if (this.index > 33) {
+        this.index = getRandomNumber(0, 33);
+      }
+      //
+      //Level 1 - 3      1 dmg
+      //Level 4 - 6      2 dmg
+      //Level 7 - 9      3 dmg
+      //Level 10         4 dmg
+      this.hp = 2
+      this.maxHp = this.hp;
+      this.damage = Math.ceil((this.index + 1) / 9);
+      this.damageBoost = 0;
+      if (this.index < 30) {
+        this.level = Math.ceil((this.index + 1) / 3);
+      } else {
+        this.level = (((this.index % 30) * 2) + 2);
+      }
+
+      switch (operation) {
+        case "addition":
+          this.src = monsterData.addition.path + monsterData.addition.files[this.index];
+          this.name = monsterData.addition.names[this.index];
+          break;
+        case "subtraction":
+          this.src = monsterData.subtraction.path + monsterData.subtraction.files[this.index];
+          this.name = monsterData.subtraction.names[this.index];
+          break;
+        case "multiplication":
+          this.src = monsterData.multiplication.path + monsterData.multiplication.files[this.index];
+          this.name = monsterData.multiplication.names[this.index];
+          break;
+        case "division":
+          this.src = monsterData.division.path + monsterData.division.files[this.index];
+          this.name = monsterData.division.names[this.index];
+          break;
+      }
+
+      let monsterImg = document.getElementById("monsterImg");
+      monsterImg.src = this.src;
+      monsterImg.title = this.name;
+    }
+  }
+  //
+  //A quick dungeon intro screen
+  function catacombIntro() {
+
+    let div = makeDiv("", "textBox");
+    insertTextNode(div, "Prepare yourself to fight monsters!");
+    insertLineBreak(div, 2);
+    insertButton(div, "Go!", function() {
+      makeDungeonScreen();
+    });
+
+    fadeTransition(div, playArea);
+  }
+  //
+  //Makes the dungeon screen
+  function makeDungeonScreen() {
+    //
+    //Makes the spell icons that display available
+    //spells and allow the player to cast them
+    //spell is a string of the spell name
+    //count is the variable that holds the count for
+    //that particular spell
+    function makeSpellIcon(spell, count) {
+      let div = makeDiv();
+      let img = makeImg(imgSrc + spell + ".gif", spell + "Img");
+      img.style.filter = "opacity(10%)";
+      div.appendChild(img);
+      let counter = makeDiv(spell + "Count");
+      counter.innerHTML = count;
+      div.appendChild(counter);
+      spellBar.appendChild(div);
+    }
+    //
+    //Makes the cameo boxes for the player and the monster
+    //divId is the ID of the <div> box
+    //file is the path and name of the image file
+    //imgId is the ID of the image
+    //damageImg is the path and name of the damage image file
+    //damageId is the ID of the damage image
+    function makeCombatDiv(divId, file, imgId, damageImg, damageId) {
+      let div = makeDiv(divId);
+      let img = makeImg(file, imgId);
+      div.appendChild(img);
+      let damage = makeImg(damageImg, damageId);
+      damage.style.visibility = "hidden";
+      div.appendChild(damage);
+
+      return div;
+    }
+
+    let fragment = document.createDocumentFragment();
+    //
+    //Creates the level display
+    let levelDiv = makeDiv("levelDiv");
+    insertTextNode(levelDiv, "Level " + catacombLevel);
+    fragment.appendChild(levelDiv);
+    //
+    //Creates the box to display the problem
+    let problemDiv = makeDiv("problemDiv", "textBox");
+    //problemDiv.innerHTML = "1 + 2 + 3 + 4 + 5 = ?"  //Sample text
+    fragment.appendChild(problemDiv);
+    //
+    //Creates the block to display the hint
+    let hintDiv = makeDiv("hintDiv", "textBox");
+    //hintDiv.innerHTML = "I'll get you Black Dynamite, if it's the last thing I do!!!";  //Sample text
+    fragment.appendChild(hintDiv);
+    hintDiv.style.visibility = "hidden";
+    //
+    //This block creates the elements needed for the
+    //countdown bar
+    let countdownBarBack = makeDiv("countdownBarBack");
+    let countdownBarFront = makeDiv("countdownBarFront");
+    let countdownTimer = makeDiv("countdownTimer");
+    countdownBarBack.appendChild(countdownBarFront);
+    countdownBarBack.appendChild(countdownTimer);
+    fragment.appendChild(countdownBarBack);
+    //
+    //creates the spell icons for the combat div
+    let spellBar = makeDiv("spellBar");
+    let imgSrc = "./spellIcons/";
+    makeSpellIcon("fibonacci", player.spells.fibonacci);
+    makeSpellIcon("triangle", player.spells.triangle);
+    makeSpellIcon("square", player.spells.square);
+    makeSpellIcon("pentagon", player.spells.pentagon);
+    makeSpellIcon("hexagon", player.spells.hexagon);
+    makeSpellIcon("pyramid", player.spells.pyramid);
+    makeSpellIcon("cube", player.spells.cube);
+    makeSpellIcon("star", player.spells.star);
+    fragment.appendChild(spellBar);
+    //
+    //The combatDiv holds the player and monster
+    //health bars as well as the images for the
+    //player and monster
+    let combatDiv = makeDiv("combatDiv");
+    //
+    //The player health bar
+    let healthBarBack = makeDiv("healthBarBack");
+    let healthBarFront = makeDiv("healthBarFront");
+    healthBarFront.style.height = ((player.health / player.maxHealth) * 110) + "px";
+    healthBarBack.appendChild(healthBarFront);
+    combatDiv.appendChild(healthBarBack);
+    //
+    //The player's image
+    let playerDiv = makeCombatDiv("playerDiv", player.sprites.path + player.sprites.files[0], "playerImg", "slash.gif", "slash");
+    combatDiv.appendChild(playerDiv);
+    //
+    //The monster's image
+    let monsterDiv = makeCombatDiv("monsterDiv", "", "monsterImg", "blast.gif", "blast");
+    combatDiv.appendChild(monsterDiv);
+    //
+    //The monster health bar
+    let monsterHealthBarBack = makeDiv("monsterHealthBarBack");
+    let monsterHealthBarFront = makeDiv("monsterHealthBarFront");
+    monsterHealthBarBack.appendChild(monsterHealthBarFront);
+    combatDiv.appendChild(monsterHealthBarBack);
+    fragment.appendChild(combatDiv);
+
+    fadeTransition(fragment, playArea, 500, combat);
+  }
+
+  function combat() {
+    //
+    //This function handles the countdown bar
+    class Timer {
+
+      constructor(timerValue) {
+        this.width = 340;
+        this.decrement = (timerValue > 2) ? (.17 * 4):(.17 * timerValue);
+        this.time = null;
+      }
+
+      timeDown() {
+        if (this.width < 1) {
+          clearInterval(this.time);
+          countdownTimer.innerHTML = "0.00";
+          //checkAnswer(-answer, 0);
+        } else {
+          this.width -= this.decrement;
+          countdownBarFront.style.width = this.width + "px";
+          let timeLeft = (this.width / (this.decrement * 100));
+          countdownTimer.innerHTML = timeLeft.toFixed(2);
+        }
+      }
+
+    }
+    //
+    //This function checks for specific key presses in the answer input box
+    //event is the key press
+    //answer is the answer to the question that will be passed to the
+    //checkAnswer() function if enter is pressed
+    const checkKeyPress = function(event, answer) {
+      var key = event.which;
+      switch(key) {
+        case 13: //Enter key, check answer
+          console.log("hola");
+          //checkAnswer(answer, playerBaseDamage);
+          break;
+        case 97: //"a" key, Fibonacci Spell
+          event.preventDefault(); //prevents the writing of the "a" key
+          if (fibonacciCast) {
+            break;
+          }
+          if (additionLevel > 2) {
+            castFibonacci();
+          }
+          break;
+        case 115: //"s" key, Triangle Spell
+          event.preventDefault(); //prevents the writing of the "s" key
+          if (subtractionLevel > 2) {
+            castTriangle();
+          }
+          break;
+        case 100: //"d" key, Square Spell
+          event.preventDefault(); //prevents the writing of the "d" key
+          if (additionLevel > 6) {
+            castSquare();
+          }
+          break;
+        case 101: //"e" key, Pentagon Spell
+          event.preventDefault(); //prevents the writing of the "e" key
+          if (pentagonCast) {
+            break;
+          }
+          if (subtractionLevel > 8) {
+            castPentagon();
+          }
+          break;
+        case 102: //"f" key, Pyramid Spell
+          event.preventDefault(); //prevents the writing of the key
+          if (pyramidCast) {
+            break;
+          }
+          if (additionLevel > 8) {
+            castPyramid();
+          }
+          break;
+        case 113: //"q" key, Cube Spell
+          event.preventDefault(); //prevents the writing of the key
+          if (cubeCast) {
+            break;
+          }
+          if (divisionLevel > 2) {
+            castCube();
+          }
+          break;
+        case 114: //"r" key, Hexagon Spell
+          event.preventDefault(); //prevents the writing of the key
+          if (multiplicationLevel > 8) {
+            castHexagon();
+          }
+          break;
+        case 119: //"w" key, Nova Spell
+          event.preventDefault(); //prevents the writing of the key
+          if (divisionLevel > 8) {
+            castStar();
+          }
+          break;
+      }
+    }
+    //
+    //Finds the type of problem to display
+    const findProblemType = function() {
+      let randomNumber = getRandomNumber(0, 99);
+
+      if (randomNumber <= 4) {
+        return "algebra";
+      } else if (randomNumber <= 9) {
+        return "sequence";
+      } else {
+        return "normal";
+      }
+    }
+    //
+    //Gets the terms for the problems
+    const getTerms = function() {
+      switch (operation) {
+        case "addition": //Addition
+          var constant1 = getRandomNumber(0, (monster.level * 10));
+          var constant2 = getRandomNumber(0, (monster.level * 10));
+          var answer = constant1 + constant2;
+          break;
+        case "subtraction": //Subtraction
+          var constant1 = getRandomNumber(1, (monster.level * 10));
+          var constant2 = getRandomNumber(0, (monster.level * 10));
+          while (constant2 > constant1) {
+            constant2 = getRandomNumber(0, (monster.level * 10));
+          }
+          var answer = constant1 - constant2;
+          break;
+        case "multiplication": //Multiplication
+          var constant1 = getRandomNumber(1, (monster.level + 5));
+          var constant2 = getRandomNumber(0, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
+          var answer = constant1 * constant2;
+          break;
+        case "division": //Division
+          var constant2 = getRandomNumber(1, (monster.level + 5));
+          var answer = getRandomNumber(1, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
+          var constant1 = constant2 * answer;
+          break;
+      }
+      return [constant1, constant2, answer];
+    }
+    //
+    //
+    const getProblem = function() {
+      const sign = {
+        "addition": "+",
+        "subtraction": "-",
+        "multiplication": "×",
+        "division": "÷"
+      }
+
+      function insertProblemSpan(target, text) {
+        let span = document.createElement("span");
+        insertTextNode(span, " " + text + " ");
+        span.style.color = "#ffbaba";
+        target.appendChild(span);
+      }
+
+      function insertAnswerInput(target) {
+        let input = document.createElement("input");
+        input.type = "number";
+        input.id = "answerInput";
+        input.onkeypress = function() {
+          checkKeyPress(event, terms[2]);
+        }
+        insertTextNode(target, "= ");
+        target.appendChild(input);
+      }
+
+      let terms = getTerms();
+      let problemDiv = document.getElementById("problemDiv");
+      let fragment = document.createDocumentFragment();
+
+      insertTextNode(fragment, terms[0] + " " + sign[operation]);
+      insertProblemSpan(fragment, terms[1]);
+      insertAnswerInput(fragment)
+
+      problemDiv.appendChild(fragment);
+      let timer = new Timer(timerValue);
+      setTimeout(function() {
+        timer.time = setInterval(function() {
+          timer.timeDown();
+        }, 10);
+      }, 250);
+
+      let answerInput = document.getElementById("answerInput");
+      answerInput.focus();
+
+    }
+
+
+
+    let monster = new Monster(catacombLevel);
+    getProblem();
+  }
+
+  let playArea = document.getElementById("playArea");
+  //playArea.style.filter = "brightness(0%)";
+
+  catacombIntro();
+
+
+  //let monster = new newMonster(catacombLevel);
+
 }

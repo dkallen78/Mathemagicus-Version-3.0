@@ -480,24 +480,73 @@ on the townIntro() screen*/
   border-radius: 5px;
 }
 
+@keyframes buttonSelectedAnimation2 {
+  0% {filter: brightness(100%);}
+  1% {filter: brightness(105%);}
+  2% {filter: brightness(110%);}
+  3% {filter: brightness(115%);}
+  4% {filter: brightness(110%);}
+  5% {filter: brightness(105%);}
+  6% {filter: brightness(100%);}
+  100% {filter: brightness(100%);}
+}
+
+.levelButtonClicked {
+  background-image: radial-gradient(closest-side at 50% 50%, orange, red, crimson, fireBrick);
+  animation-name: buttonSelectedAnimation2;
+  animation-duration: 6s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
 #timerSelectDiv {
   position: absolute;
   width: 32%;
   left: 59px;
-  top: 34%;
+  top: 27%;
 }
 
 .timerSelectButtons {
   height: 25px;
   width: 25px;
-  border: 1px solid black;
+  border: 2px solid black;
   border-radius: 50%;
   margin: 5px;
-  transition: background-color 250ms;
+  background-image: radial-gradient(#999999, #777777, #555555);
 }
 
 .timerSelectButtons:hover {
-  background-color: #bbbbbb;
+  background-image: radial-gradient(#bbbbbb, #999999, #555555);
+}
+
+@keyframes buttonSelectedAnimation {
+  0% {background-image: radial-gradient(closest-corner at 0% 00%, orange, red, crimson, FireBrick);}
+  1% {background-image: radial-gradient(closest-corner at 20% 10%, orange, red, crimson, FireBrick);}
+  2% {background-image: radial-gradient(closest-corner at 20% 20%, orange, red, crimson, FireBrick);}
+  3% {background-image: radial-gradient(closest-corner at 40% 30%, orange, red, crimson, FireBrick);}
+  4% {background-image: radial-gradient(closest-corner at 40% 40%, orange, red, crimson, FireBrick);}
+  5% {background-image: radial-gradient(closest-corner at 50% 50%, orange, red, crimson, fireBrick);}
+  6% {background-image: radial-gradient(closest-corner at 50% 60%, orange, red, crimson, FireBrick);}
+  7% {background-image: radial-gradient(closest-corner at 60% 70%, orange, red, crimson, FireBrick);}
+  8% {background-image: radial-gradient(closest-corner at 60% 80%, orange, red, crimson, FireBrick);}
+  9% {background-image: radial-gradient(closest-corner at 70% 90%, orange, red, crimson, FireBrick);}
+  10% {background-image: radial-gradient(closest-corner at 100% 100%, orange, red, crimson, FireBrick);}
+  100% {background-image: radial-gradient(closest-corner at 100% 100%, orange, red, crimson, FireBrick);}
+}
+
+.timerButtonClicked {
+  background-image: radial-gradient(closest-corner at 50% 50%, orange, red, crimson, FireBrick);
+  animation-name: buttonSelectedAnimation;
+  animation-duration: 6s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+#timerSelectBox {
+  position: absolute;
+  left: 3%;
+  top: 10%;
+  width: 46%;
 }
 
 #menuReturnButton {
@@ -516,6 +565,13 @@ on the townIntro() screen*/
 
 #menuReturnButton:hover {
   background-color: #bbbbbb;
+}
+
+#dungeonSelectImg {
+  position: relative;
+  height: 50%;
+  left: 26px;
+  bottom: 252px;
 }
 
 /*-------------------------------------------------------------
