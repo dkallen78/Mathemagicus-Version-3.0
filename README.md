@@ -6,11 +6,17 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: the overworld logic.
+### Up next: the combat logic.
 
-Now that I have a simple menu in place for a player to choose their level I need to put one more thing into place for the player to choose how much time they have to answer a question. I'm also going to go through the style sheet and try to condense that as well. I've learned a bit more about classes that will help me consense things. 
+All the code I have in front of me is ugly so I think things are going to slow down a bit from here. Next up is getting basic answer checking functionality followed by special problem types.
 
-I'm torn on whether or not to implement a "responsive design" at this point. I like the idea of it, in principle, but I don't like forcing the player into one a one-size-fits-all play area. We'll see...
+## 2019.08.06
+
+### Update
+
+I'm starting to put in the code for the combat. This was one of the first things I made in v2.0 so it's the ugliest. It's also the part I added to the most after the fact so it works but it isn't elegant or pretty. I'm working to fix that while changing how the game works. 
+
+As of now I've got the bits that make the combat screen, the function to check key presses, randomly determine problem type, get problem terms (no sequence or arithmetic yet), and display a problem. And I've got a class for making monsters. I also made the timer function into a class. I don't know why, it just seemed like a good idea at the time. 
 
 ## 2019.08.02
 
