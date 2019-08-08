@@ -39,6 +39,20 @@ function findMonster(array, index) {
   }
   return -1;
 }
+//
+//This function is my version of the
+//array.includes() function, just customized
+//for my array of arrays
+//array is the array to be searched
+//index is the item to be searched for
+function monsterSearch(array, index) {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i][0] == index) {
+      return true;
+    }
+  }
+  return false;
+}
 
 
 //-------------------------------------------------------------------//
@@ -58,6 +72,13 @@ function removeElement() {
   for (let i = 0; i < arguments.length; i++) {
     let element = document.getElementById(arguments[i]);
     element.parentNode.removeChild(element);
+  }
+}
+//
+//Removes the last child from an element
+function removeLastChild(parent, children = 1) {
+  for (let i = 0; i < children; i++) {
+    parent.removeChild(parent.lastChild);
   }
 }
 //
@@ -91,11 +112,13 @@ function insertTextNode(element, text) {
   element.appendChild(node);
 }
 //
-//Puts a button that says "next" onto the screen
+//Inserts a button into an element
 //element is the element the button will be appended to
+//text is the text of the button
 //nextFunction is the the function called when it's clicked
-function insertButton(element, text, nextFunction) {
-  const button = makeButton(nextFunction, text, "nextButton");
+//id defaults to "nextButton"
+function insertButton(element, text, nextFunction, id = "nextButton") {
+  const button = makeButton(nextFunction, text, id);
   element.appendChild(button);
   setTimeout(function() {
     button.focus();
@@ -391,6 +414,8 @@ function fadeTransition(element, target, speed = 500, callback = null) {
     if (callback != null) {callback();}
     target.style.filter = "brightness(100%)";
   }, speed);
+
+
 }
 
 //-------------------------------------------------------------------//
@@ -415,12 +440,6 @@ class Player {
       multiplication: 0,
       division: 0
     }
-    /*this.currentLevel = {
-      "addition": this.level.addition,
-      "subtraction": this.level.subtraction,
-      "multiplication": this.level.multiplication,
-      "division": this.level.division
-    }*/
     //
     //Avatar sprites for the player
     this.sprites = {
@@ -488,7 +507,9 @@ class Player {
     }
   }
 
-
+  get totalDamage() {
+    return this.damage + this.damageBoost;
+  }
   //
   //This gets the possesive form of the players name
   get possessive() {
@@ -498,13 +519,23 @@ class Player {
     return this.name + "'s";
     }
   }
+
+  average(operation) {
+    let averages = {
+      "addition": this.stats.averages.addition,
+      "subtraction": this.stats.averages.subtraction,
+      "multiplication": this.stats.averages.multiplication,
+      "division": this.stats.averages.division
+    }
+    return averages[operation];
+  }
 }
 
 function testBook() {
   player = new Player();
   player.name = "Shady";
-  player.maxHealth = 100;
-  player.damage = 10;
+  player.maxHealth = 20;
+  player.damage = 1;
   player.level.addition = 11;
   player.stats.averages.addition = [100, 100];
   player.level.subtraction = 8;
@@ -534,7 +565,7 @@ function testBook() {
   xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       let monsterData = JSON.parse(this.responseText);
-      catacombs(player, "addition", 2, 4, monsterData);
+      catacombs(player, "addition", 3, 4, monsterData);
     }
   };
   xmlhttp.open("GET", "./monsterData.json", true);
@@ -754,7 +785,7 @@ function gameStart() {
     //a button that lets the player skip the game intro
     const skipButton = makeButton(function() {
       overworld(player);
-    }, "Skip Intro", "skipButton");
+    }, "Skip", "skipButton");
     playArea.appendChild(skipButton);
     introPart1();
   }
@@ -2274,11 +2305,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let div = makeDiv("", "textBox");
     insertTextNode(div, "Prepare yourself to fight monsters!");
     insertLineBreak(div, 2);
-    insertButton(div, "Go!", function() {
-      makeDungeonScreen();
+    insertButton(div, "Go!", makeDungeonScreen);
+
+    fadeTransition(div, playArea, 500, function() {
+      document.querySelector("button").focus();
     });
 
-    fadeTransition(div, playArea);
   }
   //
   //Makes the dungeon screen
@@ -2389,28 +2421,128 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
   function combat() {
     //
-    //This function handles the countdown bar
+    //This handles the countdown bar
     class Timer {
 
       constructor(timerValue) {
         this.width = 340;
         this.decrement = (timerValue > 2) ? (.17 * 4):(.17 * timerValue);
         this.time = null;
+        this.totalTime = (timerValue) ? (timerValue > 2) ? 5:(20 / timerValue) :null;
+        this.increment = this.totalTime;
+        this.timeLeft = null;
+        this.timeIndex = timerValue;
+      }
+
+      get answerTime() {
+        if (this.timeIndex) {
+          return this.totalTime - this.timeLeft;
+        } else {
+          return (this.totalTime - this.timeLeft) / 1000;
+        }
       }
 
       timeDown() {
         if (this.width < 1) {
-          clearInterval(this.time);
-          countdownTimer.innerHTML = "0.00";
-          //checkAnswer(-answer, 0);
+          this.width = 340;
+          this.totalTime += this.increment;
+          damagePlayer();
         } else {
           this.width -= this.decrement;
           countdownBarFront.style.width = this.width + "px";
-          let timeLeft = (this.width / (this.decrement * 100));
-          countdownTimer.innerHTML = timeLeft.toFixed(2);
+          this.timeLeft = (this.width / (this.decrement * 100));
+          countdownTimer.innerHTML = this.timeLeft.toFixed(2);
         }
       }
 
+      startTimer() {
+        this.timeLeft = new Date();
+      }
+
+      stopTimer() {
+        this.totalTime = new Date();
+        this.time += this.totalTime - this.timeLeft;
+
+      }
+
+      stopTime() {
+        if (this.timeIndex) {
+          clearInterval(this.time);
+        } else {
+          this.stopTimer();
+        }
+      }
+    }
+    //
+    //Handles the flash animation after damage
+    class DamageFlash {
+      constructor() {
+        this.count = 6;
+        this.flash = null;
+      }
+
+      monster() {
+        playerImg.src = player.sprites.path + player.sprites.files[1];
+        monsterImg.style.filter = "brightness(50%)";
+
+        if (this.count > 0) {
+          if (this.count % 2) {
+            monsterDiv.style.backgroundColor = "grey";
+            blast.style.visibility = "hidden";
+          } else {
+            monsterDiv.style.backgroundColor = "red";
+            blast.style.visibility = "visible";
+          }
+          this.count--;
+        } else {
+          setTimeout(function() {monsterDiv.removeChild(damageDiv);}, 1400);
+          playerImg.src = player.sprites.path + player.sprites.files[0];
+          if (monster.hp > 0) {
+            monsterImg.style.filter = "brightness(100%)";
+          }
+          clearInterval(this.flash);
+        }
+      }
+
+      player() {
+        playerImg.src = player.sprites.path + player.sprites.files[2];
+        playerImg.style.filter = "brightness(50%)";
+
+        if (this.count > 0) {
+          if (this.count % 2) {
+            playerDiv.style.backgroundColor = "grey";
+            slash.style.visibility = "hidden";
+          } else {
+            playerDiv.style.backgroundColor = "red";
+            slash.style.visibility = "visible";
+          }
+          this.count--;
+        } else {
+          setTimeout(function() {playerDiv.removeChild(damageDiv);}, 1400);
+          playerImg.style.filter = "brightness(100%)";
+          clearInterval(this.flash);
+        }
+      }
+    }
+    //
+    //Gets the next monster and sends the player
+    //back to the getProblem() function
+    const nextMonster = function() {
+      monster = new Monster(catacombLevel);
+      monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
+      monsterImg.style.filter = "brightness(100%)";
+      getProblem();
+    }
+
+    const intermission = function() {
+      let problemDiv = document.getElementById("problemDiv");
+      problemDiv.innerHTML = "You're doing great! You've defeated " + monsterInterval + " monsters!";
+      insertLineBreak(problemDiv);
+      insertButton(problemDiv, "Continue", nextMonster);
+      insertTextNode(problemDiv, " ");
+      insertButton(problemDiv, "Return to Surface", function() {
+        overworld(player);
+      });
     }
     //
     //This function checks for specific key presses in the answer input box
@@ -2421,8 +2553,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       var key = event.which;
       switch(key) {
         case 13: //Enter key, check answer
-          console.log("hola");
-          //checkAnswer(answer, playerBaseDamage);
+          checkAnswer(answer);
           break;
         case 97: //"a" key, Fibonacci Spell
           event.preventDefault(); //prevents the writing of the "a" key
@@ -2500,52 +2631,57 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
     }
     //
-    //Gets the terms for the problems
-    const getTerms = function() {
-      switch (operation) {
-        case "addition": //Addition
-          var constant1 = getRandomNumber(0, (monster.level * 10));
-          var constant2 = getRandomNumber(0, (monster.level * 10));
-          var answer = constant1 + constant2;
-          break;
-        case "subtraction": //Subtraction
-          var constant1 = getRandomNumber(1, (monster.level * 10));
-          var constant2 = getRandomNumber(0, (monster.level * 10));
-          while (constant2 > constant1) {
-            constant2 = getRandomNumber(0, (monster.level * 10));
-          }
-          var answer = constant1 - constant2;
-          break;
-        case "multiplication": //Multiplication
-          var constant1 = getRandomNumber(1, (monster.level + 5));
-          var constant2 = getRandomNumber(0, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
-          var answer = constant1 * constant2;
-          break;
-        case "division": //Division
-          var constant2 = getRandomNumber(1, (monster.level + 5));
-          var answer = getRandomNumber(1, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
-          var constant1 = constant2 * answer;
-          break;
-      }
-      return [constant1, constant2, answer];
-    }
-    //
-    //
-    const getProblem = function() {
+    //Makes and displays the math problems
+    const getProblem = function(code = 1) {
       const sign = {
         "addition": "+",
         "subtraction": "-",
         "multiplication": "×",
         "division": "÷"
       }
-
+      //
+      //Gets the terms for the problems
+      const getTerms = function() {
+        let constant1 = null;
+        let constant2 = null;
+        let answer = null;
+        switch (operation) {
+          case "addition": //Addition
+            constant1 = getRandomNumber(0, (monster.level * 10));
+            constant2 = getRandomNumber(0, (monster.level * 10));
+            answer = constant1 + constant2;
+            break;
+          case "subtraction": //Subtraction
+            constant1 = getRandomNumber(1, (monster.level * 10));
+            constant2 = getRandomNumber(0, (monster.level * 10));
+            while (constant2 > constant1) {
+              constant2 = getRandomNumber(0, (monster.level * 10));
+            }
+            answer = constant1 - constant2;
+            break;
+          case "multiplication": //Multiplication
+            constant1 = getRandomNumber(1, (monster.level + 5));
+            constant2 = getRandomNumber(0, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
+            answer = constant1 * constant2;
+            break;
+          case "division": //Division
+            constant2 = getRandomNumber(1, (monster.level + 5));
+            answer = getRandomNumber(1, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
+            constant1 = constant2 * answer;
+            break;
+        }
+        return [constant1, constant2, answer];
+      }
+      //
+      //Makes and inserts the <span> for my red numbers
       function insertProblemSpan(target, text) {
         let span = document.createElement("span");
         insertTextNode(span, " " + text + " ");
         span.style.color = "#ffbaba";
         target.appendChild(span);
       }
-
+      //
+      //Makes and inserts the number input box
       function insertAnswerInput(target) {
         let input = document.createElement("input");
         input.type = "number";
@@ -2557,39 +2693,290 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         target.appendChild(input);
       }
 
-      let terms = getTerms();
+      let terms = null;
+      if (code) {terms = getTerms();}
       let problemDiv = document.getElementById("problemDiv");
       let fragment = document.createDocumentFragment();
 
+      clearElement(problemDiv);
       insertTextNode(fragment, terms[0] + " " + sign[operation]);
       insertProblemSpan(fragment, terms[1]);
       insertAnswerInput(fragment)
 
       problemDiv.appendChild(fragment);
-      let timer = new Timer(timerValue);
-      setTimeout(function() {
-        timer.time = setInterval(function() {
-          timer.timeDown();
-        }, 10);
-      }, 250);
+
+      timer = new Timer(timerValue);
+      if (timerValue > 0) {
+        setTimeout(function() {
+          timer.time = setInterval(function() {
+            timer.timeDown();
+          }, 10);
+        }, 250);
+      } else {
+        timer.startTimer();
+      }
 
       let answerInput = document.getElementById("answerInput");
       answerInput.focus();
 
     }
 
+    const getNumberData = function(answer) {
 
+      const getAverage = function(averageTime, newNumber) {
+        averageTime[0] = ((averageTime[0] * averageTime[1]) + newNumber) / (averageTime[1] + 1);
+        averageTime[1]++;
+        return averageTime;
+      }
+
+      const saveAverage = function() {
+        switch (operation) {
+          case "addition":
+            player.stats.averages.addition = getAverage(player.stats.averages.addition, timer.answerTime);
+            break;
+          case "subtraction":
+            player.stats.averages.subtraction = getAverage(player.stats.averages.subtraction, timer.answerTime);
+            break;
+          case "multiplication":
+            player.stats.averages.multiplication = getAverage(player.stats.averages.multiplication, timer.answerTime);
+            break;
+          case "division":
+            player.stats.averages.division = getAverage(player.stats.averages.division, timer.answerTime);
+            break;
+        }
+      }
+
+      saveAverage();
+      if (timer.answerTime <= 1) {
+        player.stats.flash++;
+      }
+      if (timer.timeLeft <= 1) {
+        player.stats.lastSecond++;
+      }
+      if (answer === 42) {
+        player.stats.fortyTwo++;
+      }
+      if (isPrime(answer)) {
+        player.stats.primes++;
+      }
+    }
+    //
+    //Checks the answer to my problems
+    const checkAnswer = function(answer) {
+
+      let answerInput = document.getElementById("answerInput");
+      if (parseInt(answerInput.value) === answer) {
+        timer.stopTime();
+        getNumberData(answer);
+        damageMonster();
+      } else {
+        damagePlayer();
+        if (problemDiv.lastChild.nodeType > 1) {removeLastChild(problemDiv, 3);}
+        insertLineBreak(problemDiv, 2);
+        insertTextNode(problemDiv, "Oh no! " + answerInput.value + " didn't work!");
+        answerInput.value = "";
+      }
+    }
+    //
+    //Inserts the floating damage numbers
+    const insertDamageNumbers = function(target, damage) {
+      let damageDiv = makeDiv("damageDiv");
+      insertTextNode(damageDiv, damage);
+      target.appendChild(damageDiv);
+      requestAnimationFrame(function() {damageDiv.style.bottom = "100%";});
+      requestAnimationFrame(function() {damageDiv.style.filter = "opacity(0%)";});
+    }
+    //
+    //What to do when a monster is damaged
+    const damageMonster = function() {
+      //
+      //What do do when a monster is killed
+      const killMonster = function() {
+        //
+        //Process the monster for record keeping
+        const processMonster = function() {
+          switch(operation) {
+            case "addition":
+              if (monsterSearch(player.stats.monsters.addition, monster.index)) {
+                let monsterIndex = findMonster(player.stats.monsters.addition, monster.index);
+                player.stats.monsters.addition[monsterIndex][1]++;
+                break;
+              } else {
+                player.stats.monsters.addition.push([monster.index, 1]);
+                player.stats.monsters.addition.sort(function(a, b){return a[0] - b[0]});
+              }
+              break;
+            case "subtraction":
+              if (monsterSearch(player.stats.monsters.subtraction, monster.index)) {
+                let monsterIndex = findMonster(player.stats.monsters.subtraction, monster.index);
+                player.stats.monsters.subtraction[monsterIndex][1]++;
+                break;
+              } else {
+                player.stats.monsters.subtraction.push([monster.index, 1]);
+                player.stats.monsters.subtraction.sort(function(a, b){return a[0] - b[0]});
+              }
+              break;
+            case "multiplication":
+              if (monsterSearch(player.stats.monsters.multiplication, monster.index)) {
+                let monsterIndex = findMonster(player.stats.monsters.multiplication, monster.index);
+                player.stats.monsters.multiplication[monsterIndex][1]++;
+                break;
+              } else {
+                player.stats.monsters.multiplication.push([monster.index, 1]);
+                player.stats.monsters.multiplication.sort(function(a, b){return a[0] - b[0]});
+              }
+              break;
+            case "division":
+              if (monsterSearch(player.stats.monsters.division, monster.index)) {
+                let monsterIndex = findMonster(player.stats.monsters.division, monster.index);
+                player.stats.monsters.division[monsterIndex][1]++;
+                break;
+              } else {
+                player.stats.monsters.division.push([monster.index, 1]);
+                player.stats.monsters.division.sort(function(a, b){return a[0] - b[0]});
+              }
+              break;
+          }
+        }
+
+        player.stats.monsters.killed++;
+        monsterInterval++
+        processMonster();
+        problemDiv.innerHTML = "Great job, you defeated the " + monster.name + "!<br /><br />";
+        if ((monsterInterval % 5) === 0) {
+          setTimeout(intermission, 1000);
+        } else {
+          setTimeout(nextMonster, 1000);
+        }
+      }
+
+      player.stats.damage.dealt += player.totalDamage;
+      monster.hp = (player.totalDamage > monster.hp) ? 0:(monster.hp - player.totalDamage);
+
+      let monsterHealthBarFront = document.getElementById("monsterHealthBarFront");
+      monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
+
+      insertDamageNumbers(monsterDiv, player.totalDamage);
+
+      let flash = new DamageFlash();
+      flash.flash = setInterval(function() {
+        flash.monster();
+      }, 100);
+
+      if (monster.hp) {
+        getProblem();
+      } else {
+        killMonster();
+      }
+    }
+    //
+    //What to do when the player is damaged
+    const damagePlayer = function() {
+      //
+      //What to do when the player's health
+      //drops to 0
+      const killPlayer = function() {
+
+        const rescueScreen = function() {
+
+          const rescuePart1 = function() {
+            clearElement(introTextDiv);
+            let textString = "Oh! You're alive!. ";
+            typer(textString, introTextDiv, function() {
+              insertButton(introTextDiv, "Next", rescuePart2);
+            });
+          }
+          const rescuePart2 = function() {
+            clearElement(introTextDiv);
+            let textString = "Someone found you at the edge of the catacombs and brought you back here. ";
+            typer(textString, introTextDiv, function() {
+              insertButton(introTextDiv, "Next", rescuePart3);
+            });
+          }
+          const rescuePart3 = function() {
+            clearElement(introTextDiv);
+            let textString = "I've restored your health, but next time be more careful down there. ";
+            typer(textString, introTextDiv, function() {
+              insertButton(introTextDiv, "Next", function() {
+
+                overworld(player);
+              });
+            });
+          }
+
+          clearElement(playArea);
+
+          let tellahDiv = makeDiv("tellah");
+          let tellahImg = makeImg("Tellah.gif", "tellahImg");
+          tellahDiv.appendChild(tellahImg);
+
+          let introTextDiv = makeDiv("introTextDiv", "textBox");
+          //
+          //a button that lets the player skip the game intro
+          const skipButton = makeButton(function() {
+            overworld(player);
+          }, "Skip", "skipButton");
+
+          let fragment = insertElements(tellahDiv, introTextDiv, skipButton);
+          playArea.appendChild(fragment);
+
+          playArea.style.filter = "brightness(100%)";
+
+          player.health = player.maxHealth;
+          rescuePart1();
+        }
+
+        playArea.classList.add("playAreaSpotlight");
+        let style = document.createElement("style");
+        insertTextNode(style, ".playAreaSpotlight::after {filter:opacity(100%);}");
+        setTimeout(function() {
+          playArea.appendChild(style);
+        }, 100);
+
+        setTimeout(function() {
+          playArea.style.filter = "brightness(0%)";
+          setTimeout(function() {
+            playArea.classList.remove("playAreaSpotlight");
+            rescueScreen();
+          }, 500);
+        }, 3000)
+      }
+
+      player.stats.damage.received += monster.damage;
+      player.health = (monster.damage > player.health) ? 0:(player.health - monster.damage);
+
+      let healthBarFront = document.getElementById("healthBarFront");
+      healthBarFront.style.height = ((player.health / player.maxHealth) * 110) + "px";
+
+      insertDamageNumbers(playerDiv, monster.damage);
+
+      let flash = new DamageFlash();
+      flash.flash = setInterval(function() {
+        flash.player();
+      }, 100);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+          if (player.health) {
+            playerImg.src = player.sprites.path + player.sprites.files[0];
+          } else {
+            timer.stopTime();
+            killPlayer();
+            playerImg.src = player.sprites.path + player.sprites.files[3];
+            console.log("You dead");
+          }
+        }
+      }, 250);
+    }
 
     let monster = new Monster(catacombLevel);
+    let timer = new Timer(timerValue);
+    let monsterInterval = 0;
     getProblem();
   }
 
   let playArea = document.getElementById("playArea");
-  //playArea.style.filter = "brightness(0%)";
 
   catacombIntro();
-
-
-  //let monster = new newMonster(catacombLevel);
-
 }

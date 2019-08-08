@@ -17,6 +17,19 @@ Styles the play area where the game takes place*/
   transition: height 500ms;
   transition: filter 500ms;
 }
+
+.playAreaSpotlight::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  filter: opacity(0%);
+  background-image: radial-gradient(circle farthest-corner at 33% 92%, rgba(255, 255, 255, 0), black 30%, black);
+  transition: all 1000ms;
+}
 /*
 I use this class to put a red overlay on top of
 the playArea for a flashing visual effect I have*/
@@ -189,6 +202,7 @@ Styles the text windows for the game*/
                0px 2px black,
                -2px 0px black,
                0px -2px black;
+  z-index: 3;
 }
 /*
 Styles the text input for the player's name*/
@@ -359,7 +373,7 @@ on the townIntro() screen*/
   font-size: 1.5em;
   font-weight: bold;
   bottom: 24px;
-  left: 156px;
+  left: 195px;
   padding: 2px;
   padding-left: 4px;
   padding-right: 4px;
