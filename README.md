@@ -6,9 +6,15 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: the combat logic.
+### Up next: more combat logic.
 
-All the code I have in front of me is ugly so I think things are going to slow down a bit from here. Next up is getting basic answer checking functionality followed by special problem types.
+All the code I have in front of me is ugly so I think things are going to slow down a bit from here. My big problem right now is determining a way to level a player up, that is, to open up more difficult problems. After I have that figured out, I'm going to tweak the "story" a bit and implement hint magic right from the start.
+
+## 2019.08.07
+
+### Update
+
+I've got the basics of the game mostly put together. I don't have magic. I don't have multiple problem types. I don't have the ability to level up or unlock more difficult problems. I can put a problem on the screen, check if it's right, kill a monster, and take damage. I did a lot of work with the time down functionality as well. Instead of a bunch of variables and a function I've got a class. I'm digging this class stuff now that I'm figuring it out. I'll probably put more in there. 
 
 ## 2019.08.06
 
