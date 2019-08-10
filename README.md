@@ -6,9 +6,21 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: more combat logic.
+### Up next: levelling up.
 
-All the code I have in front of me is ugly so I think things are going to slow down a bit from here. My big problem right now is determining a way to level a player up, that is, to open up more difficult problems. After I have that figured out, I'm going to tweak the "story" a bit and implement hint magic right from the start.
+Next I'm going to work on how to progress the player. I'm thinking of putting in a Mages' Guild mechanic kind of like the book but w/ more info on math facts and personalities. I may put in a challenge to unlock the other operations there. That's also how I might handle the spells.
+
+If all of that seems too overwhelming I'm going to work on the triangle spell. We'll see
+
+### Notes to self:
+
+Work on the hints
+
+## 2019.08.09
+
+### Update
+
+I feel like I got a bunch done today. I've got the hint functionality in. This time it's an endless use spell. I've also got the Algebra and Sequence problems back in there. The flashing screen bit was tricky but I think I handled it well by making it a class. I want to go back to the hints though because the function is such a mess and the hints are kind of crap for anything but addition. But that logic is a pain in the ass which is why it's so ugly. After I get it put back together I'll worry about that.
 
 ## 2019.08.07
 
