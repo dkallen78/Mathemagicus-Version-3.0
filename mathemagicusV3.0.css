@@ -222,9 +222,7 @@ Styles the text input for the player's name*/
 / Game Intro Styles - Character Select Page                   /
 /------------------------------------------------------------*/
 
-/*
-Styles the <div> that my NPC cameo image is in*/
-#tellah {
+#cameo {
   margin-top: 15px;
   margin-left: 306px;
   width: 102px;
@@ -236,9 +234,8 @@ Styles the <div> that my NPC cameo image is in*/
 }
 /*
 I think this is temporary until I resize my cameo image*/
-#tellahImg {
-  width: 100px;
-  height: 100px;
+#cameoImg {
+  width: 100%;
 }
 /*
 Positions and styles the text that goes above

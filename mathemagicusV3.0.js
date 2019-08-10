@@ -11,6 +11,12 @@ function getRandomNumber(floor, ceiling) {
   let range = (ceiling - floor) + 1;
   return Math.floor((Math.random() * range) + floor);
 }
+
+const getAverage = function(averageTime, newNumber) {
+  averageTime[0] = ((averageTime[0] * averageTime[1]) + newNumber) / (averageTime[1] + 1);
+  averageTime[1]++;
+  return averageTime;
+}
 //
 //A function to check if a number is prime
 function isPrime(number) {
@@ -60,10 +66,11 @@ function monsterSearch(array, index) {
 //-------------------------------------------------------------------//
 
 //
-//This clears the inner HTML of an element in a
-//way that is easy to understand in the code
-function clearElement(element) {
-  element.innerHTML = "";
+//This clears the inner HTML of an element
+function clearElement() {
+  for (let i = 0; i < arguments.length; i++) {
+    arguments[i].innerHTML = "";
+  }
 }
 //
 //Removes elements from their parent
@@ -76,20 +83,10 @@ function removeElement() {
 }
 //
 //Removes the last child from an element
-function removeLastChild(parent, children = 1) {
-  for (let i = 0; i < children; i++) {
+function removeLastChild(parent, repeat = 1) {
+  for (let i = 0; i < repeat; i++) {
     parent.removeChild(parent.lastChild);
   }
-}
-//
-//Inserts multiple elements into a fragment to be
-//appended to another element
-function insertElements() {
-  let fragment = document.createDocumentFragment();
-  for (let i = 0; i < arguments.length; i++) {
-    fragment.appendChild(arguments[i]);
-  }
-  return fragment;
 }
 //
 //Inserts a <br /> element into the DOM
@@ -179,7 +176,6 @@ function typer(text, target, callback, i = 0) {
 function makeDiv() {
   let div = document.createElement("div");
   if (arguments.length > 0) {div.id = arguments[0]}
-  //div.id = id;
   if (arguments.length > 1) {
     for (let i = 1; i < arguments.length; i++) {
       div.classList.add(arguments[i]);
@@ -190,7 +186,7 @@ function makeDiv() {
 //
 //makes an <img> element and assigns a src and id
 //src is a string
-//id is a string
+//second parameter is intended ID
 //additional parameters are added as classes
 function makeImg(src) {
   let img = document.createElement("img");
@@ -223,6 +219,24 @@ function makeButton(callback, text, id = "") {
     }
   }
   return button;
+}
+//
+//Inserts multiple elements into a fragment to be
+//appended to another element
+function makeFragment() {
+  let fragment = document.createDocumentFragment();
+  for (let i = 0; i < arguments.length; i++) {
+    fragment.appendChild(arguments[i]);
+  }
+  return fragment;
+}
+//
+//
+function makeCameoDiv(src) {
+  let div = makeDiv("cameo");
+  let img = makeImg(src, "cameoImg")
+  div.appendChild(img);
+  return div;
 }
 //
 //This makes my menus
@@ -371,7 +385,7 @@ function menuMaker(selector, imgData, callback, index = 0) {
   //
   //This block puts all of the elements that have been
   //made onto the webpage
-  let fragment = insertElements(menuSelectText, leftButton, menuDivLeft, menuDivMiddle, menuDivRight, rightButton);
+  let fragment = makeFragment(menuSelectText, leftButton, menuDivLeft, menuDivMiddle, menuDivRight, rightButton);
   let target = document.getElementById(selector.target);
   target.appendChild(fragment);
 }
@@ -445,7 +459,7 @@ class Player {
     this.sprites = {
       path: "",
       files: []
-    },
+    }
     //
     //Achievement tracking stats
     this.stats = {
@@ -458,40 +472,21 @@ class Player {
       lastSecond: 0,                //Questions answered w/ less than 1 second left
       flash: 0,                     //Questions answered in less than 1 second
       primes: 0,                    //Questions answered equal to a prime
-      //
-      //Keeps track of the average answer time for
-      //each type of problem.
-      //Index 0 stores the running average
-      //Index 1 stores the number of questions answered
-      averages: {
-        addition: [0, 0],
-        subtraction: [0, 0],
-        multiplication: [0, 0],
-        division: [0, 0]
-      },
-      //
-      //Keeps track of the number of monsters the
-      //player has killed and which monsters have
-      //been killed
-      monsters: {
-        killed: 0,                  //Total number of monsters killed
-        //
-        //These arrays hold two values in each node.
-        //monstersKilled[x][0] is the index of the monster
-        //that has been killed.
-        //monstersKilled[x][1] is the number of that
-        //monster that have been killed.
-        addition: [],
-        subtraction: [],
-        multiplication: [],
-        division: []
-      }
-
+      monstersKilled: 0,            //Total number of monsters killed
     }
     //
     //Spell related stats
     this.spells = {
-      learned: [],                  //Which spells have been learned, forerly spellArray[]
+      learned: {
+        fibonacci: true,
+        triangle: false,
+        square: false,
+        pentagon: false,
+        pyramid: false,
+        cube: false,
+        hexagon: false,
+        star: false
+      },                  //Which spells have been learned, forerly spellArray[]
       cast: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], //Number times each spell cast
       //
       //This group of variables tracks the number of
@@ -505,8 +500,62 @@ class Player {
       hexagon: 0,                   //Strength spells
       star: 0                       //Nova spells
     }
+
+    this.addition = {
+      level: 1,
+      monsters: [],
+      totalAverage: [0, 0],
+      runningAverage: [],
+      sign: "+"
+    }
+
+    this.subtraction = {
+      level: 0,
+      monsters: [],
+      totalAverage: [0, 0],
+      runningAverage: [],
+      sign: "-"
+    }
+
+    this.multiplication = {
+      level: 0,
+      monsters: [],
+      totalAverage: [0, 0],
+      runningAverage: [],
+      sign: "×"
+    }
+
+    this.division = {
+      level: 0,
+      monsters: [],
+      totalAverage: [0, 0],
+      runningAverage: [],
+      sign: "÷"
+    }
   }
 
+  addTime(time, averages) {
+    if (averages.length >= 20) {
+      averages.shift();
+    }
+    averages.push(time);
+    return averages;
+  }
+
+  passingAverage(averages) {
+    let total = 0;
+    for (let i = 0; i < averages.length; i++) {
+      total += averages[0];
+    }
+    let average = total/ averages.length;
+    if ((average < 5) && (averages.length >= 20)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  //
+  //Total damage player does when attacking
   get totalDamage() {
     return this.damage + this.damageBoost;
   }
@@ -514,64 +563,48 @@ class Player {
   //This gets the possesive form of the players name
   get possessive() {
     if (this.name.charAt(this.name.length - 1) === "s") {
-    return this.name + "'";
+      return this.name + "'";
     } else {
-    return this.name + "'s";
+      return this.name + "'s";
     }
-  }
-
-  average(operation) {
-    let averages = {
-      "addition": this.stats.averages.addition,
-      "subtraction": this.stats.averages.subtraction,
-      "multiplication": this.stats.averages.multiplication,
-      "division": this.stats.averages.division
-    }
-    return averages[operation];
   }
 }
 
-function testBook() {
+function test() {
   player = new Player();
   player.name = "Shady";
-  player.maxHealth = 20;
+  player.maxHealth = 10;
   player.damage = 1;
-  player.level.addition = 11;
-  player.stats.averages.addition = [100, 100];
-  player.level.subtraction = 8;
-  player.stats.averages.subtraction = [100, 100];
-  player.level.multiplication = 5;
-  player.stats.averages.multiplication = [100, 100];
-  player.level.division = 2;
-  player.stats.averages.division = [100, 100];
-  player.stats.monstersKilled = 9;
+  player.addition.level = 10;
+  player.subtraction.level = 10;
+  player.multiplication.level = 10;
+  player.division.level = 10;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
-  player.spells.learned = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  player.stats.monsters.addition = [[0, 1], [1, 5], [2, 10], [3, 20], [30, 20]];
-  player.stats.monsters.subtraction = [[0, 1], [1, 5], [2, 10], [3, 20]];
-  player.stats.monsters.multiplication = [[0, 1], [1, 5], [2, 10], [3, 20]];
-  player.stats.monsters.division = [[0, 1], [1, 5], [2, 10], [3, 20]];
-  player.spells.cast = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-  player.stats.monsters.killed = 150;
-  player.stats.fortyTwo = 55;
-  player.stats.flash = 20;
-  player.stats.primes = 1;
-  player.stats.damage.dealt = 2000;
-  player.stats.damage.received = 200;
-  player.stats.damage.healed = 200;
+  //player.spells.learned = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  //player.addition.monsters = [[0, 1], [1, 5], [2, 10], [3, 20], [30, 20]];
+  //player.subtraction.monsters = [[0, 1], [1, 5], [2, 10], [3, 20]];
+  //player.multiplication.monsters = [[0, 1], [1, 5], [2, 10], [3, 20]];
+  //player.division.monsters = [[0, 1], [1, 5], [2, 10], [3, 20]];
+  //player.spells.cast = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+  //player.stats.monstersKilled = 150;
+  //player.stats.fortyTwo = 55;
+  //player.stats.flash = 20;
+  //player.stats.primes = 1;
+  //player.stats.damage.dealt = 2000;
+  //player.stats.damage.received = 200;
+  //player.stats.damage.healed = 200;
 
   let xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       let monsterData = JSON.parse(this.responseText);
-      catacombs(player, "addition", 3, 4, monsterData);
+      catacombs(player, "addition", 0, 5, monsterData);
     }
   };
   xmlhttp.open("GET", "./monsterData.json", true);
   xmlhttp.send();
 
-  //catacombs(player, "addition", 0, 4, monsterData)
   //overworld(player);
 }
 
@@ -585,8 +618,7 @@ function gameStart() {
   function titleScreen() {
     const playArea = document.getElementById("playArea");
     clearElement(playArea);
-    //
-    //These five lines put the title on the screen
+
     let titleDiv = makeDiv("titleDiv");
     insertTextNode(titleDiv, "Mathemagicus");
     //
@@ -600,25 +632,25 @@ function gameStart() {
     //
     //These lines put the New Game button in the table
     //and define its attributes
-    const newGameButton = makeButton(newGame, "New Game", "", "startButtons");
+    const newGameButton = makeButton(enterName, "New Game", "", "startButtons");
     newGameTD.appendChild(newGameButton);
     tableRow.appendChild(newGameTD);
     //
     //These lines put the Continue button in the table
     //and define its attributes
-    const continueButton = makeButton(testBook, "Continue", "", "startButtons");
+    const continueButton = makeButton(test, "Continue", "", "startButtons");
     continueTD.appendChild(continueButton);
     tableRow.appendChild(continueTD);
     //
     //Puts the buttons from the <tr> into the <table>
     //then puts that <table> into the playArea
     titleScreenButtons.appendChild(tableRow);
-    let fragment = insertElements(titleDiv, titleScreenButtons);
+    let fragment = makeFragment(titleDiv, titleScreenButtons);
     playArea.appendChild(fragment);
   }
   //
   //The New Game screen with player name input
-  function newGame() {
+  function enterName() {
     const playArea = document.getElementById("playArea");
     removeElement("titleScreenButtons");
     //
@@ -671,13 +703,11 @@ function gameStart() {
     //Saves the player's name
     player.name = document.getElementById("nameTextBox").value
 
-    removeElement("titleDiv");
-    removeElement("enterNameDiv")
-    //
-    //This block puts the NPC cameo on the screen
-    let tellahDiv = makeDiv("tellah");
-    let tellahImg = makeImg("Tellah.gif", "tellahImg");
-    tellahDiv.appendChild(tellahImg);
+    removeElement("titleDiv", "enterNameDiv");
+
+    let tellahDiv = makeCameoDiv("Tellah.gif");
+
+    let introTextDiv = makeDiv("introTextDiv", "textBox");
     //
     //Object with data for the menu maker
     let avatarMenuSelectors = {
@@ -717,17 +747,13 @@ function gameStart() {
     //gives enough time for the computer to register the release
     //of the enter key from the name input of the previous screen
     setTimeout(function() {
-      //
-      //This block puts the text box onto the screen that will
-      //display the intro text
-      let introTextDiv = makeDiv("introTextDiv", "textBox");
-      let fragment = insertElements(tellahDiv, introTextDiv);
-      playArea.appendChild(fragment);
 
+      let fragment = makeFragment(tellahDiv, introTextDiv);
+      playArea.appendChild(fragment);
       //
       //This is the intro text for character selection
       let introText = "Welcome to Arithmeticia. You must be " + player.name +
-                      ", the mage that we sent for. Let me get a better look at you.";
+                      ", the new mage. Let me get a better look at you.";
       typer(introText, introTextDiv, function () {
         menuMaker(avatarMenuSelectors, mageData, saveCharacterData);
       });
@@ -743,35 +769,38 @@ function gameStart() {
     //introduction of the game
     function introPart1() {
       clearElement(introTextDiv);
-      let textString = "Ah, that's better. We asked you to come because we have a monster problem. ";
+      let textString = "Ah, that's better. We're glad you're here because we have a monster problem. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", introPart2);
       });
     }
     function introPart2() {
       clearElement(introTextDiv);
-      let textString = "The old catacombs beneath the city are overrun with monsters and they've been attacking the townsfolk. ";
+      let textString = "The old catacombs beneath the city are overrun with monsters " +
+                        "and they've been attacking the townsfolk. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", introPart3);
       });
     }
     function introPart3() {
       clearElement(introTextDiv);
-      let textString = "We need you to clear out the old catacombs to make our town safe again. ";
+      let textString = "We need you to clear them out to make our town safe again. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", introPart4);
       });
     }
     function introPart4() {
       clearElement(introTextDiv);
-      let textString = "Only one catacomb is open right now. The other three are sealed with some kind of magic. ";
+      let textString = "Only one catacomb is open right now. The other three are sealed " +
+                        "with some kind of magic. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", introPart5);
       });
     }
     function introPart5() {
       clearElement(introTextDiv);
-      let textString = "Here are the catacombs. Thank you so much for your help getting rid of those monsters. ";
+      let textString = "Here are the catacombs. Thank you so much for your help " +
+                        "getting rid of those monsters. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", function() {
           overworld(player);
@@ -819,18 +848,21 @@ function overworld(player) {
     menuData.index = imgData.index;
     switch(imgData.index) {
       case 0:     //Addition Catacomb
-        dungeonLevelMenu(player.level.addition, "addition");
+        dungeonLevelMenu(player.addition.level, "addition");
         break;
       case 1:     //Subtraction Catacomb
-        dungeonLevelMenu(player.level.subtraction, "subtraction");
+        dungeonLevelMenu(player.subtraction.level, "subtraction");
         break;
       case 2:     //Multiplication Catacomb
-        dungeonLevelMenu(player.level.multiplication, "multiplication");
+        dungeonLevelMenu(player.multiplication.level, "multiplication");
         break;
       case 3:     //Division Catacomb
-        dungeonLevelMenu(player.level.division, "division");
+        dungeonLevelMenu(player.division.level, "division");
         break;
-      case 4:     //Liber mathemagicus
+      case 4:     //Mage Guild Door
+        mageGuild();
+        break;
+      case 5:     //Liber mathemagicus
         //
         //This loads monster data from an outside file that
         //the book may need.
@@ -981,6 +1013,53 @@ function overworld(player) {
 
     })
   }
+
+  function mageGuild() {
+
+    let tellahDiv = makeCameoDiv("Tellah.gif");
+
+    let guildTextDiv = makeDiv("guildTextDiv", "textBox");
+
+    let fragment = makeFragment(tellahDiv, guildTextDiv);
+
+    //
+    //The image data for the guild menu
+    let guildMenuData = {
+      sprites: [
+        ["levelChallenge.gif", "Level Challenges"],
+        ["levelChallenge2.gif", "Level Challenges"],
+        ["levelChallenge3.gif", "Level Challenges"]
+      ],
+      path: "./mageGuild/",
+      index: 0
+    }
+
+    let guildMenuSelectors = {
+      target: "playArea",
+      textId: "characterSelectText",
+      text: "Choose your mage:",
+      menuDiv: {
+        idLeft: "characterDivLeft",
+        idMiddle: "characterDivMiddle",
+        idRight: "characterDivRight"
+      },
+      imgClass: "characterImg",
+      buttonClass: "selectButtons",
+      buttonId: {
+        left: "leftButton",
+        right: "rightButton"
+      }
+    };
+
+    let introText = "It's good to see you again " + player.name +
+                    ", what can I do for you?";
+    fadeTransition(fragment, playArea, 500, function() {
+      typer(introText, guildTextDiv, function () {
+        menuMaker(guildMenuSelectors, guildMenuData, null)
+      });
+    })
+
+  }
   //
   //Controls the Liber Mathemagicus, the book that is
   //the status information for the player
@@ -1010,7 +1089,7 @@ function overworld(player) {
       setTimeout(function() {
         removeElement("bookReturnButton", "monsterBook");
         playArea.style.filter = "brightness(100%)";
-        launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, 4);
+        launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, 5);
       }, 500);
     }
     //
@@ -1347,15 +1426,15 @@ function overworld(player) {
       //
       //This displays the total monsters killed
       p = document.createElement("p");
-      insertTextNode(p, "Monsters Killed: " + player.stats.monsters.killed);
+      insertTextNode(p, "Monsters Killed: " + player.stats.monstersKilled);
       status.appendChild(p);
       //
       //This displays the different levels of the player
       p = document.createElement("p");
-      makeStats(p, "Addition Level: ", player.level.addition, player.stats.averages.addition);
-      makeStats(p, "Subtraction Level: ", player.level.subtraction, player.stats.averages.subtraction);
-      makeStats(p, "Multiplication Level: ", player.level.multiplication, player.stats.averages.multiplication);
-      makeStats(p, "Division Level: ", player.level.division, player.stats.averages.division);
+      makeStats(p, "Addition Level: ", player.addition.level, player.addition.totalAverage);
+      makeStats(p, "Subtraction Level: ", player.subtraction.level, player.subtraction.totalAverage);
+      makeStats(p, "Multiplication Level: ", player.multiplication.level, player.multiplication.totalAverage);
+      makeStats(p, "Division Level: ", player.division.level, player.division.totalAverage);
       status.appendChild(p);
 
       const saveGame = makeButton(null, "Save Game", "saveGame");
@@ -1511,7 +1590,7 @@ function overworld(player) {
           turnPageRight(monsters,spellsPage);
         }
       }
-      if (typeof(player.stats.monsters.addition[0]) === "object") {
+      if (typeof(player.addition.monsters[0]) === "object") {
         pageLeft = function() {
           turnPageLeft(monsters, monsterBasePage, "+");
         }
@@ -1547,10 +1626,10 @@ function overworld(player) {
       //
       //Puts the number of monsters killed of each
       //type onto the page
-      showTypeInfo("+", monsters, "Addition Monsters", player.stats.monsters.addition);
-      showTypeInfo("-", monsters, "Subtraction Monsters", player.stats.monsters.subtraction);
-      showTypeInfo("*", monsters, "Multiplication Monsters", player.stats.monsters.multiplication);
-      showTypeInfo("/", monsters, "Division Monsters", player.stats.monsters.division);
+      showTypeInfo("+", monsters, "Addition Monsters", player.addition.monsters);
+      showTypeInfo("-", monsters, "Subtraction Monsters", player.subtraction.monsters);
+      showTypeInfo("*", monsters, "Multiplication Monsters", player.multiplication.monsters);
+      showTypeInfo("/", monsters, "Division Monsters", player.division.monsters);
 
       return monsters;
     }
@@ -1605,52 +1684,52 @@ function overworld(player) {
       //of the monsterClass parameter
       switch (monsterClass) {
         case "+":
-          setArrayValues(player.stats.monsters.addition, monsterData.addition);
+          setArrayValues(player.addition.monsters, monsterData.addition);
           makePageTitle("Addition Monsters", monsterList)
           pageRight = function() {turnPageRight(monsterList, monstersPage);}
           pageLeft = function() {
-            turnPageLeft(monsterList, monsterDetailPage, ["+", player.stats.monsters.addition[0][0]]);
+            turnPageLeft(monsterList, monsterDetailPage, ["+", player.addition.monsters[0][0]]);
           }
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
           break;
         case "-":
-          setArrayValues(player.stats.monsters.subtraction, monsterData.subtraction);
+          setArrayValues(player.subtraction.monsters, monsterData.subtraction);
           makePageTitle("Subtraction Monsters", monsterList)
-          last = (player.stats.monsters.addition.length - 1);
+          last = (player.addition.monsters.length - 1);
           pageRight = function() {
-            turnPageRight(monsterList, monsterDetailPage, ["+", player.stats.monsters.addition[last][0]]);
+            turnPageRight(monsterList, monsterDetailPage, ["+", player.addition.monsters[last][0]]);
           }
           pageLeft = function() {
-            turnPageLeft(monsterList, monsterDetailPage, ["-", player.stats.monsters.subtraction[0][0]]);
+            turnPageLeft(monsterList, monsterDetailPage, ["-", player.subtraction.monsters[0][0]]);
           }
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
 
           break;
         case "*":
-          setArrayValues(player.stats.monsters.multiplication, monsterData.multiplication);
+          setArrayValues(player.multiplication.monsters, monsterData.multiplication);
           makePageTitle("Multiplication Monsters", monsterList)
-          last = (player.stats.monsters.subtraction.length - 1);
+          last = (player.subtraction.monsters.length - 1);
           pageRight = function() {
-            turnPageRight(monsterList, monsterDetailPage, ["-", player.stats.monsters.subtraction[last][0]]);
+            turnPageRight(monsterList, monsterDetailPage, ["-", player.subtraction.monsters[last][0]]);
           }
           pageLeft = function() {
-            turnPageLeft(monsterList, monsterDetailPage, ["*", player.stats.monsters.multiplication[0][0]]);
+            turnPageLeft(monsterList, monsterDetailPage, ["*", player.multiplication.monsters[0][0]]);
           }
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
 
           break;
         case "/":
-          setArrayValues(player.stats.monsters.division, monsterData.division);
+          setArrayValues(player.division.monsters, monsterData.division);
           makePageTitle("Division Monsters", monsterList)
-          last = (player.stats.monsters.multiplication.length - 1);
+          last = (player.multiplication.monsters.length - 1);
           pageRight = function() {
-            turnPageRight(monsterList, monsterDetailPage, ["*", player.stats.monsters.multiplication[last][0]]);
+            turnPageRight(monsterList, monsterDetailPage, ["*", player.multiplication.monsters[last][0]]);
           }
           pageLeft = function() {
-            turnPageLeft(monsterList, monsterDetailPage, ["/", player.stats.monsters.division[0][0]]);
+            turnPageLeft(monsterList, monsterDetailPage, ["/", player.division.monsters[0][0]]);
           }
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
@@ -1726,7 +1805,7 @@ function overworld(player) {
 
       switch (currentMonster[0]) {
         case "+":
-          setArrayValues(player.stats.monsters.addition, monsterData.addition);
+          setArrayValues(player.addition.monsters, monsterData.addition);
           if (currentIndex === 0) {
             pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "+");}
           } else {
@@ -1739,7 +1818,7 @@ function overworld(player) {
             let next = (findMonster(monsterArray, currentMonster[1]) + 1);
             pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["+", monsterArray[next][0]]);}
           } else {
-            if ((player.stats.monsters.subtraction[0] + 1)) {
+            if ((player.subtraction.monsters[0] + 1)) {
               pageLeft = function() {turnPageLeft(monsterDetail, monsterBasePage, "-");}
             } else {
               pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
@@ -1749,7 +1828,7 @@ function overworld(player) {
           turnButton[1].onclick = pageLeft;
           break;
         case "-":
-          setArrayValues(player.stats.monsters.subtraction, monsterData.subtraction);
+          setArrayValues(player.subtraction.monsters, monsterData.subtraction);
           if (currentIndex === 0) {
             pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "-");}
           } else {
@@ -1760,7 +1839,7 @@ function overworld(player) {
             let next = (findMonster(monsterArray, currentMonster[1]) + 1);
             pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["-", monsterArray[next][0]]);}
           } else {
-            if ((player.stats.monsters.multiplication[0] + 1)) {
+            if ((player.multiplication.monsters[0] + 1)) {
               pageLeft = function() {turnPageLeft(monsterDetail, monsterBasePage, "*");}
             } else {
               pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
@@ -1770,7 +1849,7 @@ function overworld(player) {
           turnButton[1].onclick = pageLeft;
           break;
         case "*":
-          setArrayValues(player.stats.monsters.multiplication, monsterData.multiplication);
+          setArrayValues(player.multiplication.monsters, monsterData.multiplication);
           if (currentIndex === 0) {
             pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "*");}
           } else {
@@ -1781,7 +1860,7 @@ function overworld(player) {
             let next = (findMonster(monsterArray, currentMonster[1]) + 1);
             pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["*", monsterArray[next][0]]);}
           } else {
-            if ((player.stats.monsters.division[0] + 1)) {
+            if ((player.division.monsters[0] + 1)) {
               pageLeft = function() {turnPageLeft(monsterDetail, monsterBasePage, "/");}
             } else {
               pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
@@ -1791,7 +1870,7 @@ function overworld(player) {
           turnButton[1].onclick= pageLeft;
           break;
         case "/":
-          setArrayValues(player.stats.monsters.division, monsterData.division);
+          setArrayValues(player.division.monsters, monsterData.division);
           if (currentIndex === 0) {
             pageRight = function() {turnPageRight(monsterDetail, monsterBasePage, "/");}
           } else {
@@ -1995,25 +2074,25 @@ function overworld(player) {
       //Makes the buttons to turn the pages
       let pageTurnButtons = turnPageButtons(achievementPage);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
-      if (Array.isArray(player.stats.monsters.division[0])) {
-        let index = player.stats.monsters.division.length - 1;
+      if (Array.isArray(player.division.monsters[0])) {
+        let index = player.division.monsters.length - 1;
         pageRight = function() {
-          turnPageRight(achievementPage, monsterDetailPage, ["/", player.stats.monsters.division[index][0]]);
+          turnPageRight(achievementPage, monsterDetailPage, ["/", player.division.monsters[index][0]]);
         }
-      } else if (Array.isArray(player.stats.monsters.multiplication[0])) {
-        let index = player.stats.monsters.multiplication.length - 1;
+      } else if (Array.isArray(player.multiplication.monsters[0])) {
+        let index = player.multiplication.monsters.length - 1;
         pageRight = function() {
-          turnPageRight(achievementPage, monsterDetailPage, ["*", player.stats.monsters.multiplication[index][0]]);
+          turnPageRight(achievementPage, monsterDetailPage, ["*", player.multiplication.monsters[index][0]]);
         }
-      } else if (Array.isArray(player.stats.monsters.subtraction[0])) {
-        let index = player.stats.monsters.subtraction.length - 1;
+      } else if (Array.isArray(player.subtraction.monsters[0])) {
+        let index = player.subtraction.monsters.length - 1;
         pageRight = function() {
-          turnPageRight(achievementPage, monsterDetailPage, ["-", player.stats.monsters.subtraction[index][0]]);
+          turnPageRight(achievementPage, monsterDetailPage, ["-", player.subtraction.monsters[index][0]]);
         }
-      } else if (Array.isArray(player.stats.monsters.addition[0])) {
-        let index = player.stats.monsters.addition.length - 1;
+      } else if (Array.isArray(player.addition.monsters[0])) {
+        let index = player.addition.monsters.length - 1;
         pageRight = function() {
-          turnPageRight(achievementPage, monsterDetailPage, ["+", player.stats.monsters.addition[index][0]]);
+          turnPageRight(achievementPage, monsterDetailPage, ["+", player.addition.monsters[index][0]]);
         }
       } else {
         pageRight = function() {turnPageRight(achievementPage, monstersPage);}
@@ -2039,7 +2118,7 @@ function overworld(player) {
       //This controls the achievement for total number of
       //monsters killed
       let td = makeAchievementElement("graveyard.png");
-      setAchievement(td, player.stats.monsters.killed, [100, 200, 500], "monsters killed.");
+      setAchievement(td, player.stats.monstersKilled, [100, 200, 500], "monsters killed.");
       tr.appendChild(td);
       //
       //This controls the achievement for total questions
@@ -2135,25 +2214,25 @@ function overworld(player) {
       //This controls the achievement for the players progress
       //through the addition dungeon
       td = makeAchievementElement("laurels-plus.png");
-      setDungeonAchievement(td, player.stats.monsters.addition, player.level.addition, "Addition");
+      setDungeonAchievement(td, player.addition.monsters, player.addition.level, "Addition");
       tr.appendChild(td);
       //
       //This controls the achievement for the players progress
       //through the subtraction dungeon
       td = makeAchievementElement("laurels-minus.png");
-      setDungeonAchievement(td, player.stats.monsters.subtraction, player.level.subtraction, "Subtraction");
+      setDungeonAchievement(td, player.subtraction.monsters, player.subtraction.level, "Subtraction");
       tr.appendChild(td);
       //
       //This controls the achievement for the players progress
       //through the multiplication dungeon
       td = makeAchievementElement("laurels-times.png");
-      setDungeonAchievement(td, player.stats.monsters.multiplication, player.level.multiplication, "Multiplication");
+      setDungeonAchievement(td, player.multiplication.monsters, player.multiplication.level, "Multiplication");
       tr.appendChild(td);
       //
       //This controls the achievement for the players progress
       //through the division dungeon
       td = makeAchievementElement("laurels-divide.png");
-      setDungeonAchievement(td, player.stats.monsters.division, player.level.division, "Division");
+      setDungeonAchievement(td, player.division.monsters, player.division.level, "Division");
       tr.appendChild(td);
 
       table.appendChild(tr);
@@ -2199,6 +2278,7 @@ function overworld(player) {
       ["subtractionDoorClosed.gif", "Subtraction Catacombs"],
       ["multiplicationDoorClosed.gif", "Multiplication Catacombs"],
       ["divisionDoorClosed.gif", "Division Catacombs"],
+      ["guildDoor.gif", "Mages' Guild"],
       ["book.gif", "Liber Mathemagicus"]
     ],
     path: "./doors/",
@@ -2224,7 +2304,6 @@ function overworld(player) {
       right: "overworldButtonRight"
     }
   };
-
   //
   //Makes the overworld menu and puts it on the screen
   fadeTransition(null, playArea, 500, function() {
@@ -2238,20 +2317,18 @@ function overworld(player) {
 //-------------------------------------------------------------------//
 
 function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
-  //
-  //Holds the value of the players level in the
-  //current catacomb
-  const currentLevel = {
-    "addition": player.level.addition,
-    "subtraction": player.level.subtraction,
-    "multiplication": player.level.multiplication,
-    "division": player.level.division
+
+  const current = {
+    "addition": player.addition,
+    "subtraction": player.subtraction,
+    "multiplication": player.multiplication,
+    "division": player.division
   }
   //
   //Makes the monster object
   class Monster {
     constructor(catacombLevel) {
-      if (currentLevel[operation] > catacombLevel) {
+      if (current[operation].level > catacombLevel) {
         this.index = getRandomNumber(0, ((catacombLevel * 3) - 1));
       } else {
         this.index = getRandomNumber(((catacombLevel * 3) - 3), ((catacombLevel * 3) - 1));
@@ -2379,7 +2456,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //creates the spell icons for the combat div
     let spellBar = makeDiv("spellBar");
     let imgSrc = "./spellIcons/";
-    makeSpellIcon("fibonacci", player.spells.fibonacci);
+    makeSpellIcon("fibonacci", "ꚙ");
     makeSpellIcon("triangle", player.spells.triangle);
     makeSpellIcon("square", player.spells.square);
     makeSpellIcon("pentagon", player.spells.pentagon);
@@ -2435,11 +2512,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       get answerTime() {
-        if (this.timeIndex) {
-          return this.totalTime - this.timeLeft;
-        } else {
-          return (this.totalTime - this.timeLeft) / 1000;
-        }
+        return (this.totalTime - this.timeLeft) / 1000;
       }
 
       timeDown() {
@@ -2450,8 +2523,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         } else {
           this.width -= this.decrement;
           countdownBarFront.style.width = this.width + "px";
-          this.timeLeft = (this.width / (this.decrement * 100));
-          countdownTimer.innerHTML = this.timeLeft.toFixed(2);
+          let timeLeft = (this.width / (this.decrement * 100));
+          countdownTimer.innerHTML = timeLeft.toFixed(2);
         }
       }
 
@@ -2461,17 +2534,17 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       stopTimer() {
         this.totalTime = new Date();
-        this.time += this.totalTime - this.timeLeft;
+        this.time += (this.totalTime - this.timeLeft);
 
       }
 
       stopTime() {
         if (this.timeIndex) {
           clearInterval(this.time);
-        } else {
-          this.stopTimer();
         }
+        this.stopTimer();
       }
+
     }
     //
     //Handles the flash animation after damage
@@ -2524,6 +2597,52 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
       }
     }
+
+    class ScreenFlash {
+      constructor(color) {
+        this.count = 10;
+        this.flash = null;
+        this.color = color
+      }
+
+      screenFlash() {
+        if (this.count > 0) {
+          if ((this.count % 2) === 0) {
+            playArea.classList.remove(this.color);
+          } else {
+            playArea.classList.add(this.color);
+          }
+          this.count--;
+
+        } else {
+          playArea.classList.remove(this.color);
+          clearInterval(this.flash);
+        }
+      }
+    }
+
+    const showHintDiv = function() {
+      let hintDiv = document.getElementById("hintDiv");
+      hintDiv.style.visibility = "visible";
+    }
+
+    const hideHintDiv = function() {
+      let hintDiv = document.getElementById("hintDiv");
+      hintDiv.style.visibility = "hidden";
+    }
+
+    const levelUp = function() {
+      current[operation].level++;
+      current[operation].runningAverage = [];
+      let problemDiv = document.getElementById("problemDiv");
+      problemDiv.innerHTML = "I think you're strong enough for Level " + current[operation].level + "!";
+      insertLineBreak(problemDiv);
+      insertButton(problemDiv, "Continue", nextMonster);
+      insertTextNode(problemDiv, " ");
+      insertButton(problemDiv, "Return to Surface", function() {
+        overworld(player);
+      });
+    }
     //
     //Gets the next monster and sends the player
     //back to the getProblem() function
@@ -2557,12 +2676,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           break;
         case 97: //"a" key, Fibonacci Spell
           event.preventDefault(); //prevents the writing of the "a" key
-          if (fibonacciCast) {
+          /*if (fibonacciCast) {
             break;
-          }
-          if (additionLevel > 2) {
-            castFibonacci();
-          }
+          }*/
+          castFibonacci();
           break;
         case 115: //"s" key, Triangle Spell
           event.preventDefault(); //prevents the writing of the "s" key
@@ -2618,38 +2735,33 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
     }
     //
-    //Finds the type of problem to display
-    const findProblemType = function() {
-      let randomNumber = getRandomNumber(0, 99);
-
-      if (randomNumber <= 4) {
-        return "algebra";
-      } else if (randomNumber <= 9) {
-        return "sequence";
-      } else {
-        return "normal";
-      }
-    }
-    //
     //Makes and displays the math problems
     const getProblem = function(code = 1) {
-      const sign = {
-        "addition": "+",
-        "subtraction": "-",
-        "multiplication": "×",
-        "division": "÷"
+      //
+      //Finds the type of problem to display
+      const findProblemType = function(type) {
+        let randomNumber = getRandomNumber(0, 99);
+
+        if (randomNumber <= 4) {
+          return "algebra";
+        } else if (randomNumber <= 9) {*/
+          return "sequence";
+        } else {
+          return "normal";
+        }
       }
       //
       //Gets the terms for the problems
-      const getTerms = function() {
+      const getTerms = function(type) {
         let constant1 = null;
         let constant2 = null;
         let answer = null;
-        switch (operation) {
+        switch (type) {
           case "addition": //Addition
             constant1 = getRandomNumber(0, (monster.level * 10));
             constant2 = getRandomNumber(0, (monster.level * 10));
             answer = constant1 + constant2;
+            return [constant1, constant2, answer];
             break;
           case "subtraction": //Subtraction
             constant1 = getRandomNumber(1, (monster.level * 10));
@@ -2658,23 +2770,75 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
               constant2 = getRandomNumber(0, (monster.level * 10));
             }
             answer = constant1 - constant2;
+            return [constant1, constant2, answer];
             break;
           case "multiplication": //Multiplication
             constant1 = getRandomNumber(1, (monster.level + 5));
             constant2 = getRandomNumber(0, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
             answer = constant1 * constant2;
+            return [constant1, constant2, answer];
             break;
           case "division": //Division
             constant2 = getRandomNumber(1, (monster.level + 5));
             answer = getRandomNumber(1, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
             constant1 = constant2 * answer;
+            return [constant1, constant2, answer];
+            break;
+          case "sequence":
+            let sequenceTerms = [];
+            let interval = 0;
+            let range = 0;
+            let start = 0
+            switch (operation) {
+              case "addition": //Addition
+                interval = getRandomNumber(2, (current[operation].level + 1));
+                range = interval * 5;
+                start = getRandomNumber(1, (100 - range));
+                break;
+              case "subtraction": //Subtraction
+                interval = getRandomNumber(2, (current[operation].level + 1));
+                range = interval * 5;
+                start = getRandomNumber((range + 1), 100);
+                break;
+              case "multiplication": //Multiplication
+                interval = getRandomNumber(1, (Math.ceil((current[operation].level + 1) / 2)));
+                range = interval * 10;
+                start = getRandomNumber(1, (100 - range));
+                break;
+              case "division": //Division
+                interval = getRandomNumber(1, (Math.ceil((current[operation].level + 1) / 2)));
+                range = interval * 10;
+                start = getRandomNumber((range + 1), 100);
+                break;
+            }
+            let increment = interval;
+            for (let i = 0; i < 6; i++) {
+              sequenceTerms[i] = start;
+              switch (operation) {
+                case "addition":
+                  start += interval;
+                  break;
+                case "subtraction":
+                  start -= interval;
+                  break;
+                case "multiplication":
+                  start += interval;
+                  interval += increment;
+                  break;
+                case "division":
+                  start -= interval;
+                  interval += increment;
+                  break;
+              }
+            }
+            return [sequenceTerms[0], sequenceTerms[1], sequenceTerms[2], sequenceTerms[3], sequenceTerms[4]];
             break;
         }
-        return [constant1, constant2, answer];
+
       }
       //
       //Makes and inserts the <span> for my red numbers
-      function insertProblemSpan(target, text) {
+      const insertProblemSpan = function(target, text) {
         let span = document.createElement("span");
         insertTextNode(span, " " + text + " ");
         span.style.color = "#ffbaba";
@@ -2682,67 +2846,97 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
       //
       //Makes and inserts the number input box
-      function insertAnswerInput(target) {
+      const insertAnswerInput = function(target, answer) {
         let input = document.createElement("input");
         input.type = "number";
         input.id = "answerInput";
         input.onkeypress = function() {
-          checkKeyPress(event, terms[2]);
+          checkKeyPress(event, answer);
         }
-        insertTextNode(target, "= ");
         target.appendChild(input);
       }
 
-      let terms = null;
-      if (code) {terms = getTerms();}
-      let problemDiv = document.getElementById("problemDiv");
-      let fragment = document.createDocumentFragment();
-
-      clearElement(problemDiv);
-      insertTextNode(fragment, terms[0] + " " + sign[operation]);
-      insertProblemSpan(fragment, terms[1]);
-      insertAnswerInput(fragment)
-
-      problemDiv.appendChild(fragment);
-
-      timer = new Timer(timerValue);
-      if (timerValue > 0) {
-        setTimeout(function() {
+      const showProblem = function() {
+        spellsOn();
+        clearElement(problemDiv);
+        problemDiv.appendChild(fragment);
+        timer = new Timer(timerValue);
+        if (timerValue > 0) {
           timer.time = setInterval(function() {
             timer.timeDown();
           }, 10);
-        }, 250);
-      } else {
+        }
         timer.startTimer();
+
+        let answerInput = document.getElementById("answerInput");
+        answerInput.focus();
       }
 
-      let answerInput = document.getElementById("answerInput");
-      answerInput.focus();
+      let problemDiv = document.getElementById("problemDiv");
+      clearElement(problemDiv);
+      let fragment = document.createDocumentFragment();
+      let flash = new ScreenFlash("playAreaWhite");
+      let checkFlash = null;
+
+      switch (findProblemType()) {
+        case "normal":
+          terms = getTerms(operation);
+          insertTextNode(fragment, terms[0] + " " + current[operation].sign);
+          insertProblemSpan(fragment, terms[1]);
+          insertTextNode(fragment, "= ");
+          insertAnswerInput(fragment, terms[2]);
+          showProblem();
+          break;
+        case "algebra":
+          problemDiv.innerHTML = "The " + monster.name + " used Algebra!";
+          flash.flash = setInterval(function() {
+            flash.screenFlash();
+          }, 100);
+
+          terms = getTerms(operation);
+          insertTextNode(fragment, terms[0] + " " + current[operation].sign + " ");
+          insertAnswerInput(fragment, terms[1]);
+          insertTextNode(fragment, " = " + terms[2]);
+
+          checkFlash = setInterval(function() {
+            if (flash.count === 0) {
+              clearInterval(checkFlash);
+              showProblem();
+            }
+          }, 250);
+          break;
+        case "sequence":
+          problemDiv.innerHTML = "The " + monster.name + " used Sequence!";
+          flash.flash = setInterval(function() {
+            flash.screenFlash();
+          }, 100);
+
+          terms = getTerms("sequence");
+          insertTextNode(fragment, terms[0] + ", " + terms[1] + ", ");
+          insertTextNode(fragment, terms[2] + ", " + terms[3] + ", ");
+          insertAnswerInput(fragment, terms[4]);
+          insertTextNode(fragment, ",...");
+
+          checkFlash = setInterval(function() {
+            if (flash.count === 0) {
+              clearInterval(checkFlash);
+              showProblem();
+            }
+          }, 250);
+
+        /*problemDiv.innerHTML = terms[0] + ", " + terms[1] + ", " + terms[2] + ", " + terms[3] +
+          ", <input id=\"answerInput\" type=\"number\" onKeyPress=\"checkKeyPress(event, " + terms[4] + ")\"/>,...";
+          */break;
+      }
 
     }
 
     const getNumberData = function(answer) {
 
-      const getAverage = function(averageTime, newNumber) {
-        averageTime[0] = ((averageTime[0] * averageTime[1]) + newNumber) / (averageTime[1] + 1);
-        averageTime[1]++;
-        return averageTime;
-      }
-
       const saveAverage = function() {
-        switch (operation) {
-          case "addition":
-            player.stats.averages.addition = getAverage(player.stats.averages.addition, timer.answerTime);
-            break;
-          case "subtraction":
-            player.stats.averages.subtraction = getAverage(player.stats.averages.subtraction, timer.answerTime);
-            break;
-          case "multiplication":
-            player.stats.averages.multiplication = getAverage(player.stats.averages.multiplication, timer.answerTime);
-            break;
-          case "division":
-            player.stats.averages.division = getAverage(player.stats.averages.division, timer.answerTime);
-            break;
+        current[operation].totalAverage = getAverage(current[operation].totalAverage, timer.answerTime);
+        if (current[operation].level === catacombLevel) {
+          current[operation].runningAverage = player.addTime(timer.answerTime, current[operation].runningAverage);
         }
       }
 
@@ -2771,7 +2965,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         damageMonster();
       } else {
         damagePlayer();
-        if (problemDiv.lastChild.nodeType > 1) {removeLastChild(problemDiv, 3);}
+        if (problemDiv.childNodes.length > 5) {removeLastChild(problemDiv, 3);}
         insertLineBreak(problemDiv, 2);
         insertTextNode(problemDiv, "Oh no! " + answerInput.value + " didn't work!");
         answerInput.value = "";
@@ -2795,55 +2989,24 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         //
         //Process the monster for record keeping
         const processMonster = function() {
-          switch(operation) {
-            case "addition":
-              if (monsterSearch(player.stats.monsters.addition, monster.index)) {
-                let monsterIndex = findMonster(player.stats.monsters.addition, monster.index);
-                player.stats.monsters.addition[monsterIndex][1]++;
-                break;
-              } else {
-                player.stats.monsters.addition.push([monster.index, 1]);
-                player.stats.monsters.addition.sort(function(a, b){return a[0] - b[0]});
-              }
-              break;
-            case "subtraction":
-              if (monsterSearch(player.stats.monsters.subtraction, monster.index)) {
-                let monsterIndex = findMonster(player.stats.monsters.subtraction, monster.index);
-                player.stats.monsters.subtraction[monsterIndex][1]++;
-                break;
-              } else {
-                player.stats.monsters.subtraction.push([monster.index, 1]);
-                player.stats.monsters.subtraction.sort(function(a, b){return a[0] - b[0]});
-              }
-              break;
-            case "multiplication":
-              if (monsterSearch(player.stats.monsters.multiplication, monster.index)) {
-                let monsterIndex = findMonster(player.stats.monsters.multiplication, monster.index);
-                player.stats.monsters.multiplication[monsterIndex][1]++;
-                break;
-              } else {
-                player.stats.monsters.multiplication.push([monster.index, 1]);
-                player.stats.monsters.multiplication.sort(function(a, b){return a[0] - b[0]});
-              }
-              break;
-            case "division":
-              if (monsterSearch(player.stats.monsters.division, monster.index)) {
-                let monsterIndex = findMonster(player.stats.monsters.division, monster.index);
-                player.stats.monsters.division[monsterIndex][1]++;
-                break;
-              } else {
-                player.stats.monsters.division.push([monster.index, 1]);
-                player.stats.monsters.division.sort(function(a, b){return a[0] - b[0]});
-              }
-              break;
+
+          if (monsterSearch(current[operation].monsters, monster.index)) {
+            let monsterIndex = findMonster(current[operation].monsters, monster.index);
+            current[operation].monsters[monsterIndex][1]++;
+          } else {
+            current[operation].monsters.push([monster.index, 1]);
+            current[operation].monsters.sort(function(a, b){return a[0] - b[0]});
           }
         }
 
-        player.stats.monsters.killed++;
+        player.stats.monstersKilled++;
         monsterInterval++
+        spellsOff();
         processMonster();
         problemDiv.innerHTML = "Great job, you defeated the " + monster.name + "!<br /><br />";
-        if ((monsterInterval % 5) === 0) {
+        if (player.passingAverage(current[operation].runningAverage)) {
+          setTimeout(levelUp, 1000);
+        } else if ((monsterInterval % 5) === 0) {
           setTimeout(intermission, 1000);
         } else {
           setTimeout(nextMonster, 1000);
@@ -2856,6 +3019,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       let monsterHealthBarFront = document.getElementById("monsterHealthBarFront");
       monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
 
+      hideHintDiv();
       insertDamageNumbers(monsterDiv, player.totalDamage);
 
       let flash = new DamageFlash();
@@ -2863,11 +3027,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         flash.monster();
       }, 100);
 
-      if (monster.hp) {
-        getProblem();
-      } else {
-        killMonster();
-      }
+      setTimeout(function() {
+        if (monster.hp) {
+          getProblem();
+        } else {
+          killMonster();
+        }
+      }, 600);
+
     }
     //
     //What to do when the player is damaged
@@ -2906,9 +3073,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
           clearElement(playArea);
 
-          let tellahDiv = makeDiv("tellah");
-          let tellahImg = makeImg("Tellah.gif", "tellahImg");
-          tellahDiv.appendChild(tellahImg);
+          let tellahDiv = makeCameoDiv("Tellah.gif");
 
           let introTextDiv = makeDiv("introTextDiv", "textBox");
           //
@@ -2917,7 +3082,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             overworld(player);
           }, "Skip", "skipButton");
 
-          let fragment = insertElements(tellahDiv, introTextDiv, skipButton);
+          let fragment = makeFragment(tellahDiv, introTextDiv, skipButton);
           playArea.appendChild(fragment);
 
           playArea.style.filter = "brightness(100%)";
@@ -2926,6 +3091,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           rescuePart1();
         }
 
+        timer.stopTime();
         playArea.classList.add("playAreaSpotlight");
         let style = document.createElement("style");
         insertTextNode(style, ".playAreaSpotlight::after {filter:opacity(100%);}");
@@ -2964,15 +3130,475 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             timer.stopTime();
             killPlayer();
             playerImg.src = player.sprites.path + player.sprites.files[3];
-            console.log("You dead");
           }
         }
       }, 250);
+    }
+    //
+    //This function turns my spells "on" at the beginning of the battle
+    const spellsOn = function() {
+
+      const turnOnSpell = function(id, callback) {
+        let img = document.getElementById(id);
+        img.style.filter = "opacity(100%)";
+        img.onclick = callback;
+      }
+
+      if (player.spells.learned.fibonacci) {        //Fibonacci Spell
+        turnOnSpell("fibonacciImg", castFibonacci);
+        /*let fibonacciImg = document.getElementById("fibonacciImg");
+        if ((spellsCast[0] === 0) && (spellsCast[10] === 0) && (spellsCast[11] === 0)) {
+          fibonacciImg.classList.add("highlightNewSpell");
+        }
+        fibonacciImg.style.filter = "opacity(100%)";
+        fibonacciImg.onclick = function(){castFibonacci();}
+        fibonacciCast = false;*/
+      }
+      /*if (player.spells.learned.triangle) {     //Triangle Spells
+        let triangleImg = document.getElementById("triangleImg");
+        if (spellsCast[3] === 0) {
+          triangleImg.classList.add("highlightNewSpell");
+        }
+        triangleImg.style.filter = "opacity(100%)";
+        triangleImg.onclick = function(){castTriangle();}
+      }
+      if (player.spells.learned.square) {        //Square Spells
+        let squareImg = document.getElementById("squareImg");
+        if (spellsCast[4] === 0) {
+          squareImg.classList.add("highlightNewSpell");
+        }
+        squareImg.style.filter = "opacity(100%)";
+        squareImg.onclick = function(){castSquare();}
+      }
+      if (player.spells.learned.pentagon) {     //Pentagon Spells
+        let pentagonImg = document.getElementById("pentagonImg");
+        if (spellsCast[6] === 0) {
+          pentagonImg.classList.add("highlightNewSpell");
+        }
+        pentagonImg.style.filter = "opacity(100%)";
+        pentagonImg.onclick = function(){castPentagon();}
+        pentagonCast = false;
+      }
+      if (player.spells.learned.hexagon) {  //Hexagon Spells
+        let hexagonImg = document.getElementById("hexagonImg");
+        if (spellsCast[7] === 0) {
+          hexagonImg.classList.add("highlightNewSpell");
+        }
+        hexagonImg.style.filter = "opacity(100%)";
+        hexagonImg.onclick = function(){castHexagon();}
+      }
+      if (player.spells.learned.pyramid) {        //Pyramid Spells
+        let pyramidImg = document.getElementById("pyramidImg");
+        if (spellsCast[5] === 0) {
+          pyramidImg.classList.add("highlightNewSpell");
+        }
+        pyramidImg.style.filter = "opacity(100%)";
+        pyramidImg.onclick = function(){castPyramid();}
+        pyramidCast = false;
+      }
+      if (player.spells.learned.cube) {        //Cube Spells
+        let cubeImg = document.getElementById("cubeImg");
+        if (spellsCast[8] === 0) {
+          cubeImg.classList.add("highlightNewSpell");
+        }
+        cubeImg.style.filter = "opacity(100%)";
+        cubeImg.onclick = function(){castCube();}
+      }
+      if (player.spells.learned.star) {        //Star Spells
+        let starImg = document.getElementById("starImg");
+        if (spellsCast[9] === 0) {
+          starImg.classList.add("highlightNewSpell");
+        }
+        starImg.style.filter = "opacity(100%)";
+        starImg.onclick = function(){castStar();}
+      }*/
+    }
+    //
+    //Disables spell functionality
+    const spellsOff = function() {
+
+      const turnOffSpell = function(id) {
+        img = document.getElementById(id);
+        img.style.filter = "opacity(30%)";
+        img.onclick = "";
+      }
+
+      turnOffSpell("fibonacciImg");
+      turnOffSpell("triangleImg");
+      turnOffSpell("squareImg");
+      turnOffSpell("pentagonImg");
+      turnOffSpell("hexagonImg");
+      turnOffSpell("pyramidImg");
+      turnOffSpell("cubeImg");
+      turnOffSpell("starImg");
+    }
+    //
+    //Hint Spell
+    const castFibonacci = function() {
+      let fibonacciImg = document.getElementById("fibonacciImg");
+      fibonacciImg.onclick = "";
+      timer.stopTime();
+      //
+      //This holds the string that will become the hint
+      let hintString = "";
+      let redSpan = "<span style=\"color:#ffbaba\">";
+
+      showHintDiv();
+      let problemDiv = document.getElementById("problemDiv");
+      //
+      //If the enemy cast Algebra, then this small hint code runs.
+      //I will probably update it with better hints as I develop
+      //subtraction problems and hints.
+      if (problemDiv.childNodes.length === 3) {
+        //
+        //Determines what the hint will be based on what
+        //the current operator is
+        switch (operation) {
+          case "addition":
+            hintString += terms[2] + " - " + terms[0] + " = ? <br />";
+            subtractionHint(terms[2], terms[0]);
+            break;
+          case "subtraction":
+            hintString += terms[0] + " - " + terms[2] + " = ? <br />";
+            subtractionHint(terms[0], terms[2]);
+            break;
+          case "multiplication":
+            hintString += terms[2] + " ÷ " + terms[0] + " = ? <br />";
+            divisionHint(terms[2], terms[0]);
+            break;
+          case "division":
+            hintString += terms[0] + " ÷ " + terms[2] + " = ? <br />";
+            divisionHint(terms[0], terms[2]);
+            break;
+        }
+
+        fibonacciAnimation();
+        player.spells.cast[10]++
+        return;
+      }
+      //
+      //If the problem is a number sequence, this logic
+      //runs to display a sequence hint
+      if (terms.length === 5) {
+        if ((operation === "addition") || (operation === "multiplication")) {
+          hintString += terms[1] + " - " + terms[0] + " = ?<br />";
+          hintString += terms[2] + " - " + terms[1] + " = ?";
+        } else {
+          hintString += terms[0] + " - " + terms[1] + " = ?<br />";
+          hintString += terms[1] + " - " + terms[2] + " = ?";
+        }
+        fibonacciAnimation();
+        player.spells.cast[11]++;
+        return;
+      }
+      //
+      //This switch determines which hint to display
+      switch (operation) {
+        case "addition":
+          additionHint(terms[0], terms[1]);
+          player.spells.cast[0]++;
+          break;
+        case "subtraction":
+          subtractionHint(terms[0], terms[1]);
+          player.spells.cast[0]++;
+          break;
+        case "multiplication":
+          multiplicationHint(terms[0], terms[1]);
+          player.spells.cast[1]++;
+          break;
+        case "division":
+          divisionHint(terms[0], terms[1]);
+          player.spells.cast[2]++;
+          break;
+       }
+
+      //showHintDiv();
+      fibonacciAnimation();
+
+      //fibonacciCast = true;
+      fibonacciImg.style.filter = "opacity(30%)";
+      fibonacciImg.onclick = "";
+      //
+      //This is the logic that handles the addition hints
+      function additionHint(addend1, addend2) {
+
+        //
+        //These operations seperate the two addends into expanded notation
+        let newAddend1 = addend1 % 10;
+        let newAddend2 = addend2 % 10;
+        addend1 -= newAddend1;
+        addend2 -= newAddend2;
+        //
+        //These two if statements only execute if one of the addends is 0
+        if (!addend2 && !newAddend2 && addend1) {
+          addend1 += newAddend1;
+          newAddend1 = 0;
+        }
+        if (!addend1 && !newAddend1 && addend2) {
+          addend2 += newAddend2;
+          newAddend2 = 0;
+        }
+        //
+        //This if statement handles the 10s
+        if (addend1 && addend2) {
+          hintString += "(" + addend1 + " + " + redSpan + addend2 + "</span>)";
+        } else if (addend1) { //If there is only one 10s number, then that is the only one output to the string
+          hintString += addend1;
+        } else if (addend2) {
+          hintString += redSpan + addend2 + "</span>";
+        }
+        //
+        //This if statement only runs if there is at least one 10s number
+        if ((addend1 || addend2) && (newAddend1 || newAddend2)) {
+          hintString += " + ";
+        }
+        //
+        //This if statement handles the 1s numbers
+        if (newAddend1 && newAddend2) {
+          //
+          //This if statement regroups the addends for more intuitive addition
+          if ((newAddend1 + newAddend2) > 10) {
+            let newAddend4 = 10 - newAddend1;
+            let newAddend3 = newAddend2 - newAddend4;
+            hintString += "(" + newAddend1 + " + " + redSpan + newAddend4 +
+              "</span>) + " + redSpan + newAddend3 + "</span> = ?";
+          } else { //No regrouping needed here
+            hintString += "(" + newAddend1 + " + " + redSpan + newAddend2 + "</span>) = ?";
+          }
+        } else if (newAddend1) { //These two else ifs handle the output if there's only one 1s number
+          hintString += newAddend1 + " = ?";
+        } else if (newAddend2) {
+          hintString += redSpan + newAddend2 + "</span> = ?";
+        }
+        //
+        //If there are no 1s numbers, then this puts the " = ?" on the end
+        if (!newAddend1 && !newAddend2) {
+          hintString += " = ?";
+        }
+      }
+      //
+      //This is the logic that handles the subtraction hints
+      function subtractionHint(minuend1, subtrahend1) {
+
+        let minuend2 = minuend1 % 10;
+        let subtrahend2 = subtrahend1 % 10;
+        minuend1 -= minuend2;
+        subtrahend1 -= subtrahend2;
+
+        if (subtrahend2 > minuend2) {
+          subtrahend1 += subtrahend2;
+          subtrahend2 = 0;
+        }
+
+        if (!subtrahend1) {
+          hintString += minuend1 + " + ";
+        } else if (!minuend2 && !subtrahend2) {
+          hintString += minuend1 + " - ";
+        } else {
+          hintString += "(" + minuend1 + " - " + redSpan + subtrahend1 + "</span>) + ";
+        }
+
+        if (!subtrahend2 && !minuend2) {
+          hintString += redSpan + subtrahend1 + "</span> = ?";
+        } else if (!subtrahend2) {
+          hintString += minuend2 + " = ?";
+        } else {
+          hintString += "(" + minuend2 + " - " + redSpan + subtrahend2 + "</span>) = ?";
+        }
+      }
+      //
+      //This is the logic that handles the multiplication hints
+      //There's a bit of redundancy here that I want to come back
+      //to, to try and make the code more consise
+      function multiplicationHint(multiplicand, multiplier1) {
+
+        if (multiplicand === 1) {
+          hintString += multiplier1 + " + 0 = ?";
+        } else if (multiplier1 === 1) {
+          hintString += multiplicand + " + 0 = ?";
+        } else if (multiplicand === 2) {
+          hintString += multiplier1 + " + " + multiplier1 + " = ?";
+        } else if (multiplier1 === 2) {
+          hintString += multiplicand + " + " + multiplicand + " = ?";
+        } else if ((multiplicand === 10) || (multiplier1 === 10)) {
+          hintString += multiplicand + " × " + redSpan + multiplier1 + "</span> = ?";
+        } else {
+          //
+          //I type the same bit of code more than a few times here...
+          //I bet I can remove one line from each if statement...
+          if (multiplier1 < 5) {
+            var multiplier2 = multiplier1 - 2;
+            hintString += multiplicand + " × (" + redSpan + "2</span> + " + redSpan;
+            hintString += multiplier2 + "</span>) = ?<br />";
+          } else if (multiplier1 === 5) {
+            var multiplier2 = 5;
+            hintString += multiplicand + " × (" + redSpan + "10</span> - " + redSpan;
+            hintString += multiplier2 + "</span>) = ?<br />";
+          } else if (multiplier1 < 8) {
+            var multiplier2 = multiplier1 - 5;
+            hintString += multiplicand + " × (" + redSpan + "5</span> + " + redSpan;
+            hintString += multiplier2 + "</span>) = ?<br />";
+          } else if (multiplier1 < 10) {
+            var multiplier2 = 10 - multiplier1;
+            hintString += multiplicand + " × (" + redSpan + "10</span> - " + redSpan;
+            hintString += multiplier2 + "</span>) = ?<br />";
+          } else if (multiplier1 > 10) {
+            var multiplier2 = multiplier1 - 10;
+            hintString += multiplicand + " × (" + redSpan + "10</span> + " + redSpan;
+            hintString += multiplier2 + "</span>) = ?<br />";
+          }
+          //
+          //Here is the redundancy. I use the same if statement twice...
+          hintString += "(" + multiplicand + " × " + redSpan;
+          if (multiplier1 < 5) {
+            var multiplier2 = multiplier1 - 2;
+            hintString += "2</span>) + ";
+          } else if (multiplier1 === 5) {
+            var multiplier2 = 5;
+            hintString += "10</span>) - ";
+          } else if (multiplier1 < 8) {
+            var multiplier2 = multiplier1 - 5;
+            hintString += "5</span>) + ";
+          } else if (multiplier1 < 10) {
+            var multiplier2 = 10 - multiplier1;
+            hintString += "10</span>) - ";
+          } else if (multiplier1 > 10) {
+            var multiplier2 = multiplier1 - 10;
+            hintString += "10</span>) + ";
+          }
+
+          hintString += "(" + multiplicand + " × " + redSpan + multiplier2 + "</span>) = ?";
+        }
+      }
+      //
+      //This is the logic that handles the divison hints
+      function divisionHint(dividend1, divisor) {
+        let quotient = dividend1 / divisor;
+        //
+        //I like this if statement because it works, but it has some
+        //redundancy that I'd like to work out later if I can
+        if (divisor === 10) {
+          hintString += dividend1 + " ÷ " + redSpan + divisor + "</span> = ?";
+        } else if (divisor === 5) {
+          hintString += dividend1 + " ÷ " + redSpan + divisor + "</span> = ?";
+        } else if (divisor < 3) {
+          hintString += dividend1 + " ÷ " + redSpan + divisor + "</span> = ?";
+        } else if (dividend1 > (divisor * 10)) {
+          let dividend2 = dividend1 - (divisor * 10);
+          dividend1 = divisor * 10;
+          hintString += "(" + dividend1 + " + " + dividend2 + ") ÷ ";
+          hintString += redSpan + divisor + "</span> = ?<br />";
+          hintString += "(" + dividend1 + " ÷ " + redSpan + divisor + "</span>) + ";
+          hintString += "(" + dividend2 + " ÷ " + redSpan + divisor + "</span>) = ?";
+        } else if (dividend1 < (divisor * 5)) {
+          let dividend2 = dividend1 - (divisor * 2);
+          dividend1 = divisor * 2;
+          hintString += "(" + dividend1 + " + " + dividend2 + ") ÷ ";
+          hintString += redSpan + divisor + "</span> = ?<br />";
+          hintString += "(" + dividend1 + " ÷ " + redSpan + divisor + "</span>) + ";
+          hintString += "(" + dividend2 + " ÷ " + redSpan + divisor + "</span>) = ?";
+        } else if (dividend1 < (divisor * 8)) {
+          let dividend2 = dividend1 - (divisor * 5);
+          dividend1 = divisor * 5;
+          hintString += "(" + dividend1 + " + " + dividend2 + ") ÷ ";
+          hintString += redSpan + divisor + "</span> = ?<br />";
+          hintString += "(" + dividend1 + " ÷ " + redSpan + divisor + "</span>) + ";
+          hintString += "(" + dividend2 + " ÷ " + redSpan + divisor + "</span>) = ?";
+        } else if (dividend1 < (divisor * 10)) {
+          let dividend2 = (10 - quotient) * divisor;
+          dividend1 = divisor * 10;
+          hintString += "(" + dividend1 + " - " + dividend2 + ") ÷ ";
+          hintString += redSpan + divisor + "</span> = ?<br />";
+          hintString += "(" + dividend1 + " ÷ " + redSpan + divisor + "</span>) - ";
+          hintString += "(" + dividend2 + " ÷ " + redSpan + divisor + "</span>) = ?";
+        }
+      }
+
+      function fibonacciAnimation() {
+        //hintDiv.style.visibility = "visible";
+        let possible = "1234567890+-/*()";
+        let randomString = "";
+        let spellCount = 1;
+
+        let shortener1 = null;
+        if (hintString.includes("<span style=\"color:#ffbaba\">")) {
+          shortener1 = hintString.match(/<span style="color:#ffbaba">/gi);
+        } else {
+          shortener1 = [];
+        }
+
+        let shortener2 = null;
+        if (hintString.includes("</span>")) {
+          shortener2 = hintString.match(/<\/span>/gi);
+        } else {
+          shortener2 = [];
+        }
+
+        let shortener3 = null;
+        if (hintString.includes("<br />")) {
+          shortener3 = hintString.match(/<br \/>/gi);
+        } else {
+          shortener3 = [];
+        }
+
+        let shortener = (shortener1.length + shortener2.length + shortener3.length);
+        let charactersToPrint = (hintString.length - ((shortener1.length * 28) + (shortener2.length * 7) + (shortener3.length * 6)));
+        let span1 = 0;
+        let span2 = 0;
+        let br1 = 0;
+        let randomCount = 0;
+        let spellCast = setInterval(castSpell, 50);
+        clearInterval(timer);
+        function castSpell() {
+          randomString = "";
+          if (spellCount >= (charactersToPrint + shortener)) {
+            hintDiv.innerHTML = hintString;
+            let answerInput = document.getElementById("answerInput");
+            answerInput.focus();
+            clearInterval(spellCast);
+            if (timerValue) {
+              timer.time = setInterval(function() {
+                timer.timeDown();
+              }, 10);
+            }
+            timer.startTimer();
+          } else {
+            span1 = 0;
+            span2 = 0;
+            br1 = 0;
+            hintLoop:
+            for (var j = 0; j < spellCount; j++) {
+              let spanMod = ((span1 * 27) + (span2 * 6) + (br1 * 5))
+
+              if ((hintString.charAt(j + spanMod) === "<") && (hintString.charAt(j + 6 + spanMod) === ">")) {
+                randomString += "</span>";
+                span2++;
+              } else if ((hintString.charAt(j + spanMod) === "<") && (hintString.charAt(j + 5 + spanMod) === ">")) {
+                randomString += "<br />";
+                br1++;
+              } else if (hintString.charAt(j + spanMod) === "<") {
+                randomString += "<span style=\"color:#ffbaba\">";
+                span1++;
+              } else  {
+                randomString += hintString.charAt((j + spanMod));
+              }
+
+            }
+            for (let i = randomCount; i < ((charactersToPrint - 1) + shortener); i++) {
+              randomString += possible.charAt(getRandomNumber(0, (possible.length - 1)));
+            }
+            spellCount++;
+            randomCount++;
+            hintDiv.innerHTML = randomString;
+          }
+        }
+      }
     }
 
     let monster = new Monster(catacombLevel);
     let timer = new Timer(timerValue);
     let monsterInterval = 0;
+    let terms = null;
     getProblem();
   }
 
