@@ -252,6 +252,7 @@ the character selection area*/
                0px 2px black,
                -2px 0px black,
                0px -2px black;
+  transition: all 500ms;
 }
 /*
 Styles the buttons that move the character images
@@ -266,6 +267,7 @@ during character selection*/
   background-color: #999999;
   border: 2px solid black;
   border-radius: 5px;
+  transition: all 500ms;
 }
 /*
 Changes the background color when the mouse hovers
@@ -335,6 +337,10 @@ selection screen*/
   bottom: 2px;
   margin: auto;
   z-index: 1;
+}
+
+.menuItemsLow {
+  bottom: -250px !important;
 }
 
 /*-------------------------------------------------------------

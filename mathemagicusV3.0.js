@@ -348,7 +348,7 @@ function menuMaker(selector, imgData, callback, index = 0) {
   }, 100);
   //
   //Puts text above the central menu item
-  let menuSelectText = makeDiv(selector.textId);
+  let menuSelectText = makeDiv(selector.textId, selector.lowClass);
   insertTextNode(menuSelectText, selector.text);
   setTimeout(function() {
     menuSelectText.innerHTML = imgData.sprites[imgData.index][imgData.sprites[0].length - 1];
@@ -367,7 +367,7 @@ function menuMaker(selector, imgData, callback, index = 0) {
   //
   //This <div> is the visible menu selection. If it
   //is clicked, it will trigger the callback function
-  let menuDivMiddle = makeDiv(selector.menuDiv.idMiddle);
+  let menuDivMiddle = makeDiv(selector.menuDiv.idMiddle, selector.lowClass);
   let menuImgMiddle = makeImg(imgData.path + imgData.sprites[index][0], "", selector.imgClass, selector.hoverClass);
   menuImgMiddle.onclick = clickFunction;
   menuDivMiddle.appendChild(menuImgMiddle);
@@ -380,8 +380,8 @@ function menuMaker(selector, imgData, callback, index = 0) {
   //
   //These two blocks put the buttons onscreen that let the
   //player manipulate the menu
-  const leftButton = makeButton(shiftRight, "<", selector.buttonId.left, selector.buttonClass);
-  const rightButton = makeButton(shiftLeft, ">", selector.buttonId.right, selector.buttonClass);
+  const leftButton = makeButton(shiftRight, "<", selector.buttonId.left, selector.buttonClass, selector.lowClass);
+  const rightButton = makeButton(shiftLeft, ">", selector.buttonId.right, selector.buttonClass, selector.lowClass);
   //
   //This block puts all of the elements that have been
   //made onto the webpage
@@ -412,6 +412,28 @@ function clearMenu(selector, options = [1, 1, 1, 1, 1, 1]) {
   if (options[5]) {
     removeElement(selector.buttonId.right);
   }
+}
+//
+//A transition for switching menus w/out changing anything else
+function menuSwitch(selectorOld, menuFunction) {
+  let divMiddle = document.getElementById(selectorOld.menuDiv.idMiddle);
+  let menuText = document.getElementById(selectorOld.textId);
+  let buttons = document.getElementsByClassName(selectorOld.buttonClass);
+
+  menuText.classList.add("menuItemsLow");
+  divMiddle.classList.add("menuItemsLow");
+  buttons[0].classList.add("menuItemsLow");
+  buttons[1].classList.add("menuItemsLow");
+
+  menuFunction();
+
+  setTimeout(function() {
+    clearMenu(selectorOld);
+    let lowClasses = document.getElementsByClassName("menuItemsLow")
+    for (let i = lowClasses.length - 1; i >= 0; i--) {
+      lowClasses[i].classList.remove("menuItemsLow");
+    }
+  }, 750);
 }
 //
 //Makes a fade-in/fade-out transition effect
@@ -595,7 +617,7 @@ function test() {
   //player.stats.damage.received = 200;
   //player.stats.damage.healed = 200;
 
-  let xmlhttp = new XMLHttpRequest();
+  /*let xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       let monsterData = JSON.parse(this.responseText);
@@ -603,9 +625,9 @@ function test() {
     }
   };
   xmlhttp.open("GET", "./monsterData.json", true);
-  xmlhttp.send();
+  xmlhttp.send();*/
 
-  //overworld(player);
+  overworld(player);
 }
 
 //-------------------------------------------------------------------//
@@ -841,6 +863,14 @@ function overworld(player) {
     menuMaker(selectors, imgData, callback, index);
   }
   //
+  //This function returns to the overworld menu
+  //from the Liber Mathemagicus
+  function returnToDungeonMenu() {
+    fadeTransition(null, playArea, 500, function() {
+      launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, menuData.index);
+    });
+  }
+  //
   //Determines what to do next based on the player's
   //menu selection
   function menuSelection(imgData) {
@@ -890,14 +920,6 @@ function overworld(player) {
       "subtraction": menuData.path + menuData.sprites[1][0],
       "multiplication": menuData.path + menuData.sprites[2][0],
       "division": menuData.path + menuData.sprites[3][0]
-    }
-    //
-    //This function returns to the overworld menu
-    //from the Liber Mathemagicus
-    function returnToDungeonMenu() {
-      fadeTransition(null, playArea, 500, function() {
-        launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, menuData.index);
-      });
     }
     //
     //Handles the logic of what happens when the
@@ -1016,28 +1038,72 @@ function overworld(player) {
 
   function mageGuild() {
 
+    function guildMenuSelection(imgData) {
+      console.log(imgData.index);
+      document.onkeyup = "";
+      switch (imgData.index) {
+        case 0:
+          break;
+        case 1:
+          break;
+        case 2:
+          let menuData = {
+            sprites: [
+              ["", "Subtraction"],
+              ["", "Multiplication"],
+              ["", "Divison"],
+              ["", "Return"]
+            ],
+            path: "./doors/",
+            index: 0
+          }
+          let newMenuSelectors = {
+          target: "playArea",
+          textId: "characterSelectText",
+          text: "Earn Catacomb Keys",
+          lowClass: "menuItemsLow",
+          menuDiv: {
+            idLeft: "characterDivLeft",
+            idMiddle: "characterDivMiddle",
+            idRight: "characterDivRight"
+          },
+          imgClass: "characterImg",
+          buttonClass: "selectButtons",
+          buttonId: {
+            left: "leftButton",
+            right: "rightButton"
+          }
+        };
+          menuSwitch(guildMenuSelectors, function() {
+            menuMaker(newMenuSelectors, menuData, learnSpells)
+          })
+          break;
+        case 3:
+          returnToDungeonMenu();
+          break;
+      }
+    }
+
+    function learnSpells() {}
+
     let tellahDiv = makeCameoDiv("Tellah.gif");
-
     let guildTextDiv = makeDiv("guildTextDiv", "textBox");
-
     let fragment = makeFragment(tellahDiv, guildTextDiv);
 
-    //
-    //The image data for the guild menu
     let guildMenuData = {
       sprites: [
-        ["levelChallenge.gif", "Level Challenges"],
-        ["levelChallenge2.gif", "Level Challenges"],
-        ["levelChallenge3.gif", "Level Challenges"]
+        ["levelChallenge.gif", "Library"],
+        ["levelChallenge2.gif", "Unlock Catacombs"],
+        ["levelChallenge3.gif", "Learn Magic"],
+        ["", "Return"]
       ],
       path: "./mageGuild/",
       index: 0
     }
-
     let guildMenuSelectors = {
       target: "playArea",
       textId: "characterSelectText",
-      text: "Choose your mage:",
+      text: "Welcome to the Mages' Guild:",
       menuDiv: {
         idLeft: "characterDivLeft",
         idMiddle: "characterDivMiddle",
@@ -1050,12 +1116,12 @@ function overworld(player) {
         right: "rightButton"
       }
     };
-
     let introText = "It's good to see you again " + player.name +
                     ", what can I do for you?";
+
     fadeTransition(fragment, playArea, 500, function() {
       typer(introText, guildTextDiv, function () {
-        menuMaker(guildMenuSelectors, guildMenuData, null)
+        menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection);
       });
     })
 
@@ -1085,12 +1151,8 @@ function overworld(player) {
     //This function returns to the overworld menu
     //from the Liber Mathemagicus
     function returnToMenu() {
-      playArea.style.filter = "brightness(0%)";
-      setTimeout(function() {
-        removeElement("bookReturnButton", "monsterBook");
-        playArea.style.filter = "brightness(100%)";
-        launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, 5);
-      }, 500);
+
+      returnToDungeonMenu();
     }
     //
     //Puts the page title on the target page
@@ -2248,7 +2310,7 @@ function overworld(player) {
     //
     //Makes the button that will return the player to the
     //main overworld menu
-    const bookReturnButton = makeButton(returnToMenu, "Return to Menu", "bookReturnButton");
+    const bookReturnButton = makeButton(returnToDungeonMenu, "Return to Menu", "bookReturnButton");
     fragment.appendChild(bookReturnButton);
     //
     //This block creates the <div> that holds all the
@@ -2393,8 +2455,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
   //Makes the dungeon screen
   function makeDungeonScreen() {
     //
-    //Makes the spell icons that display available
-    //spells and allow the player to cast them
+    //Makes the spell icons
     //spell is a string of the spell name
     //count is the variable that holds the count for
     //that particular spell
@@ -2736,7 +2797,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
     //
     //Makes and displays the math problems
-    const getProblem = function(code = 1) {
+    const getProblem = function() {
       //
       //Finds the type of problem to display
       const findProblemType = function(type) {
@@ -2744,7 +2805,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
         if (randomNumber <= 4) {
           return "algebra";
-        } else if (randomNumber <= 9) {*/
+        } else if (randomNumber <= 9) {
           return "sequence";
         } else {
           return "normal";
@@ -2791,22 +2852,22 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             let start = 0
             switch (operation) {
               case "addition": //Addition
-                interval = getRandomNumber(2, (current[operation].level + 1));
+                interval = getRandomNumber(2, (monster.level + 1));
                 range = interval * 5;
                 start = getRandomNumber(1, (100 - range));
                 break;
               case "subtraction": //Subtraction
-                interval = getRandomNumber(2, (current[operation].level + 1));
+                interval = getRandomNumber(2, (monster.level.level + 1));
                 range = interval * 5;
                 start = getRandomNumber((range + 1), 100);
                 break;
               case "multiplication": //Multiplication
-                interval = getRandomNumber(1, (Math.ceil((current[operation].level + 1) / 2)));
+                interval = getRandomNumber(1, (Math.ceil((monster.level.level + 1) / 2)));
                 range = interval * 10;
                 start = getRandomNumber(1, (100 - range));
                 break;
               case "division": //Division
-                interval = getRandomNumber(1, (Math.ceil((current[operation].level + 1) / 2)));
+                interval = getRandomNumber(1, (Math.ceil((monster.level.level + 1) / 2)));
                 range = interval * 10;
                 start = getRandomNumber((range + 1), 100);
                 break;
