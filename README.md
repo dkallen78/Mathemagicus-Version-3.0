@@ -16,6 +16,12 @@ If all of that seems too overwhelming I'm going to work on the triangle spell. W
 
 Work on the hints
 
+## 2019.08.11
+
+### Update
+
+I didn't get a lot done in the past two days but I've begun to create the functionality for the "Mages' Guild." This is my answer to "How to level up." I'm tired so it's probably ugly but that's okay for now.
+
 ## 2019.08.09
 
 ### Update
