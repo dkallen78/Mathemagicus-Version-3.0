@@ -8,13 +8,17 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 ### Up next: levelling up.
 
-Next I'm going to work on how to progress the player. I'm thinking of putting in a Mages' Guild mechanic kind of like the book but w/ more info on math facts and personalities. I may put in a challenge to unlock the other operations there. That's also how I might handle the spells.
-
-If all of that seems too overwhelming I'm going to work on the triangle spell. We'll see
+Now that I've got the start of the Mages' Guild I need to make it better. Everything works but the code is crap. I want to clean it up and add in the Multiplication and Division challenges. I don't even know how I'm going to do the spells now. Everything is so ugly I just don't know.
 
 ### Notes to self:
 
 Work on the hints
+
+## 2019.08.12
+
+### Update
+
+Duct tape and bubble gum. I made the subtraction challenge and put together a Mages' Guild interface but it's ugly and I don't like it. The code is ugly, I'm too close to the interface to decide if it's ugly yet. Tomorrow I want to try to address what I hate about the program structure. Ugh.
 
 ## 2019.08.11
 
