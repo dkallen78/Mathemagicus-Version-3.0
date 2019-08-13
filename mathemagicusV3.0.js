@@ -122,6 +122,17 @@ function insertButton(element, text, nextFunction, id = "nextButton") {
   }, 100);
 }
 //
+//Makes and inserts the number input box
+function insertAnswerInput(target, answer, callback) {
+  let input = document.createElement("input");
+  input.type = "number";
+  input.id = "answerInput";
+  input.onkeypress = function() {
+    callback(event, answer);
+  }
+  target.appendChild(input);
+}
+//
 //This function displays text one letter at a time
 //text is a string variable with the text to be typed
 //target is the HTML element into which the text will
@@ -237,6 +248,30 @@ function makeCameoDiv(src) {
   let img = makeImg(src, "cameoImg")
   div.appendChild(img);
   return div;
+}
+//
+//type 0 is the large menu
+//type 1 is the small menu
+class MenuSelectors {
+  constructor(type, text) {
+    this.target = "playArea",
+    this.textId = (type) ? "characterSelectText":"overworldMenuText",
+    this.text = text,
+    this.lowClass = null,
+    this.menuDiv = {
+      idLeft: (type) ? "characterDivLeft":"overworldDivLeft",
+      idMiddle: (type) ? "characterDivMiddle":"overworldDivMiddle",
+      idRight: (type) ? "characterDivRight":"overworldDivRight"
+    },
+    this.imgClass = (type) ? "characterImg":"overworldMenuImg",
+    this.hoverClass = (type) ? null:"overworldMenuHover",
+    this.buttonClass = (type) ? "selectButtons":"overworldButtons",
+    this.buttonId = {
+      left: (type) ? "leftButton":"overworldButtonLeft",
+      right: (type) ? "rightButton":"overworldButtonRight"
+    }
+
+  }
 }
 //
 //This makes my menus
@@ -416,24 +451,28 @@ function clearMenu(selector, options = [1, 1, 1, 1, 1, 1]) {
 //
 //A transition for switching menus w/out changing anything else
 function menuSwitch(selectorOld, menuFunction) {
-  let divMiddle = document.getElementById(selectorOld.menuDiv.idMiddle);
-  let menuText = document.getElementById(selectorOld.textId);
-  let buttons = document.getElementsByClassName(selectorOld.buttonClass);
 
-  menuText.classList.add("menuItemsLow");
-  divMiddle.classList.add("menuItemsLow");
-  buttons[0].classList.add("menuItemsLow");
-  buttons[1].classList.add("menuItemsLow");
+  if (selectorOld) {
+    let divMiddle = document.getElementById(selectorOld.menuDiv.idMiddle);
+    let menuText = document.getElementById(selectorOld.textId);
+    let buttons = document.getElementsByClassName(selectorOld.buttonClass);
 
-  menuFunction();
+    menuText.classList.add("menuItemsLow");
+    divMiddle.classList.add("menuItemsLow");
+    buttons[0].classList.add("menuItemsLow");
+    buttons[1].classList.add("menuItemsLow");
+  }
 
-  setTimeout(function() {
-    clearMenu(selectorOld);
-    let lowClasses = document.getElementsByClassName("menuItemsLow")
-    for (let i = lowClasses.length - 1; i >= 0; i--) {
-      lowClasses[i].classList.remove("menuItemsLow");
-    }
-  }, 750);
+  if (menuFunction) {
+    menuFunction();
+    setTimeout(function() {
+      clearMenu(selectorOld);
+      let lowClasses = document.getElementsByClassName("menuItemsLow")
+      for (let i = lowClasses.length - 1; i >= 0; i--) {
+        lowClasses[i].classList.remove("menuItemsLow");
+      }
+    }, 750);
+  }
 }
 //
 //Makes a fade-in/fade-out transition effect
@@ -598,9 +637,9 @@ function test() {
   player.maxHealth = 10;
   player.damage = 1;
   player.addition.level = 10;
-  player.subtraction.level = 10;
-  player.multiplication.level = 10;
-  player.division.level = 10;
+  player.subtraction.level = 0;
+  player.multiplication.level = 0;
+  player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
   //player.spells.learned = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -732,22 +771,7 @@ function gameStart() {
     let introTextDiv = makeDiv("introTextDiv", "textBox");
     //
     //Object with data for the menu maker
-    let avatarMenuSelectors = {
-      target: "playArea",
-      textId: "characterSelectText",
-      text: "Choose your mage:",
-      menuDiv: {
-        idLeft: "characterDivLeft",
-        idMiddle: "characterDivMiddle",
-        idRight: "characterDivRight"
-      },
-      imgClass: "characterImg",
-      buttonClass: "selectButtons",
-      buttonId: {
-        left: "leftButton",
-        right: "rightButton"
-      }
-    };
+    let avatarMenuSelectors = new MenuSelectors(1, "Choose your mage");
     //
     //This object holds the information for accessing the mage sprites
     let mageData = {
@@ -857,14 +881,13 @@ function overworld(player) {
   //Does everything that needs to be done to launch the
   //Overworld Menu
   function launchOverworldMenu(selectors, imgData, callback, index = 0) {
-    if (player.level.subtraction) menuData.sprites[1][0] = "subtractionDoorOpen.gif";
-    if (player.level.multiplication) menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
-    if (player.level.division) menuData.sprites[3][0] = "divisionDoorOpen.gif";
+    if (player.subtraction.level) menuData.sprites[1][0] = "subtractionDoorOpen.gif";
+    if (player.multiplication.level) menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
+    if (player.division.level) menuData.sprites[3][0] = "divisionDoorOpen.gif";
     menuMaker(selectors, imgData, callback, index);
   }
   //
   //This function returns to the overworld menu
-  //from the Liber Mathemagicus
   function returnToDungeonMenu() {
     fadeTransition(null, playArea, 500, function() {
       launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection, menuData.index);
@@ -1037,54 +1060,166 @@ function overworld(player) {
   }
 
   function mageGuild() {
-
+    //
+    //What to do when the player makes a menu selection
     function guildMenuSelection(imgData) {
-      console.log(imgData.index);
       document.onkeyup = "";
       switch (imgData.index) {
-        case 0:
+        case 0:               //Library
           break;
-        case 1:
+        case 1:               //Catacomb Keys
+          catacombKeys();
           break;
-        case 2:
-          let menuData = {
-            sprites: [
-              ["", "Subtraction"],
-              ["", "Multiplication"],
-              ["", "Divison"],
-              ["", "Return"]
-            ],
-            path: "./doors/",
-            index: 0
-          }
-          let newMenuSelectors = {
-          target: "playArea",
-          textId: "characterSelectText",
-          text: "Earn Catacomb Keys",
-          lowClass: "menuItemsLow",
-          menuDiv: {
-            idLeft: "characterDivLeft",
-            idMiddle: "characterDivMiddle",
-            idRight: "characterDivRight"
-          },
-          imgClass: "characterImg",
-          buttonClass: "selectButtons",
-          buttonId: {
-            left: "leftButton",
-            right: "rightButton"
-          }
-        };
-          menuSwitch(guildMenuSelectors, function() {
-            menuMaker(newMenuSelectors, menuData, learnSpells)
-          })
+        case 2:               //New Spells
+
           break;
-        case 3:
+        case 3:               //Return to previous menu
           returnToDungeonMenu();
           break;
       }
     }
 
-    function learnSpells() {}
+    function learnSpells() {
+
+    }
+
+    function catacombKeys() {
+
+
+
+
+      function keySelection(imgData) {
+        switch (imgData.index) {
+          case 0:           //Subtraction
+            subtractionChallenge();
+            break;
+          case 1:           //Multiplication
+            multiplicationChallenge();
+            break;
+          case 2:           //Divison
+            divisionChallenge();
+            break;
+          case 3:           //Return
+            guildMenuSelectors.lowClass = "menuItemsLow";
+            menuSwitch(keySelectors, function() {
+              menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection, 1);
+            });
+            break;
+        }
+      }
+
+      function subtractionChallenge() {
+
+        function beginChallenge() {
+
+          function checkKeyPress(event, answer) {
+            var key = event.which;
+            switch(key) {
+              case 13: //Enter key, check answer
+                checkAnswer(answer);
+                break;
+            }
+          }
+
+          function checkAnswer(answer) {
+            let answerInput = document.getElementById("answerInput");
+            if (parseInt(answerInput.value) === answer) {
+              if (questions < 11) {
+                questions++;
+                challenge();
+              } else {
+                victory();
+              }
+            } else {
+
+              if (challengeDiv.childNodes.length > 5) {removeLastChild(challengeDiv, 3);}
+              insertLineBreak(challengeDiv, 2);
+              insertTextNode(challengeDiv, "Oh no! " + answerInput.value + " didn't work!");
+              answerInput.value = "";
+            }
+          }
+
+
+          function challenge() {
+            clearElement(challengeDiv);
+            let terms = getTerms("addition", 1);
+
+            let fragment = document.createDocumentFragment();
+
+            insertTextNode(fragment, terms[0] + " + ");
+            insertAnswerInput(fragment, terms[1], checkKeyPress);
+            insertTextNode(fragment, " = " + terms[2]);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          function victory() {
+            console.log(player.subtraction.level);
+            if (player.subtraction.level) {
+              console.log("doy");
+            } else {
+              player.subtraction.level = 1;
+              overworld(player);
+            }
+
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Subtraction magic is like addition but turned around:";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "1 + 2 = 3");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "3 - 2 = 1 or 3 - 1 = 2");
+          let textTwo = "To earn this key you must answer 10 addition problems using subtraction."
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+          insertButton(challengeDiv, "Begin", challenge);
+
+          fadeTransition(challengeDiv, playArea);
+          let questions = 0;
+        }
+
+        //let problemDiv = makeDiv("problemDiv", "textBox");
+
+        let challengeText = "To earn the key to the Subtraction Catacombs, you " +
+                            "must prove your worthiness. Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        menuSwitch(keySelectors, null);
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+        })
+
+      }
+
+      let keyData = {
+        sprites: [
+          ["subtraction.gif", "Subtraction"],
+          ["multiplication.gif", "Multiplication"],
+          ["division.gif", "Divison"],
+          ["guildDoors.gif", "Return"]
+        ],
+        path: "./mageGuild/keys/",
+        index: 0
+      }
+      let keySelectors = new MenuSelectors(1, "Earn Catacomb Keys");
+      keySelectors.lowClass = "menuItemsLow"
+      menuSwitch(guildMenuSelectors, function() {
+        menuMaker(keySelectors, keyData, keySelection);
+      });
+    }
 
     let tellahDiv = makeCameoDiv("Tellah.gif");
     let guildTextDiv = makeDiv("guildTextDiv", "textBox");
@@ -1092,30 +1227,15 @@ function overworld(player) {
 
     let guildMenuData = {
       sprites: [
-        ["levelChallenge.gif", "Library"],
-        ["levelChallenge2.gif", "Unlock Catacombs"],
-        ["levelChallenge3.gif", "Learn Magic"],
-        ["", "Return"]
+        ["library.gif", "Library"],
+        ["key.gif", "Unlock Catacombs"],
+        ["spells.gif", "Learn Magic"],
+        ["return.gif", "Return"]
       ],
       path: "./mageGuild/",
       index: 0
     }
-    let guildMenuSelectors = {
-      target: "playArea",
-      textId: "characterSelectText",
-      text: "Welcome to the Mages' Guild:",
-      menuDiv: {
-        idLeft: "characterDivLeft",
-        idMiddle: "characterDivMiddle",
-        idRight: "characterDivRight"
-      },
-      imgClass: "characterImg",
-      buttonClass: "selectButtons",
-      buttonId: {
-        left: "leftButton",
-        right: "rightButton"
-      }
-    };
+    let guildMenuSelectors = new MenuSelectors(1, "Welcome to the Mages' Guild")
     let introText = "It's good to see you again " + player.name +
                     ", what can I do for you?";
 
@@ -1147,13 +1267,6 @@ function overworld(player) {
     //can save a few lines in the book page functions
     let pageLeft = function() {}
     let pageRight = function() {}
-    //
-    //This function returns to the overworld menu
-    //from the Liber Mathemagicus
-    function returnToMenu() {
-
-      returnToDungeonMenu();
-    }
     //
     //Puts the page title on the target page
     //text is text of the title in a string
@@ -2340,7 +2453,7 @@ function overworld(player) {
       ["subtractionDoorClosed.gif", "Subtraction Catacombs"],
       ["multiplicationDoorClosed.gif", "Multiplication Catacombs"],
       ["divisionDoorClosed.gif", "Division Catacombs"],
-      ["guildDoor.gif", "Mages' Guild"],
+      ["guildDoors1.gif", "Mages' Guild"],
       ["book.gif", "Liber Mathemagicus"]
     ],
     path: "./doors/",
@@ -2349,23 +2462,7 @@ function overworld(player) {
   //
   //The selector data to make sure the overworld menu
   //is styled properly
-  let overworldMenuSelectors = {
-    target: "playArea",
-    textId: "overworldMenuText",
-    text: "Choose your catacomb:",
-    menuDiv: {
-      idLeft: "overworldDivLeft",
-      idMiddle: "overworldDivMiddle",
-      idRight: "overworldDivRight"
-    },
-    imgClass: "overworldMenuImg",
-    hoverClass: "overworldMenuHover",
-    buttonClass: "overworldButtons",
-    buttonId: {
-      left: "overworldButtonLeft",
-      right: "overworldButtonRight"
-    }
-  };
+  let overworldMenuSelectors = new MenuSelectors(0, "Choose your catacomb");
   //
   //Makes the overworld menu and puts it on the screen
   fadeTransition(null, playArea, 500, function() {
@@ -2377,6 +2474,90 @@ function overworld(player) {
 //-------------------------------------------------------------------//
 //Catacomb functions                                                 //
 //-------------------------------------------------------------------//
+
+//
+//Gets the terms for the problems
+function getTerms(type, level) {
+  let constant1 = null;
+  let constant2 = null;
+  let answer = null;
+  switch (type) {
+    case "addition": //Addition
+      constant1 = getRandomNumber(0, (level * 10));
+      constant2 = getRandomNumber(0, (level * 10));
+      answer = constant1 + constant2;
+      return [constant1, constant2, answer];
+      break;
+    case "subtraction": //Subtraction
+      constant1 = getRandomNumber(1, (level * 10));
+      constant2 = getRandomNumber(0, constant1);
+      answer = constant1 - constant2;
+      return [constant1, constant2, answer];
+      break;
+    case "multiplication": //Multiplication
+      constant1 = getRandomNumber(1, (level + 5));
+      constant2 = getRandomNumber(0, ((level + 5) - ((((level % 2) + level) / 2) - 1)));
+      answer = constant1 * constant2;
+      return [constant1, constant2, answer];
+      break;
+    case "division": //Division
+      constant2 = getRandomNumber(1, (level + 5));
+      answer = getRandomNumber(1, ((level + 5) - ((((level % 2) + level) / 2) - 1)));
+      constant1 = constant2 * answer;
+      return [constant1, constant2, answer];
+      break;
+    case "sequence":
+      let sequenceTerms = [];
+      let interval = 0;
+      let range = 0;
+      let start = 0
+      switch (operation) {
+        case "addition": //Addition
+          interval = getRandomNumber(2, (level + 1));
+          range = interval * 5;
+          start = getRandomNumber(1, (100 - range));
+          break;
+        case "subtraction": //Subtraction
+          interval = getRandomNumber(2, (level + 1));
+          range = interval * 5;
+          start = getRandomNumber((range + 1), 100);
+          break;
+        case "multiplication": //Multiplication
+          interval = getRandomNumber(1, (Math.ceil((level + 1) / 2)));
+          range = interval * 10;
+          start = getRandomNumber(1, (100 - range));
+          break;
+        case "division": //Division
+          interval = getRandomNumber(1, (Math.ceil((level + 1) / 2)));
+          range = interval * 10;
+          start = getRandomNumber((range + 1), 100);
+          break;
+      }
+      let increment = interval;
+      for (let i = 0; i < 6; i++) {
+        sequenceTerms[i] = start;
+        switch (operation) {
+          case "addition":
+            start += interval;
+            break;
+          case "subtraction":
+            start -= interval;
+            break;
+          case "multiplication":
+            start += interval;
+            interval += increment;
+            break;
+          case "division":
+            start -= interval;
+            interval += increment;
+            break;
+        }
+      }
+      return [sequenceTerms[0], sequenceTerms[1], sequenceTerms[2], sequenceTerms[3], sequenceTerms[4]];
+      break;
+  }
+
+}
 
 function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
@@ -2403,7 +2584,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       //Level 4 - 6      2 dmg
       //Level 7 - 9      3 dmg
       //Level 10         4 dmg
-      this.hp = 2
+      this.hp = 2;
       this.maxHp = this.hp;
       this.damage = Math.ceil((this.index + 1) / 9);
       this.damageBoost = 0;
@@ -2811,92 +2992,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           return "normal";
         }
       }
-      //
-      //Gets the terms for the problems
-      const getTerms = function(type) {
-        let constant1 = null;
-        let constant2 = null;
-        let answer = null;
-        switch (type) {
-          case "addition": //Addition
-            constant1 = getRandomNumber(0, (monster.level * 10));
-            constant2 = getRandomNumber(0, (monster.level * 10));
-            answer = constant1 + constant2;
-            return [constant1, constant2, answer];
-            break;
-          case "subtraction": //Subtraction
-            constant1 = getRandomNumber(1, (monster.level * 10));
-            constant2 = getRandomNumber(0, (monster.level * 10));
-            while (constant2 > constant1) {
-              constant2 = getRandomNumber(0, (monster.level * 10));
-            }
-            answer = constant1 - constant2;
-            return [constant1, constant2, answer];
-            break;
-          case "multiplication": //Multiplication
-            constant1 = getRandomNumber(1, (monster.level + 5));
-            constant2 = getRandomNumber(0, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
-            answer = constant1 * constant2;
-            return [constant1, constant2, answer];
-            break;
-          case "division": //Division
-            constant2 = getRandomNumber(1, (monster.level + 5));
-            answer = getRandomNumber(1, ((monster.level + 5) - ((((monster.level % 2) + monster.level) / 2) - 1)));
-            constant1 = constant2 * answer;
-            return [constant1, constant2, answer];
-            break;
-          case "sequence":
-            let sequenceTerms = [];
-            let interval = 0;
-            let range = 0;
-            let start = 0
-            switch (operation) {
-              case "addition": //Addition
-                interval = getRandomNumber(2, (monster.level + 1));
-                range = interval * 5;
-                start = getRandomNumber(1, (100 - range));
-                break;
-              case "subtraction": //Subtraction
-                interval = getRandomNumber(2, (monster.level.level + 1));
-                range = interval * 5;
-                start = getRandomNumber((range + 1), 100);
-                break;
-              case "multiplication": //Multiplication
-                interval = getRandomNumber(1, (Math.ceil((monster.level.level + 1) / 2)));
-                range = interval * 10;
-                start = getRandomNumber(1, (100 - range));
-                break;
-              case "division": //Division
-                interval = getRandomNumber(1, (Math.ceil((monster.level.level + 1) / 2)));
-                range = interval * 10;
-                start = getRandomNumber((range + 1), 100);
-                break;
-            }
-            let increment = interval;
-            for (let i = 0; i < 6; i++) {
-              sequenceTerms[i] = start;
-              switch (operation) {
-                case "addition":
-                  start += interval;
-                  break;
-                case "subtraction":
-                  start -= interval;
-                  break;
-                case "multiplication":
-                  start += interval;
-                  interval += increment;
-                  break;
-                case "division":
-                  start -= interval;
-                  interval += increment;
-                  break;
-              }
-            }
-            return [sequenceTerms[0], sequenceTerms[1], sequenceTerms[2], sequenceTerms[3], sequenceTerms[4]];
-            break;
-        }
 
-      }
       //
       //Makes and inserts the <span> for my red numbers
       const insertProblemSpan = function(target, text) {
@@ -2905,17 +3001,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         span.style.color = "#ffbaba";
         target.appendChild(span);
       }
-      //
-      //Makes and inserts the number input box
-      const insertAnswerInput = function(target, answer) {
-        let input = document.createElement("input");
-        input.type = "number";
-        input.id = "answerInput";
-        input.onkeypress = function() {
-          checkKeyPress(event, answer);
-        }
-        target.appendChild(input);
-      }
+
 
       const showProblem = function() {
         spellsOn();
@@ -2941,11 +3027,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       switch (findProblemType()) {
         case "normal":
-          terms = getTerms(operation);
+          terms = getTerms(operation, monster.level);
           insertTextNode(fragment, terms[0] + " " + current[operation].sign);
           insertProblemSpan(fragment, terms[1]);
           insertTextNode(fragment, "= ");
-          insertAnswerInput(fragment, terms[2]);
+          insertAnswerInput(fragment, terms[2], checkKeyPress);
           showProblem();
           break;
         case "algebra":
@@ -2954,9 +3040,9 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             flash.screenFlash();
           }, 100);
 
-          terms = getTerms(operation);
+          terms = getTerms(operation, monster.level);
           insertTextNode(fragment, terms[0] + " " + current[operation].sign + " ");
-          insertAnswerInput(fragment, terms[1]);
+          insertAnswerInput(fragment, terms[1], checkKeyPress);
           insertTextNode(fragment, " = " + terms[2]);
 
           checkFlash = setInterval(function() {
@@ -2972,10 +3058,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             flash.screenFlash();
           }, 100);
 
-          terms = getTerms("sequence");
+          terms = getTerms("sequence", monster.level);
           insertTextNode(fragment, terms[0] + ", " + terms[1] + ", ");
           insertTextNode(fragment, terms[2] + ", " + terms[3] + ", ");
-          insertAnswerInput(fragment, terms[4]);
+          insertAnswerInput(fragment, terms[4], checkKeyPress);
           insertTextNode(fragment, ",...");
 
           checkFlash = setInterval(function() {
