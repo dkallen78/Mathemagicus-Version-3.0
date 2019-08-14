@@ -6,13 +6,23 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: levelling up.
+### Up next: Boss monsters and what they do.
 
-Now that I've got the start of the Mages' Guild I need to make it better. Everything works but the code is crap. I want to clean it up and add in the Multiplication and Division challenges. I don't even know how I'm going to do the spells now. Everything is so ugly I just don't know.
+Now that I have the key mechanic to open up access to more types of problems I want to start figuring out how to handle the boss monsters from the previous version. It's a mechanic I love, but in the previous version, they were used to award things like new dungeons being opened and new spells and things like that. Now that I'm handling some of that differently, I need to figure out what the boss' do. One problem is that all monsters have 2hp now. There's no point in awarding more damage after a certain point like I did before. 
+
+So, what do the players get for beating a boss?
 
 ### Notes to self:
 
 Work on the hints
+
+Improve the division challenge
+
+## 2019.08.13
+
+### Update
+
+I put in the functionality to open up new catacombs. The player has to complete an untimed challenge that's only available after passing a certain level. It's ugly code but I refactored some of it today. I know it can be improved, I just need to crunch it out and do it.  
 
 ## 2019.08.12
 
