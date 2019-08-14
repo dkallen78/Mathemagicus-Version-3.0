@@ -564,12 +564,14 @@ class Player {
     //Spell related stats
     this.spells = {
       learned: {
-        fibonacci: true,
+        fibonacci1: true,
+        fibonacci2: true,
+        fibonacci3: true,
         triangle: false,
         square: false,
         pentagon: false,
         pyramid: false,
-        cube: false,
+        cube: true,
         hexagon: false,
         star: false
       },                  //Which spells have been learned, forerly spellArray[]
@@ -661,9 +663,9 @@ function test() {
   player.name = "Shady";
   player.maxHealth = 10;
   player.damage = 1;
-  player.addition.level = 5;
-  player.subtraction.level = 5;
-  player.multiplication.level = 3;
+  player.addition.level = 2;
+  player.subtraction.level = 0;
+  player.multiplication.level = 0;
   player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
@@ -1862,22 +1864,13 @@ function overworld(player) {
 
       return status;
     }
+
+
     //
     //This function makes the layout of the spells
     //page of the player's book.
     function spellsPage() {
       let spells = makeDiv("spellsPage", "bookPage");
-      //
-      //Determines the function of the page turning butttons
-      if (player.spells.learned[0] >= 0) {
-        pageLeft = function() {
-          turnPageLeft(spells, spellDetailPage, player.spells.learned[0]);
-        }
-      } else {
-        pageLeft = function() {
-          turnPageLeft(spells, monstersPage);
-        }
-      }
       //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
@@ -1893,6 +1886,7 @@ function overworld(player) {
       let pageTurnButtons = turnPageButtons(spells);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
       pageRight = function() {turnPageRight(spells, statusPage);}
+      pageLeft = function() {turnPageLeft(spells, spellDetailPage, 0);}
       turnButton[0].onclick = pageRight;
       turnButton[1].onclick = pageLeft;
       //
@@ -1908,7 +1902,20 @@ function overworld(player) {
       //
       //Iterates through the spells the player has acquired
       //and places them in the spells object
-      for (let index in player.spells.learned) {
+      for (let i = 0; i < Object.values(player.spells.learned).length; i++) {
+        if (Object.values(player.spells.learned)[i] === true) {
+          let span = document.createElement("span");
+          span.onclick = function() {
+            turnPageLeft(spells, spellDetailPage, i);
+          }
+          insertTextNode(span, spellBookContent[i][0])
+          insertLineBreak(span);
+          spells.appendChild(span);
+        }
+
+      }
+
+      /*for (let index in player.spells.learned) {
         let span = document.createElement("span");
         span.onclick = function() {
           turnPageLeft(spells, spellDetailPage, (index - 1));
@@ -1917,7 +1924,7 @@ function overworld(player) {
         insertLineBreak(span);
         spells.appendChild(span);
         index++;
-      }
+      }*/
 
       return spells;
     }
@@ -1925,21 +1932,40 @@ function overworld(player) {
     //This function handles the individual spell pages
     //index is the index of player.spells.learned
     function spellDetailPage(index) {
+
+      function findNextSpell(index, object) {
+        for (let i = index + 1; i < Object.values(object).length; i++) {
+          if (Object.values(object)[i]) {
+            return i;
+          } else {
+            return false;
+          }
+        }
+      }
+
+      function findPreviousSpell(index, object) {
+        for (let i = index - 1; i > 0; i--) {
+          if (Object.values(object)[i] === true) {
+            return i;
+          }
+        }
+      }
       let spell = makeDiv("spellsDetailPage", "bookPage");
       //
       //Determines the function of the page turning butttons
-      if (player.spells.learned.indexOf(index) === 0) {
+      if (index === 0) {
         pageRight = function() {
           turnPageRight(spell, spellsPage);
         }
       } else {
         pageRight = function() {
-          turnPageRight(spell, spellDetailPage, (index - 1));
+          turnPageRight(spell, spellDetailPage, findPreviousSpell(index, player.spells.learned));
         }
       }
-      if (index < (player.spells.learned.length - 1)) {
+
+      if (findNextSpell(index, player.spells.learned)) {
         pageLeft = function() {
-          turnPageLeft(spell, spellDetailPage, (index + 1));
+          turnPageLeft(spell, spellDetailPage, findNextSpell(index, player.spells.learned));
         }
       } else {
         pageLeft = function() {
@@ -1971,7 +1997,7 @@ function overworld(player) {
       }
 
       let spellDiv = makeDiv("spellDetailDiv");
-      let spellImg = makeImg("./scrolls/" + spellBookContent[player.spells.learned[index]][1]);
+      let spellImg = makeImg("./scrolls/" + spellBookContent[index][1]);
       spellImg.style.height = "330px";
       spellDiv.appendChild(spellImg);
       spell.appendChild(spellDiv);
@@ -2863,6 +2889,54 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       monsterImg.title = this.name;
     }
   }
+
+  //
+  //This function gets a new boss monster object and puts it on the screen
+  class Boss {
+    constructor() {
+      this.level = current[operation].level;
+      this.index = (current[operation].level / 2) + 29;
+      //
+      //Boss 1  Level 2   10 HP   3 dmg
+      //Boss 2  Level 4   15 HP   3 dmg
+      //Boss 3  Level 6   20 HP   4 dmg
+      //Boss 4  Level 8   25 HP   4 dmg
+      //Boss 5  Level 10  30 HP   5 dmg
+      this.hp = (current[operation].level * 2) + (current[operation].level / 2) + 5;
+      this.maxHp = this.hp;
+      this.damage = (Math.floor(this.hp / 10) + 2);
+
+      if (this.index === 34) {
+        let playArea = document.getElementById("playArea");
+        playArea.style.height = "474px";
+        let monsterDiv = document.getElementById("monsterDiv");
+        monsterDiv.style.height = "125px";
+        monsterDiv.style.width = "125px";
+      }
+      switch (operation) {
+        case "addition":
+          this.src = monsterData.addition.path + monsterData.addition.files[this.index];
+          this.name = monsterData.addition.names[this.index];
+          break;
+        case "subtraction":
+          this.src = monsterData.subtraction.path + monsterData.subtraction.files[this.index];
+          this.name = monsterData.subtraction.names[this.index];
+          break;
+        case "multiplication":
+          this.src = monsterData.multiplication.path + monsterData.multiplication.files[this.index];
+          this.name = monsterData.multiplication.names[this.index];
+          break;
+        case "division":
+          this.src = monsterData.division.path + monsterData.division.files[this.index];
+          this.name = monsterData.division.names[this.index];
+          break;
+      }
+
+      let monsterImg = document.getElementById("monsterImg");
+      monsterImg.src = this.src;
+      monsterImg.title = this.name;
+    }
+  }
   //
   //A quick dungeon intro screen
   function catacombIntro() {
@@ -3096,11 +3170,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
 
     const levelUp = function() {
+
       current[operation].level++;
       current[operation].runningAverage = [];
       let problemDiv = document.getElementById("problemDiv");
       problemDiv.innerHTML = "I think you're strong enough for Level " + current[operation].level + "!";
-      insertLineBreak(problemDiv);
+      insertLineBreak(problemDiv, 2);
       insertButton(problemDiv, "Continue", nextMonster);
       insertTextNode(problemDiv, " ");
       insertButton(problemDiv, "Return to Surface", function() {
@@ -3117,15 +3192,31 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       getProblem();
     }
 
+    const bossFight = function() {
+      monster = new Boss();
+      monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
+      monsterImg.style.filter = "brightness(100%)";
+
+      let problemDiv = document.getElementById("problemDiv");
+      clearElement(problemDiv);
+      insertTextNode(problemDiv, "This monster doesn't seem like the others...");
+
+      let flash = new ScreenFlash("playAreaWhite");
+      flash.flash = setInterval(function() {
+        flash.screenFlash();
+      }, 100);
+      setTimeout(getProblem, 2000);
+    }
+
     const intermission = function() {
       let problemDiv = document.getElementById("problemDiv");
       problemDiv.innerHTML = "You're doing great! You've defeated " + monsterInterval + " monsters!";
-      insertLineBreak(problemDiv);
-      insertButton(problemDiv, "Continue", nextMonster);
-      insertTextNode(problemDiv, " ");
+      insertLineBreak(problemDiv, 2);
       insertButton(problemDiv, "Return to Surface", function() {
         overworld(player);
       });
+      insertTextNode(problemDiv, " ");
+      insertButton(problemDiv, "Continue", nextMonster);
     }
     //
     //This function checks for specific key presses in the answer input box
@@ -3371,8 +3462,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         spellsOff();
         processMonster();
         problemDiv.innerHTML = "Great job, you defeated the " + monster.name + "!<br /><br />";
-        if (player.passingAverage(current[operation].runningAverage)) {
+        if (monster.maxHp > 2) {
           setTimeout(levelUp, 1000);
+        } else if (player.passingAverage(current[operation].runningAverage)) {
+          if (current[operation].level % 2 === 0) {
+            setTimeout(bossFight, 1000);
+          } else {
+            setTimeout(levelUp, 1000);
+          }
         } else if ((monsterInterval % 5) === 0) {
           setTimeout(intermission, 1000);
         } else {
