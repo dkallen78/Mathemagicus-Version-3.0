@@ -12,7 +12,7 @@ function getRandomNumber(floor, ceiling) {
   return Math.floor((Math.random() * range) + floor);
 }
 
-const getAverage = function(averageTime, newNumber) {
+function getAverage(averageTime, newNumber) {
   averageTime[0] = ((averageTime[0] * averageTime[1]) + newNumber) / (averageTime[1] + 1);
   averageTime[1]++;
   return averageTime;
@@ -127,8 +127,10 @@ function insertAnswerInput(target, answer, callback) {
   let input = document.createElement("input");
   input.type = "number";
   input.id = "answerInput";
-  input.onkeypress = function() {
-    callback(event, answer);
+  if (callback) {
+    input.onkeypress = function() {
+      callback(event, answer);
+    }
   }
   target.appendChild(input);
 }
@@ -493,6 +495,29 @@ function fadeTransition(element, target, speed = 500, callback = null) {
 
 }
 
+class ScreenFlash {
+  constructor(color) {
+    this.count = 10;
+    this.flash = null;
+    this.color = color
+  }
+
+  screenFlash() {
+    if (this.count > 0) {
+      if ((this.count % 2) === 0) {
+        playArea.classList.remove(this.color);
+      } else {
+        playArea.classList.add(this.color);
+      }
+      this.count--;
+
+    } else {
+      playArea.classList.remove(this.color);
+      clearInterval(this.flash);
+    }
+  }
+}
+
 //-------------------------------------------------------------------//
 //Object functions                                                   //
 //-------------------------------------------------------------------//
@@ -636,9 +661,9 @@ function test() {
   player.name = "Shady";
   player.maxHealth = 10;
   player.damage = 1;
-  player.addition.level = 10;
-  player.subtraction.level = 0;
-  player.multiplication.level = 0;
+  player.addition.level = 5;
+  player.subtraction.level = 5;
+  player.multiplication.level = 3;
   player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
@@ -1058,7 +1083,8 @@ function overworld(player) {
 
     })
   }
-
+  //
+  //Loads the Mages' Guild menu
   function mageGuild() {
     //
     //What to do when the player makes a menu selection
@@ -1085,19 +1111,20 @@ function overworld(player) {
 
     function catacombKeys() {
 
-
-
+      let subtractionClick = function() {}
+      let multiplicationClick = function() {}
+      let divisionClick = function() {}
 
       function keySelection(imgData) {
         switch (imgData.index) {
           case 0:           //Subtraction
-            subtractionChallenge();
+            subtractionClick();
             break;
           case 1:           //Multiplication
-            multiplicationChallenge();
+            multiplicationClick();
             break;
           case 2:           //Divison
-            divisionChallenge();
+            divisionClick();
             break;
           case 3:           //Return
             guildMenuSelectors.lowClass = "menuItemsLow";
@@ -1108,37 +1135,54 @@ function overworld(player) {
         }
       }
 
+      function victory(catacomb) {
+
+        function victorySpeech() {
+          clearElement(challengeDiv);
+          let victoryText = "Well done! I knew you could do it! You're definitely " +
+                            "ready to take on the " + catacomb + " Catacombs.";
+          typer(victoryText, challengeDiv, function() {
+            insertLineBreak(challengeDiv, 2);
+            insertButton(challengeDiv, "Return to Guild", mageGuild);
+          })
+        }
+
+        let flash = new ScreenFlash("playAreaWhite");
+
+        flash.flash = setInterval(function() {
+          flash.screenFlash();
+        }, 100);
+
+        let checkFlash = setInterval(function() {
+          if (flash.count === 0) {
+            clearInterval(checkFlash);
+            victorySpeech();
+          }
+        }, 250);
+        return 1;
+      }
+
       function subtractionChallenge() {
 
         function beginChallenge() {
 
-          function checkKeyPress(event, answer) {
-            var key = event.which;
-            switch(key) {
-              case 13: //Enter key, check answer
-                checkAnswer(answer);
-                break;
-            }
-          }
-
           function checkAnswer(answer) {
             let answerInput = document.getElementById("answerInput");
             if (parseInt(answerInput.value) === answer) {
-              if (questions < 11) {
+              if (questions < 10) {
+                document.onkeyup = "";
                 questions++;
                 challenge();
               } else {
-                victory();
+                player.subtraction.level = victory("Subtraction");
               }
             } else {
-
-              if (challengeDiv.childNodes.length > 5) {removeLastChild(challengeDiv, 3);}
+              if (challengeDiv.childNodes.length > 6) {removeLastChild(challengeDiv, 3);}
               insertLineBreak(challengeDiv, 2);
               insertTextNode(challengeDiv, "Oh no! " + answerInput.value + " didn't work!");
               answerInput.value = "";
             }
           }
-
 
           function challenge() {
             clearElement(challengeDiv);
@@ -1146,35 +1190,35 @@ function overworld(player) {
 
             let fragment = document.createDocumentFragment();
 
+            insertTextNode(fragment, terms[2] + " - " + terms[0] + " = ?");
+            insertLineBreak(fragment, 2);
+
             insertTextNode(fragment, terms[0] + " + ");
-            insertAnswerInput(fragment, terms[1], checkKeyPress);
+            insertAnswerInput(fragment, terms[1]);
             insertTextNode(fragment, " = " + terms[2]);
+
+            document.onkeyup = function(e) {
+              e = e || window.event;
+              if (e.keyCode === 13) {
+
+                checkAnswer(terms[1]);
+              }
+            }
 
             challengeDiv.appendChild(fragment);
             document.getElementById("answerInput").focus();
-          }
-
-          function victory() {
-            console.log(player.subtraction.level);
-            if (player.subtraction.level) {
-              console.log("doy");
-            } else {
-              player.subtraction.level = 1;
-              overworld(player);
-            }
-
           }
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
 
           let textOne = "Subtraction magic is like addition but turned around:";
           insertTextNode(challengeDiv, textOne);
-          insertLineBreak(challengeDiv);
+          insertLineBreak(challengeDiv, 2);
           insertTextNode(challengeDiv, "1 + 2 = 3");
           insertLineBreak(challengeDiv);
           insertTextNode(challengeDiv, "3 - 2 = 1 or 3 - 1 = 2");
           let textTwo = "To earn this key you must answer 10 addition problems using subtraction."
-          insertLineBreak(challengeDiv);
+          insertLineBreak(challengeDiv, 2);
           insertTextNode(challengeDiv, textTwo);
           insertLineBreak(challengeDiv, 2);
           insertButton(challengeDiv, "Begin", challenge);
@@ -1183,9 +1227,188 @@ function overworld(player) {
           let questions = 0;
         }
 
-        //let problemDiv = makeDiv("problemDiv", "textBox");
-
         let challengeText = "To earn the key to the Subtraction Catacombs, you " +
+                            "must prove your worthiness. Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        menuSwitch(keySelectors, null);
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+        })
+
+      }
+
+      function multiplicationChallenge() {
+
+        function beginChallenge() {
+
+          function checkAnswer(answer) {
+            let answerInput = document.getElementById("answerInput");
+            if (parseInt(answerInput.value) === answer) {
+              document.onkeyup = "";
+              if (questions < 10) {
+                questions++;
+                challenge();
+              } else {
+                player.multiplication.level = victory("Multiplication");
+              }
+            } else {
+              console.log(challengeDiv.lastChild.nodeType);
+              if (challengeDiv.lastChild.nodeType > 1) {removeLastChild(challengeDiv, 3);}
+              insertLineBreak(challengeDiv, 2);
+              insertTextNode(challengeDiv, "Oh no! " + answerInput.value + " didn't work!");
+              answerInput.value = "";
+            }
+          }
+
+          function challenge() {
+            clearElement(challengeDiv);
+            let terms = getTerms("multiplication", 1);
+            terms[1]++;
+            terms[2] += terms[0];
+
+            let fragment = document.createDocumentFragment();
+
+            insertTextNode(fragment, terms[1] + " × " + terms[0] + " = ?");
+            insertLineBreak(fragment, 2);
+
+            for (let i = 0; i < terms[0]; i++) {
+              if (i) {
+                insertTextNode(fragment, " + " + terms[1]);
+              } else {
+                insertTextNode(fragment, terms[1]);
+              }
+            }
+            insertTextNode(fragment, " = ");
+            insertAnswerInput(fragment, terms[2]);
+
+            document.onkeyup = function(e) {
+              e = e || window.event;
+              if (e.keyCode === 13) {
+
+                checkAnswer(terms[2]);
+              }
+            }
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Multiplication magic is like addition but repeated:";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "4 × 3 is the same as");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "4 + 4 + 4");
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "7 × 4 is the same as");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "7 + 7 + 7 + 7");
+          let textTwo = "To earn this key you must answer 10 problems using repeated addition."
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+          insertButton(challengeDiv, "Begin", challenge);
+
+          fadeTransition(challengeDiv, playArea);
+          let questions = 0;
+        }
+
+        let challengeText = "To earn the key to the Multiplication Catacombs, you " +
+                            "must prove your worthiness. Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        menuSwitch(keySelectors, null);
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+        })
+      }
+
+      function divisionChallenge() {
+
+        function beginChallenge() {
+
+          function checkAnswer(answer) {
+            let answerInput = document.getElementById("answerInput");
+            if (parseInt(answerInput.value) === answer) {
+              if (questions < 10) {
+                document.onkeyup = "";
+                questions++;
+                challenge();
+              } else {
+                player.division.level = victory("Division");
+              }
+            } else {
+              if (challengeDiv.childNodes.length > 6) {removeLastChild(challengeDiv, 3);}
+              insertLineBreak(challengeDiv, 2);
+              insertTextNode(challengeDiv, "Oh no! " + answerInput.value + " didn't work!");
+              answerInput.value = "";
+            }
+          }
+
+          function challenge() {
+            clearElement(challengeDiv);
+            let terms = getTerms("multiplication", 1);
+
+            let fragment = document.createDocumentFragment();
+
+            insertTextNode(fragment, terms[2] + " ÷ " + terms[0] + " = ?");
+            insertLineBreak(fragment, 2);
+
+            insertTextNode(fragment, terms[0] + " × ");
+            insertAnswerInput(fragment, terms[1]);
+            insertTextNode(fragment, " = " + terms[2]);
+
+            document.onkeyup = function(e) {
+              e = e || window.event;
+              if (e.keyCode === 13) {
+
+                checkAnswer(terms[1]);
+              }
+            }
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Division magic is like multiplication but turned around:";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "3 × 5 = 15");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "15 ÷ 5 = 3 or 15 ÷ 3 = 5");
+          let textTwo = "To earn this key you must answer 10 multiplication problems " +
+                        "using division."
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+          insertButton(challengeDiv, "Begin", challenge);
+
+          fadeTransition(challengeDiv, playArea);
+          let questions = 0;
+        }
+
+        let challengeText = "To earn the key to the Division Catacombs, you " +
                             "must prove your worthiness. Are you ready? "
 
         clearElement(guildTextDiv);
@@ -1213,6 +1436,28 @@ function overworld(player) {
         ],
         path: "./mageGuild/keys/",
         index: 0
+      }
+
+      if (player.subtraction.level) {
+        keyData.sprites[0][0] = "subtractionKeyCompleted.gif";
+      } else if (player.addition.level < 3) {
+        keyData.sprites[0][0] = "subtractionKeyLocked.gif";
+      } else {
+        subtractionClick = subtractionChallenge;
+      }
+      if (player.multiplication.level) {
+        keyData.sprites[1][0] = "multiplicationKeyCompleted.gif";
+      } else if (player.addition.level < 5) {
+        keyData.sprites[1][0] = "multiplicationKeyLocked.gif";
+      } else {
+        multiplicationClick = multiplicationChallenge;
+      }
+      if (player.division.level) {
+        keyData.sprites[2][0] = "divisionKeyCompleted.gif";
+      } else if ((player.subtraction.level < 5) && (player.multiplication.level < 3)) {
+        keyData.sprites[2][0] = "divisionKeyLocked.gif";
+      } else {
+        divisionClick = divisionChallenge;
       }
       let keySelectors = new MenuSelectors(1, "Earn Catacomb Keys");
       keySelectors.lowClass = "menuItemsLow"
@@ -2477,7 +2722,7 @@ function overworld(player) {
 
 //
 //Gets the terms for the problems
-function getTerms(type, level) {
+function getTerms(type, level, operation) {
   let constant1 = null;
   let constant2 = null;
   let answer = null;
@@ -2840,29 +3085,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
     }
 
-    class ScreenFlash {
-      constructor(color) {
-        this.count = 10;
-        this.flash = null;
-        this.color = color
-      }
-
-      screenFlash() {
-        if (this.count > 0) {
-          if ((this.count % 2) === 0) {
-            playArea.classList.remove(this.color);
-          } else {
-            playArea.classList.add(this.color);
-          }
-          this.count--;
-
-        } else {
-          playArea.classList.remove(this.color);
-          clearInterval(this.flash);
-        }
-      }
-    }
-
     const showHintDiv = function() {
       let hintDiv = document.getElementById("hintDiv");
       hintDiv.style.visibility = "visible";
@@ -3058,7 +3280,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             flash.screenFlash();
           }, 100);
 
-          terms = getTerms("sequence", monster.level);
+          terms = getTerms("sequence", monster.level, operation);
           insertTextNode(fragment, terms[0] + ", " + terms[1] + ", ");
           insertTextNode(fragment, terms[2] + ", " + terms[3] + ", ");
           insertAnswerInput(fragment, terms[4], checkKeyPress);
@@ -3071,9 +3293,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }
           }, 250);
 
-        /*problemDiv.innerHTML = terms[0] + ", " + terms[1] + ", " + terms[2] + ", " + terms[3] +
-          ", <input id=\"answerInput\" type=\"number\" onKeyPress=\"checkKeyPress(event, " + terms[4] + ")\"/>,...";
-          */break;
+          break;
       }
 
     }
