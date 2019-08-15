@@ -18,6 +18,12 @@ Work on the hints
 
 Improve the division challenge
 
+## 2019.08.15
+
+### Update
+
+I've put in the boss monsters but I don't know what rewards they will give. I've put in some rough notifications as well but I feel like there's more functionality to be added to that later. I ran into an issue in the Liber Mathemagicus because I changed one of the spell variables. I had to change some stuff up and write some new functions but everything works the way it did before now. I had a browser update last night and now my XMLHttpRequest doesn't work anymore, so that's the mountain i'm climbing today.
+
 ## 2019.08.13
 
 ### Update
