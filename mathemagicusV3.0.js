@@ -532,14 +532,15 @@ class Player {
     this.maxHealth = 10;            //The player's maximum health (used for healing)
     this.damage = 1;                //The base damage done by the player
     this.damageBoost = 0;           //Additional damage caused by the Strength spell
-    //
+    this.notification = false;
+    /*//
     //Levels unlocked by the player
     this.level = {
       addition: 1,
       subtraction: 0,
       multiplication: 0,
       division: 0
-    }
+    }*/
     //
     //Avatar sprites for the player
     this.sprites = {
@@ -565,13 +566,13 @@ class Player {
     this.spells = {
       learned: {
         fibonacci1: true,
-        fibonacci2: true,
-        fibonacci3: true,
+        fibonacci2: false,
+        fibonacci3: false,
         triangle: false,
         square: false,
         pentagon: false,
         pyramid: false,
-        cube: true,
+        cube: false,
         hexagon: false,
         star: false
       },                  //Which spells have been learned, forerly spellArray[]
@@ -656,6 +657,10 @@ class Player {
       return this.name + "'s";
     }
   }
+
+  /*set setNotification(text) {
+
+  }*/
 }
 
 function test() {
@@ -663,7 +668,7 @@ function test() {
   player.name = "Shady";
   player.maxHealth = 10;
   player.damage = 1;
-  player.addition.level = 2;
+  player.addition.level = 3;
   player.subtraction.level = 0;
   player.multiplication.level = 0;
   player.division.level = 0;
@@ -911,7 +916,12 @@ function overworld(player) {
     if (player.subtraction.level) menuData.sprites[1][0] = "subtractionDoorOpen.gif";
     if (player.multiplication.level) menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
     if (player.division.level) menuData.sprites[3][0] = "divisionDoorOpen.gif";
+    if (player.notification) {
+      postNotifications();
+    }
     menuMaker(selectors, imgData, callback, index);
+
+
   }
   //
   //This function returns to the overworld menu
@@ -1199,13 +1209,16 @@ function overworld(player) {
             insertAnswerInput(fragment, terms[1]);
             insertTextNode(fragment, " = " + terms[2]);
 
-            document.onkeyup = function(e) {
-              e = e || window.event;
-              if (e.keyCode === 13) {
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
 
-                checkAnswer(terms[1]);
+                  checkAnswer(terms[1]);
+                }
               }
-            }
+            }, 200);
+
 
             challengeDiv.appendChild(fragment);
             document.getElementById("answerInput").focus();
@@ -1223,9 +1236,11 @@ function overworld(player) {
           insertLineBreak(challengeDiv, 2);
           insertTextNode(challengeDiv, textTwo);
           insertLineBreak(challengeDiv, 2);
-          insertButton(challengeDiv, "Begin", challenge);
 
           fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
           let questions = 0;
         }
 
@@ -1237,13 +1252,14 @@ function overworld(player) {
         menuSwitch(keySelectors, null);
 
         typer(challengeText, guildTextDiv, function() {
-          insertButton(guildTextDiv, "Yes!", beginChallenge);
-          insertTextNode(guildTextDiv, " ");
           insertButton(guildTextDiv, "No", function() {
             clearElement(guildTextDiv);
             catacombKeys();
             typer(introText, guildTextDiv, null);
           });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+
         })
 
       }
@@ -1260,6 +1276,7 @@ function overworld(player) {
                 questions++;
                 challenge();
               } else {
+                player.spells.learned.fibonacci2 = true;
                 player.multiplication.level = victory("Multiplication");
               }
             } else {
@@ -1292,13 +1309,17 @@ function overworld(player) {
             insertTextNode(fragment, " = ");
             insertAnswerInput(fragment, terms[2]);
 
-            document.onkeyup = function(e) {
-              e = e || window.event;
-              if (e.keyCode === 13) {
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
 
-                checkAnswer(terms[2]);
+                  checkAnswer(terms[2]);
+                }
               }
-            }
+            }, 200);
+
+
 
             challengeDiv.appendChild(fragment);
             document.getElementById("answerInput").focus();
@@ -1320,9 +1341,11 @@ function overworld(player) {
           insertLineBreak(challengeDiv, 2);
           insertTextNode(challengeDiv, textTwo);
           insertLineBreak(challengeDiv, 2);
-          insertButton(challengeDiv, "Begin", challenge);
 
           fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
           let questions = 0;
         }
 
@@ -1356,6 +1379,7 @@ function overworld(player) {
                 questions++;
                 challenge();
               } else {
+                player.spells.learned.fibonacci3 = true;
                 player.division.level = victory("Division");
               }
             } else {
@@ -1379,13 +1403,17 @@ function overworld(player) {
             insertAnswerInput(fragment, terms[1]);
             insertTextNode(fragment, " = " + terms[2]);
 
-            document.onkeyup = function(e) {
-              e = e || window.event;
-              if (e.keyCode === 13) {
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
 
-                checkAnswer(terms[1]);
+                  checkAnswer(terms[1]);
+                }
               }
-            }
+            }, 200);
+
+
 
             challengeDiv.appendChild(fragment);
             document.getElementById("answerInput").focus();
@@ -1404,9 +1432,11 @@ function overworld(player) {
           insertLineBreak(challengeDiv, 2);
           insertTextNode(challengeDiv, textTwo);
           insertLineBreak(challengeDiv, 2);
-          insertButton(challengeDiv, "Begin", challenge);
 
           fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
           let questions = 0;
         }
 
@@ -1486,7 +1516,15 @@ function overworld(player) {
     let introText = "It's good to see you again " + player.name +
                     ", what can I do for you?";
 
+    if (player.notification) {player.notification = false;}
+
+    function removeNotification() {
+      player.notification = false;
+      removeElement("notification");
+    }
+
     fadeTransition(fragment, playArea, 500, function() {
+
       typer(introText, guildTextDiv, function () {
         menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection);
       });
@@ -1599,7 +1637,7 @@ function overworld(player) {
         //The only way I can get this page turn to animate
         //cleanly and consistently is to include this console.clear()...
         //I want to find a better way...
-        console.clear();
+        //console.clear();
         requestAnimationFrame(function() {
           nextPage.style.transform = "perspective(2000px) rotateY(0deg)";
         });
@@ -1865,7 +1903,23 @@ function overworld(player) {
       return status;
     }
 
+    function findNextSpell(index, object) {
+      for (let i = index + 1; i < Object.values(object).length; i++) {
+        if (Object.values(object)[i]) {
+          return i;
+        }
+      }
+      return false;
+    }
 
+    function findPreviousSpell(index, object) {
+      for (let i = index - 1; i >= 0; i--) {
+        if (Object.values(object)[i] === true) {
+          return i;
+        }
+      }
+      return false;
+    }
     //
     //This function makes the layout of the spells
     //page of the player's book.
@@ -1886,7 +1940,9 @@ function overworld(player) {
       let pageTurnButtons = turnPageButtons(spells);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
       pageRight = function() {turnPageRight(spells, statusPage);}
-      pageLeft = function() {turnPageLeft(spells, spellDetailPage, 0);}
+      pageLeft = function() {
+        turnPageLeft(spells, spellDetailPage, findNextSpell(-1, player.spells.learned));
+      }
       turnButton[0].onclick = pageRight;
       turnButton[1].onclick = pageLeft;
       //
@@ -1933,27 +1989,11 @@ function overworld(player) {
     //index is the index of player.spells.learned
     function spellDetailPage(index) {
 
-      function findNextSpell(index, object) {
-        for (let i = index + 1; i < Object.values(object).length; i++) {
-          if (Object.values(object)[i]) {
-            return i;
-          } else {
-            return false;
-          }
-        }
-      }
 
-      function findPreviousSpell(index, object) {
-        for (let i = index - 1; i > 0; i--) {
-          if (Object.values(object)[i] === true) {
-            return i;
-          }
-        }
-      }
       let spell = makeDiv("spellsDetailPage", "bookPage");
       //
       //Determines the function of the page turning butttons
-      if (index === 0) {
+      if (!findPreviousSpell(index, player.spells.learned)) {
         pageRight = function() {
           turnPageRight(spell, spellsPage);
         }
@@ -2027,14 +2067,8 @@ function overworld(player) {
       let monsters = makeDiv("monsterPage", "bookPage");
       //
       //Determines the function of the page turning butttons
-      if (player.spells.learned[0] >= 0) {
-        pageRight = function() {
-          turnPageRight(monsters, spellDetailPage, (player.spells.learned.length - 1));
-        }
-      } else {
-        pageRight = function() {
-          turnPageRight(monsters,spellsPage);
-        }
+      pageRight = function() {
+        turnPageRight(monsters, spellDetailPage, findPreviousSpell(11, player.spells.learned));
       }
       if (typeof(player.addition.monsters[0]) === "object") {
         pageLeft = function() {
@@ -2715,7 +2749,15 @@ function overworld(player) {
     ];
   }
 
+  function postNotifications() {
+    let notification = makeDiv("notification");
+    insertTextNode(notification, player.notification);
+    playArea.appendChild(notification);
+  }
+
   let playArea = document.getElementById("playArea");
+
+
   //
   //The image data for the overworld menu
   let menuData = {
@@ -3171,10 +3213,31 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
     const levelUp = function() {
 
+      const checkForNotifications = function() {
+        switch (operation) {
+          case "addition":
+            if (current[operation].level === 2) {
+              player.notification = "New Key Challenge Available";
+            }
+            if (current[operation].level === 4) {
+              player.notification = "New Key Challenge Available";
+            }
+            break;
+          case "subtraction":
+            break;
+          case "multiplication":
+            break;
+          case "division":
+            break;
+        }
+      }
+      checkForNotifications();
+
       current[operation].level++;
       current[operation].runningAverage = [];
       let problemDiv = document.getElementById("problemDiv");
-      problemDiv.innerHTML = "I think you're strong enough for Level " + current[operation].level + "!";
+      problemDiv.innerHTML = "I think you're strong enough for Level " +
+                              current[operation].level + "!";
       insertLineBreak(problemDiv, 2);
       insertButton(problemDiv, "Continue", nextMonster);
       insertTextNode(problemDiv, " ");
