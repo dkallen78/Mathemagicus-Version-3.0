@@ -532,7 +532,7 @@ class Player {
     this.maxHealth = 10;            //The player's maximum health (used for healing)
     this.damage = 1;                //The base damage done by the player
     this.damageBoost = 0;           //Additional damage caused by the Strength spell
-    this.notification = false;
+    this.notification = "Go to the Mages' Guild";
     /*//
     //Levels unlocked by the player
     this.level = {
@@ -855,7 +855,7 @@ function gameStart() {
     function introPart2() {
       clearElement(introTextDiv);
       let textString = "The old catacombs beneath the city are overrun with monsters " +
-                        "and they've been attacking the townsfolk. ";
+                        "and they've been attacking people. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", introPart3);
       });
@@ -869,16 +869,15 @@ function gameStart() {
     }
     function introPart4() {
       clearElement(introTextDiv);
-      let textString = "Only one catacomb is open right now. The other three are sealed " +
-                        "with some kind of magic. ";
+      let textString = "We've sealed up all of the catacombs to keep people from going down " +
+                        "there. We keep the keys at the Mages' Guild.";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", introPart5);
       });
     }
     function introPart5() {
       clearElement(introTextDiv);
-      let textString = "Here are the catacombs. Thank you so much for your help " +
-                        "getting rid of those monsters. ";
+      let textString = "We have also have something that will help you in your fight.";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", function() {
           overworld(player);
@@ -913,6 +912,7 @@ function overworld(player) {
   //Does everything that needs to be done to launch the
   //Overworld Menu
   function launchOverworldMenu(selectors, imgData, callback, index = 0) {
+    if (player.addition.level) menuData.sprites[0][0] = "additionDoorOpen.gif";
     if (player.subtraction.level) menuData.sprites[1][0] = "subtractionDoorOpen.gif";
     if (player.multiplication.level) menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
     if (player.division.level) menuData.sprites[3][0] = "divisionDoorOpen.gif";
@@ -2762,7 +2762,7 @@ function overworld(player) {
   //The image data for the overworld menu
   let menuData = {
     sprites: [
-      ["additionDoorOpen.gif", "Addition Catacombs"],
+      ["additionDoorClosed.gif", "Addition Catacombs"],
       ["subtractionDoorClosed.gif", "Subtraction Catacombs"],
       ["multiplicationDoorClosed.gif", "Multiplication Catacombs"],
       ["divisionDoorClosed.gif", "Division Catacombs"],
@@ -3670,8 +3670,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         img.style.filter = "opacity(100%)";
         img.onclick = callback;
       }
-
-      if (player.spells.learned.fibonacci) {        //Fibonacci Spell
+      if (player.spells.learned.fibonacci1) {        //Fibonacci Spell
         turnOnSpell("fibonacciImg", castFibonacci);
         /*let fibonacciImg = document.getElementById("fibonacciImg");
         if ((spellsCast[0] === 0) && (spellsCast[10] === 0) && (spellsCast[11] === 0)) {
