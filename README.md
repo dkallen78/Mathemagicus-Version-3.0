@@ -6,17 +6,21 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Boss monsters and what they do.
+### Up next: Spell acquisition
 
-Now that I have the key mechanic to open up access to more types of problems I want to start figuring out how to handle the boss monsters from the previous version. It's a mechanic I love, but in the previous version, they were used to award things like new dungeons being opened and new spells and things like that. Now that I'm handling some of that differently, I need to figure out what the boss' do. One problem is that all monsters have 2hp now. There's no point in awarding more damage after a certain point like I did before. 
-
-So, what do the players get for beating a boss?
+The answer to the boss problem was partially to award spells after certain bosses. Now I have to figure out how I'm going to award spells. I wanted it to be more meaningful than v2 so I anticipate a "test/quiz" and having to go to the Mages' Guild to get it instead of it just being activated. I don't know what this means for the scrolls I used in v2. Also to consider, how will the player "activate" the spell? The keyboard controls are hard to remember and the buttons are really tiny; I need something better...
 
 ### Notes to self:
 
 Work on the hints
 
 Improve the division challenge
+
+## 2019.08.16
+
+### Update
+
+I've added a new menu for giving the player spells (when they've unlocked them). It's a more traditional looking menu than my left to right scrolling one. Spells are going to unlock after specific levels in the game and there will be a small "test" associated with them. Hopefully it's not as ugly as the code for the Catacomb keys...
 
 ## 2019.08.15
 
