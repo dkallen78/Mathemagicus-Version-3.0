@@ -615,6 +615,38 @@ on the townIntro() screen*/
 }
 
 /*-------------------------------------------------------------
+/ Overworld Styles - Mages' Guild - Spell Selection           /
+/------------------------------------------------------------*/
+
+#spellSelectMenu {
+  background-color: #777777;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+  font-size: 1.25em;
+  margin: 0 60px;
+  padding: 3px;
+  /*height: 57px;
+  overflow-y: scroll;*/
+  cursor: pointer;
+  filter: opacity(0%);
+  scrollbar-width: thin;
+  scrollbar-color: #444 #222221;
+  transition: all 500ms;
+  scroll-behavior: smooth;
+}
+
+.menuItem {
+  transition: all 500ms;
+  font-weight: bold;
+}
+
+.menuItem:hover, .menuItem:focus {
+  background-color: #999999;
+  border-radius: 3px;
+}
+
+/*-------------------------------------------------------------
 / Overworld Styles - Liber Mathemagicus                       /
 /------------------------------------------------------------*/
 

@@ -575,7 +575,31 @@ class Player {
         cube: false,
         hexagon: false,
         star: false
-      },                  //Which spells have been learned, forerly spellArray[]
+      },
+      names: {
+        fibonacci1: "Fibonacci's Associative Spell",
+        fibonacci2: "Euler's Left Distributive Spell",
+        fibonacci3: "Euler's Right Distributive Spell",
+        triangle: "Euclid's Fireball Spell",
+        square: "Hypatia's Healing Spell",
+        pentagon: "Lovelace's Reduction Spell",
+        pyramid: "Huygen's Stop-Time Spell",
+        cube: "Fermat's Polymorph Monster Spell",
+        hexagon: "Noether's Strength Spell",
+        star: "Brahe's Nova Spell"
+      },
+      available: {
+        fibonacci1: true,
+        fibonacci2: false,
+        fibonacci3: true,
+        triangle: false,
+        square: false,
+        pentagon: true,
+        pyramid: false,
+        cube: true,
+        hexagon: false,
+        star: false
+      },
       cast: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], //Number times each spell cast
       //
       //This group of variables tracks the number of
@@ -1109,7 +1133,7 @@ function overworld(player) {
           catacombKeys();
           break;
         case 2:               //New Spells
-
+          learnSpells();
           break;
         case 3:               //Return to previous menu
           returnToDungeonMenu();
@@ -1118,6 +1142,72 @@ function overworld(player) {
     }
 
     function learnSpells() {
+
+      function menuUp() {
+        number--;
+        if (number < 0) {
+          number = spellMenu.children.length - 1;
+        }
+        spellMenu.children[number].focus();
+      }
+
+      function menuDown() {
+        number++;
+        if (number >= spellMenu.children.length) {
+          number = 0;
+        }
+        spellMenu.children[number].focus();
+      }
+
+      function selectSpell() {
+        switch(spellMenu.children[number].id) {
+          case "0":
+            console.log("test passed");
+            break;
+        }
+      }
+
+      menuSwitch(guildMenuSelectors, null);
+
+      let spellMenu = makeDiv("spellSelectMenu");
+
+      let number = 1;
+
+      for (let i = 0; i < Object.values(player.spells.available).length; i++) {
+
+        if (Object.values(player.spells.available)[i] === true) {
+          let menuItem = makeDiv(i, "menuItem");
+          menuItem.tabIndex = number;
+          menuItem.onclick = selectSpell;
+          insertTextNode(menuItem, Object.values(player.spells.names)[i]);
+          spellMenu.appendChild(menuItem);
+          number++;
+        }
+      }
+
+      playArea.appendChild(spellMenu);
+      spellMenu.focus();
+      setTimeout(function() {
+        spellMenu.style.filter = "opacity(100%)";
+        spellMenu.firstChild.focus();
+      }, 100);
+
+      number = 0;
+
+      document.onkeydown = function(event) {
+
+        if (event.which === 13) {
+          selectSpell();
+        }
+        if (event.which === 38) {
+          event.preventDefault();
+          menuUp();
+        }
+        if (event.which === 40) {
+          event.preventDefault();
+          menuDown();
+        }
+      }
 
     }
 
@@ -1477,6 +1567,7 @@ function overworld(player) {
       } else {
         subtractionClick = subtractionChallenge;
       }
+
       if (player.multiplication.level) {
         keyData.sprites[1][0] = "multiplicationKeyCompleted.gif";
       } else if (player.addition.level < 5) {
@@ -1484,6 +1575,7 @@ function overworld(player) {
       } else {
         multiplicationClick = multiplicationChallenge;
       }
+
       if (player.division.level) {
         keyData.sprites[2][0] = "divisionKeyCompleted.gif";
       } else if ((player.subtraction.level < 5) && (player.multiplication.level < 3)) {
@@ -1491,6 +1583,7 @@ function overworld(player) {
       } else {
         divisionClick = divisionChallenge;
       }
+
       let keySelectors = new MenuSelectors(1, "Earn Catacomb Keys");
       keySelectors.lowClass = "menuItemsLow"
       menuSwitch(guildMenuSelectors, function() {
