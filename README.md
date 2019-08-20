@@ -8,13 +8,21 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 ### Up next: Spell acquisition
 
-The answer to the boss problem was partially to award spells after certain bosses. Now I have to figure out how I'm going to award spells. I wanted it to be more meaningful than v2 so I anticipate a "test/quiz" and having to go to the Mages' Guild to get it instead of it just being activated. I don't know what this means for the scrolls I used in v2. Also to consider, how will the player "activate" the spell? The keyboard controls are hard to remember and the buttons are really tiny; I need something better...
+Now that I'm starting to put some spell logic in, I want to rework how the player uses spells. I don't like the spell bar. My thought is to have the player push the space bar to pull up a menu w/ a list of available spells and a button to push to cast them.
 
 ### Notes to self:
+
+Find a good principle for subraction hints
 
 Work on the hints
 
 Improve the division challenge
+
+## 2019.08.19
+
+### Update
+
+I've made a "quiz" for earning 4 spells so far but 3 are for the hint spell. I have to do the rest next and figure out how to handle subtraction hints because they don't use distribution or association.
 
 ## 2019.08.16
 
