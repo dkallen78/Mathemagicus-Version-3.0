@@ -155,7 +155,7 @@ function typer(text, target, callback, i = 0) {
   //
   //This is the wait time in ms between each new
   //character of the text string
-  let waitTime = 30;
+  let waitTime = 3;
   //
   //As long i is less than the length of the text string
   //there are more letters to type
@@ -532,7 +532,10 @@ class Player {
     this.maxHealth = 10;            //The player's maximum health (used for healing)
     this.damage = 1;                //The base damage done by the player
     this.damageBoost = 0;           //Additional damage caused by the Strength spell
-    this.notification = "Go to the Mages' Guild";
+    //
+    //0 is for magic notifications
+    //1 is for key notifications
+    this.notification = [["Go to the Mages' Guild", 0]];
     /*//
     //Levels unlocked by the player
     this.level = {
@@ -564,54 +567,73 @@ class Player {
     //
     //Spell related stats
     this.spells = {
-      learned: {
-        fibonacci1: true,
-        fibonacci2: false,
-        fibonacci3: false,
-        triangle: false,
-        square: false,
-        pentagon: false,
-        pyramid: false,
-        cube: false,
-        hexagon: false,
-        star: false
+      fibonacci: {
+        name: "Fibonacci's Associative Spell",
+        available: true,
+        learned: true,
+        cast: 10
       },
-      names: {
-        fibonacci1: "Fibonacci's Associative Spell",
-        fibonacci2: "Euler's Left Distributive Spell",
-        fibonacci3: "Euler's Right Distributive Spell",
-        triangle: "Euclid's Fireball Spell",
-        square: "Hypatia's Healing Spell",
-        pentagon: "Lovelace's Reduction Spell",
-        pyramid: "Huygen's Stop-Time Spell",
-        cube: "Fermat's Polymorph Monster Spell",
-        hexagon: "Noether's Strength Spell",
-        star: "Brahe's Nova Spell"
+      euler1: {
+        name: "Euler's Left Distributive Spell",
+        available: false,
+        learned: false,
+        cast: 0
       },
-      available: {
-        fibonacci1: true,
-        fibonacci2: false,
-        fibonacci3: true,
-        triangle: false,
-        square: false,
-        pentagon: true,
-        pyramid: false,
-        cube: true,
-        hexagon: false,
-        star: false
+      euler2: {
+        name: "Euler's Right Distributive Spell",
+        available: false,
+        learned: false,
+        cast: 0
       },
-      cast: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], //Number times each spell cast
-      //
-      //This group of variables tracks the number of
-      //spells available to the player
-      fibonacci: 0,                 //Hint spells
-      triangle: 0,                  //Fireball spells
-      square: 0,                    //Health spells
-      pentagon: 0,                  //Reduce terms spells
-      pyramid: 0,                   //Time spells
-      cube: 0,                      //Polymorph monster spells
-      hexagon: 0,                   //Strength spells
-      star: 0                       //Nova spells
+      euclid: {
+        name: "Euclid's Fireball Spell",
+        available: true,
+        learned: false,
+        cast:0,
+        number: 0
+      },
+      hypatia: {
+        name: "Hypatia's Healing Spell",
+        available: false,
+        learned: false,
+        cast: 0,
+        number: 0
+      },
+      lovelace: {
+        name: "Lovelace's Reduction Spell",
+        available: false,
+        learned: false,
+        cast: 0,
+        number: 0
+      },
+      huygen: {
+        name: "Huygen's Stop-time Spell",
+        available: false,
+        learned: false,
+        cast: 0,
+        number: 0
+      },
+      fermat: {
+        name: "Fermat's Polymorph Monster Spell",
+        available: false,
+        learned: false,
+        cast: 0,
+        number: 0
+      },
+      noether: {
+        name: "Noether's Strength Spell",
+        available: false,
+        learned: false,
+        cast: 0,
+        number: 0
+      },
+      brahe: {
+        name: "Brahe's Nova Spell",
+        available: false,
+        learned: false,
+        cast: 0,
+        number: 0
+      },
     }
 
     this.addition = {
@@ -680,6 +702,24 @@ class Player {
     } else {
       return this.name + "'s";
     }
+  }
+
+  get hintSpells() {
+    let object = this.spells;
+    return (object.fibonacci.cast + object.euler1.cast + object.euler2.cast);
+  }
+
+  get attackSpells() {
+    let object = this.spells;
+    return object.euclid.cast + object.brahe.cast;
+  }
+
+  get spellsCast() {
+    let total = 0;
+    for (let i = 0; i < Object.keys(this.spells).length; i++) {
+      total += Object.values(this.spells)[i].cast;
+    }
+    return total;
   }
 
   /*set setNotification(text) {
@@ -1143,6 +1183,372 @@ function overworld(player) {
 
     function learnSpells() {
 
+      function victory(spellName) {
+
+        function victorySpeech() {
+          clearElement(challengeDiv);
+          let victoryText = "Well done! I knew you could do it! You've definitely " +
+                            "earned " + spellName + ".";
+          typer(victoryText, challengeDiv, function() {
+            insertLineBreak(challengeDiv, 2);
+            insertButton(challengeDiv, "Return to Guild", mageGuild);
+          })
+        }
+
+        let flash = new ScreenFlash("playAreaWhite");
+
+        flash.flash = setInterval(function() {
+          flash.screenFlash();
+        }, 100);
+
+        let checkFlash = setInterval(function() {
+          if (flash.count === 0) {
+            clearInterval(checkFlash);
+            victorySpeech();
+          }
+        }, 250);
+        return true;
+      }
+
+      function checkAnswer(answer, spell, count, challenge) {
+        let answerInput = document.getElementById("answerInput");
+        if (parseInt(answerInput.value) === answer) {
+          if (count < 10) {
+            document.onkeyup = "";
+            challenge();
+          } else {
+            spell.available = false;
+            spell.learned = victory(spell.name);
+          }
+        } else {
+          let text = challengeDiv.innerHTML;
+          if (text.charAt(text.length - 1) === "!") {removeLastChild(challengeDiv, 3);}
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "Oh no! " + answerInput.value + " didn't work!");
+          answerInput.value = "";
+        }
+      }
+
+      function learnAssociative() {
+
+        function beginChallenge() {
+
+          function challenge() {
+            questions++;
+            clearElement(challengeDiv);
+            let addend1 = getRandomNumber(6, 9);
+            let addend2 = getRandomNumber(6, 9);
+            let sum = addend1 + addend2;
+            let answer = 10 - addend2;
+            let addendPart = addend1 - answer;
+
+            let fragment = document.createDocumentFragment();
+
+            insertTextNode(fragment, addend1 + " + " + addend2 + " = " + sum);
+            insertLineBreak(fragment, 2);
+            insertTextNode(fragment, "(" + addendPart + " + ?) + " + addend2 + " = " + sum);
+            insertLineBreak(fragment, 2);
+            insertTextNode(fragment, addendPart + " + (")
+            insertAnswerInput(fragment, answer);
+            insertTextNode(fragment, " + " + addend2 + ") = " + sum);
+
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.fibonacci, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "The Associative Property says that in an addition problem, " +
+                        "it doesn't matter what order the numbers are in:";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "8 + 5 = 5 + 8");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "(5 + 3) + 5 = (5 + 5) + 3");
+          let textTwo = "To earn this spell you must answer 10 problems using " +
+                        "the Associative Property."
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = 0;
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+
+        })
+      }
+
+      function learnLeftDistribution() {
+
+        function beginChallenge() {
+
+          function challenge() {
+            questions++;
+            clearElement(challengeDiv);
+            let mult1 = getRandomNumber(6, 9);
+            let mult2 = getRandomNumber(3, 9);
+            if (mult2 === 5) mult2--;
+            let product = mult1 * mult2;
+            let answer = (mult2 > 5) ? (mult2 - 5):(mult2 - 2);
+            let part1 = (mult2 > 5) ? 5:2;
+
+            let fragment = document.createDocumentFragment();
+
+            insertTextNode(fragment, mult1 + " × " + mult2 + " = " + product);
+            insertLineBreak(fragment, 2);
+            insertTextNode(fragment, mult1 + " × (" + part1 + " + ?) = " + product);
+            insertLineBreak(fragment, 2);
+            insertTextNode(fragment, "(" + mult1 + " + " + part1 + ") × (" + mult1 + " + ");
+            insertAnswerInput(fragment, answer);
+            insertTextNode(fragment, ") = " + product);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.euler1, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "The Distributive Property says that in a multiplication problem, " +
+                        "we can break apart one of the terms to simplify our problem:";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "8 × 7 = 8 × (5 + 2)");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "8 × (5 + 2) = ");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "(8 × 5) + (8 × 2)");
+          let textTwo = "To earn this spell you must answer 10 problems using " +
+                        "the Left Distribution."
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = 0;
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+
+        })
+      }
+
+      function learnRightDistribution() {
+
+        function beginChallenge() {
+
+          function challenge() {
+            questions++;
+            clearElement(challengeDiv);
+            let quotient = getRandomNumber(6, 9);
+            let divisor = getRandomNumber(2, 4);
+            let dividend = quotient * divisor;
+            let part1 = 5 * divisor;
+            let answer = (quotient - 5) * divisor;
+
+            let fragment = document.createDocumentFragment();
+
+            insertTextNode(fragment, dividend + " ÷ " + divisor + " = " + quotient);
+            insertLineBreak(fragment, 2);
+            insertTextNode(fragment, "(" + part1 + " + ?) ÷ " + divisor + " = " + quotient);
+            insertLineBreak(fragment, 2);
+            insertTextNode(fragment, "(" + part1 + " ÷ " + divisor + ") + (");
+            insertAnswerInput(fragment, answer);
+
+            insertTextNode(fragment, " ÷ " + divisor + ") = " + quotient);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.euler2, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "The Distributive Property says that in a division problem, " +
+                        "we can break apart the left term to simplify our problem:";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "36 ÷ 4 = (24 + 12) ÷ 4");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "(20 + 16) ÷ 4 = ");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "(20 ÷ 4) + (16 ÷ 4)");
+          let textTwo = "To earn this spell you must answer 10 problems using " +
+                        "the Right Distribution."
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = 0;
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+
+        })
+      }
+
+      function learnFireball() {
+
+        function beginChallenge() {
+
+          function challenge() {
+            questions++;
+            clearElement(challengeDiv);
+
+            let answer = 0;
+            let addend1 = 0;
+            let addend2 = 0;
+
+            let fragment = document.createDocumentFragment();
+
+            for (let i = 1; i <= questions + 1; i++) {
+              addend1 = answer;
+              addend2 = i
+              answer = addend1 + addend2;
+              insertTextNode(fragment, i);
+              if (i < (questions + 1)) {insertTextNode(fragment, " + ");}
+            }
+            insertLineBreak(fragment, 2);
+
+            insertTextNode(fragment, addend1 + " + " + addend2 + " = ");
+            insertAnswerInput(fragment, answer);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.euclid, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Euclid's Fireball is powered by Triangle Numbers, numbers that " +
+                        "can be arranged to form an equilateral triangle.";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "   Δ       1");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "  Δ Δ      3");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "Δ  Δ  Δ    6");
+          let textTwo = "To earn this spell you must answer 10 problems using " +
+                        "summation."
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = 0;
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+
+        })
+      }
+
       function menuUp() {
         number--;
         if (number < 0) {
@@ -1159,10 +1565,37 @@ function overworld(player) {
         spellMenu.children[number].focus();
       }
 
-      function selectSpell() {
-        switch(spellMenu.children[number].id) {
-          case "0":
-            console.log("test passed");
+      function selectSpell(selection) {
+        switch(parseInt(selection)) {
+          case 0:     //Fibonacci's Associative Spell
+            learnAssociative();
+            break;
+          case 1:     //Euler's Left Distributive Spell
+            learnLeftDistribution();
+            break;
+          case 2:     //Euler's Right Distributive Spell
+            learnRightDistribution();
+            break;
+          case 3:     //Euclid's Fireball Spell
+            learnFireball();
+            break;
+          case "4":     //Hypatia's Healing Spell
+
+            break;
+          case "5":     //Lovelace's Reduction Spell
+
+            break;
+          case "6":     //Huygen's Stop-time Spell
+
+            break;
+          case "7":     //Fermat's Polymorph Monster Spell
+
+            break;
+          case "8":     //Noether's Strength Spell
+
+            break;
+          case "9":     //Brahe's Nova Spell
+
             break;
         }
       }
@@ -1171,15 +1604,16 @@ function overworld(player) {
 
       let spellMenu = makeDiv("spellSelectMenu");
 
-      let number = 1;
+      let number = 0;
+      for (let i = 0; i < Object.keys(player.spells).length; i++) {
 
-      for (let i = 0; i < Object.values(player.spells.available).length; i++) {
-
-        if (Object.values(player.spells.available)[i] === true) {
+        if (Object.values(player.spells)[i].available === true) {
           let menuItem = makeDiv(i, "menuItem");
           menuItem.tabIndex = number;
-          menuItem.onclick = selectSpell;
-          insertTextNode(menuItem, Object.values(player.spells.names)[i]);
+          menuItem.onclick = function() {
+            selectSpell(i);
+          }
+          insertTextNode(menuItem, Object.values(player.spells)[i].name);
           spellMenu.appendChild(menuItem);
           number++;
         }
@@ -1196,14 +1630,14 @@ function overworld(player) {
 
       document.onkeydown = function(event) {
 
-        if (event.which === 13) {
-          selectSpell();
+        if (event.which === 13) {     //Enter key
+          selectSpell(spellMenu.children[number].id);
         }
-        if (event.which === 38) {
+        if (event.which === 38) {     //Up Arrow
           event.preventDefault();
           menuUp();
         }
-        if (event.which === 40) {
+        if (event.which === 40) {     //Down Arrow
           event.preventDefault();
           menuDown();
         }
@@ -1630,13 +2064,13 @@ function overworld(player) {
   function liberMathemagicus(monsterData) {
     let spellBookContent = [
       ["Fibonacci's Associative Spell", "fibonacciSpellBook1.gif"],
-      ["Fibonacci's Distributive Spell", "fibonacciSpellBook2.gif"],
-      ["Fibonacci's Distributive Spell 2", "fibonacciSpellBook3.gif"],
+      ["Euler's Left Distributive Spell", "fibonacciSpellBook2.gif"],
+      ["Euler's Right Distributive Spell", "fibonacciSpellBook3.gif"],
       ["Euclid's Fireball Spell", "triangleSpellBook.gif"],
-      ["Nightengale's Healiing Spell", "squareSpellBook.gif"],
+      ["Hypatia's Healiing Spell", "squareSpellBook.gif"],
       ["Huygen's Stop Time Spell", "pyramidSpellBook.gif"],
       ["Lovelace's Reduction Spell", "pentagonSpellBook.gif"],
-      ["Hercules' Strength Spell", "hexagonSpellBook.gif"],
+      ["Noether's Strength Spell", "hexagonSpellBook.gif"],
       ["Fermet's Polymorph Monster Spell", "cubeSpellBook.gif"],
       ["Brahe's Nova Spell", "starSpellBook.gif"]
     ];
@@ -1997,8 +2431,9 @@ function overworld(player) {
     }
 
     function findNextSpell(index, object) {
-      for (let i = index + 1; i < Object.values(object).length; i++) {
-        if (Object.values(object)[i]) {
+      //console.log(Object.keys(object).length);
+      for (let i = index + 1; i < Object.keys(object).length; i++) {
+        if (Object.values(object)[i].learned) {
           return i;
         }
       }
@@ -2007,7 +2442,7 @@ function overworld(player) {
 
     function findPreviousSpell(index, object) {
       for (let i = index - 1; i >= 0; i--) {
-        if (Object.values(object)[i] === true) {
+        if (Object.values(object)[i].learned === true) {
           return i;
         }
       }
@@ -2034,7 +2469,7 @@ function overworld(player) {
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
       pageRight = function() {turnPageRight(spells, statusPage);}
       pageLeft = function() {
-        turnPageLeft(spells, spellDetailPage, findNextSpell(-1, player.spells.learned));
+        turnPageLeft(spells, spellDetailPage, findNextSpell(-1, player.spells));
       }
       turnButton[0].onclick = pageRight;
       turnButton[1].onclick = pageLeft;
@@ -2051,8 +2486,8 @@ function overworld(player) {
       //
       //Iterates through the spells the player has acquired
       //and places them in the spells object
-      for (let i = 0; i < Object.values(player.spells.learned).length; i++) {
-        if (Object.values(player.spells.learned)[i] === true) {
+      for (let i = 0; i < Object.values(player.spells).length; i++) {
+        if (Object.values(player.spells)[i].learned === true) {
           let span = document.createElement("span");
           span.onclick = function() {
             turnPageLeft(spells, spellDetailPage, i);
@@ -2086,19 +2521,20 @@ function overworld(player) {
       let spell = makeDiv("spellsDetailPage", "bookPage");
       //
       //Determines the function of the page turning butttons
-      if (!findPreviousSpell(index, player.spells.learned)) {
+      if (findPreviousSpell(index, player.spells) === false) {
         pageRight = function() {
           turnPageRight(spell, spellsPage);
         }
       } else {
         pageRight = function() {
-          turnPageRight(spell, spellDetailPage, findPreviousSpell(index, player.spells.learned));
+          //console.log(findPreviousSpell(index, player.spells));
+          turnPageRight(spell, spellDetailPage, findPreviousSpell(index, player.spells));
         }
       }
 
-      if (findNextSpell(index, player.spells.learned)) {
+      if (findNextSpell(index, player.spells)) {
         pageLeft = function() {
-          turnPageLeft(spell, spellDetailPage, findNextSpell(index, player.spells.learned));
+          turnPageLeft(spell, spellDetailPage, findNextSpell(index, player.spells));
         }
       } else {
         pageLeft = function() {
@@ -2161,7 +2597,7 @@ function overworld(player) {
       //
       //Determines the function of the page turning butttons
       pageRight = function() {
-        turnPageRight(monsters, spellDetailPage, findPreviousSpell(11, player.spells.learned));
+        turnPageRight(monsters, spellDetailPage, findPreviousSpell(10, player.spells));
       }
       if (typeof(player.addition.monsters[0]) === "object") {
         pageLeft = function() {
@@ -2763,15 +3199,13 @@ function overworld(player) {
       //This controls the achievement for how much damage
       //the player has inflicted with spells
       td = makeAchievementElement("fire-ray.png");
-      let attackSpells = (player.spells.cast[3] + player.spells.cast[9]);
-      setAchievement(td, attackSpells, [5, 10, 25], "attack spells cast.");
+      setAchievement(td, player.attackSpells, [5, 10, 25], "Attack spells cast.");
       tr.appendChild(td);
       //
       //This controls the achievement for how many times the
       //player has used the fibonacci magic
       td = makeAchievementElement("help.png");
-      let hintSpells = (player.spells.cast[0] + player.spells.cast[1] + player.spells.cast[2] + player.spells.cast[10] + player.spells.cast[11]);
-      setAchievement(td, hintSpells, [5, 10, 25], "Fibonacci spells cast.");
+      setAchievement(td, player.hintSpells, [5, 10, 25], "Hint spells cast.");
       tr.appendChild(td);
       table.appendChild(tr);
 
@@ -2780,8 +3214,7 @@ function overworld(player) {
       //This controls the achievement for how many spells
       //the player has cast
       td = makeAchievementElement("spell-book.png");
-      let totalSpellsCast = player.spells.cast.reduce(getSum);
-      setAchievement(td, totalSpellsCast, [10, 50, 100], "spells cast.");
+      setAchievement(td, player.spellsCast, [10, 50, 100], "spells cast.");
       tr.appendChild(td);
       //
       //This controls the achievement for the players progress
@@ -2844,7 +3277,10 @@ function overworld(player) {
 
   function postNotifications() {
     let notification = makeDiv("notification");
-    insertTextNode(notification, player.notification);
+    for (let i = 0; i < player.notification.length; i++) {
+      insertTextNode(notification, player.notification[i]);
+      insertLineBreak(notification);
+    }
     playArea.appendChild(notification);
   }
 
