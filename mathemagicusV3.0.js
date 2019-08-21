@@ -495,6 +495,16 @@ function fadeTransition(element, target, speed = 500, callback = null) {
 
 }
 
+function fadeOutElement() {
+  for (let i = 0; i < arguments.length; i++) {
+    let element = document.getElementById(arguments[i]);
+    element.style.filter = "opacity(0%)";
+    element.ontransitionend = function() {
+      element.parentNode.removeChild(element);
+    }
+  }
+}
+
 class ScreenFlash {
   constructor(color) {
     this.count = 10;
@@ -536,6 +546,10 @@ class Player {
     //0 is for magic notifications
     //1 is for key notifications
     this.notification = null;
+
+    this.triggers = {
+      newGame: true;
+    }
     /*//
     //Levels unlocked by the player
     this.level = {
@@ -799,10 +813,10 @@ function gameStart() {
       green.ontransitionend = function(event) {
         event.stopPropagation();
       }
-    }, 250);
+    }, 260);
     setTimeout(function() {
       blue.style.transform = "rotateY(360deg)";
-    }, 750);
+    }, 760);
 
     blue.ontransitionend = function(event) {
       event.stopPropagation();
@@ -854,16 +868,6 @@ function gameStart() {
   //The New Game screen with player name input
   function enterName() {
 
-    function fadeOutElement() {
-      for (let i = 0; i < arguments.length; i++) {
-        let element = document.getElementById(arguments[i]);
-        element.style.filter = "opacity(0%)";
-        element.ontransitionend = function() {
-          element.parentNode.removeChild(element);
-        }
-      }
-    }
-
     fadeOutElement("newGame", "continue", "options");
     //removeElement("newGame", "continue", "options");
     //
@@ -879,10 +883,16 @@ function gameStart() {
     nameTextBox.id = "nameTextBox";
     enterNameDiv.appendChild(nameTextBox);
     insertLineBreak(enterNameDiv);
+
+    let next = makeDiv("next", "startButtons");
+    next.onclick = chooseCharacter;
+    insertTextNode(next, "Next");
+
+    let fragment = makeFragment(enterNameDiv, next);
     //
     //This puts it all into the playArea and puts the focus on the nameTextBox
     setTimeout(function() {
-      playArea.appendChild(enterNameDiv);
+      playArea.appendChild(fragment);
       nameTextBox.focus();
       enterNameDiv.style.filter = "opacity(100%)";
     }, 600);
@@ -920,7 +930,7 @@ function gameStart() {
     //Saves the player's name
     player.name = document.getElementById("nameTextBox").value
 
-    removeElement("titleDiv", "enterNameDiv");
+    removeElement("titleDiv", "enterNameDiv", "next");
 
     let tellahDiv = makeCameoDiv("Tellah.gif");
 
@@ -994,14 +1004,14 @@ function gameStart() {
     function introPart4() {
       clearElement(introTextDiv);
       let textString = "We've sealed up all of the catacombs to keep people from going down " +
-                        "there. We keep the keys at the Mages' Guild.";
+                        "there. We keep the keys at the Mages' Guild. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", introPart5);
       });
     }
     function introPart5() {
       clearElement(introTextDiv);
-      let textString = "We have also have something that will help you in your fight.";
+      let textString = "We have also have something that will help you in your fight. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", function() {
           overworld(player);
@@ -1024,8 +1034,8 @@ function gameStart() {
 
   player = new Player();
 
-  titleScreen();
-  //shadycrzy();
+  //titleScreen();
+  shadycrzy();
 }
 
 //-------------------------------------------------------------------//
@@ -1660,6 +1670,9 @@ function overworld(player) {
           case "9":     //Brahe's Nova Spell
 
             break;
+          case 10:
+            mageGuild();
+            break;
         }
       }
 
@@ -1681,6 +1694,13 @@ function overworld(player) {
           number++;
         }
       }
+      let menuItem = makeDiv("10", "menuItem");
+      menuItem.tabIndex = (number + 1);
+      menuItem.onclick = function() {
+        mageGuild();
+      }
+      insertTextNode(menuItem, "Return to Guild");
+      spellMenu.appendChild(menuItem);
 
       playArea.appendChild(spellMenu);
       spellMenu.focus();
@@ -1694,6 +1714,7 @@ function overworld(player) {
       document.onkeydown = function(event) {
 
         if (event.which === 13) {     //Enter key
+          console.log(spellMenu.children[number].id)
           selectSpell(spellMenu.children[number].id);
         }
         if (event.which === 38) {     //Up Arrow
@@ -1705,7 +1726,6 @@ function overworld(player) {
           menuDown();
         }
       }
-
     }
 
     function catacombKeys() {
@@ -3340,16 +3360,15 @@ function overworld(player) {
 
   function postNotifications() {
     let notification = makeDiv("notification");
-    for (let i = 0; i < player.notification.length; i++) {
+    /*for (let i = 0; i < player.notification.length; i++) {
       insertTextNode(notification, player.notification[i]);
       insertLineBreak(notification);
-    }
+    }*/
+    insertTextNode(notification, player.notification);
     playArea.appendChild(notification);
   }
 
   let playArea = document.getElementById("playArea");
-
-
   //
   //The image data for the overworld menu
   let menuData = {
@@ -3645,6 +3664,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let countdownTimer = makeDiv("countdownTimer");
     countdownBarBack.appendChild(countdownBarFront);
     countdownBarBack.appendChild(countdownTimer);
+    if (timerValue === 0) {countdownBarBack.style.visibility = "hidden";}
     fragment.appendChild(countdownBarBack);
     //
     //creates the spell icons for the combat div
