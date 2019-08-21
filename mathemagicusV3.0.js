@@ -790,25 +790,36 @@ function gameStart() {
 
     setTimeout(function() {
       red.style.transform = "rotateY(360deg)";
+      red.ontransitionend = function(event) {
+        event.stopPropagation();
+      }
     }, 10);
     setTimeout(function() {
       green.style.transform = "rotateX(360deg)";
+      green.ontransitionend = function(event) {
+        event.stopPropagation();
+      }
     }, 250);
     setTimeout(function() {
       blue.style.transform = "rotateX(360deg)";
     }, 750);
-    setTimeout(function() {
+
+    blue.ontransitionend = function(event) {
+      event.stopPropagation();
       shady.style.filter = "opacity(100%)";
-    }, 2000);
+    }
 
-    setTimeout(function() {
+    shady.ontransitionend = function(event) {
+      event.stopPropagation();
       document.body.style.filter = "opacity(0%)";
-    }, 3000);
+    }
 
-    setTimeout(function() {
+    document.body.ontransitionend = function(event) {
+      document.body.ontransitionend = "";
       clearElement(document.body);
       titleScreen();
-    }, 5000);
+    }
+
 
   }
   //
