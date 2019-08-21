@@ -144,16 +144,22 @@ body {
 
 #shady {
   margin-top: 25px;
+  color: white;
   text-align: center;
-  font-size: 2em;
+  font-size: 3em;
   font-weight: bold;
   font-family: monospace;
   filter: opacity(0%);
+  text-shadow: -1px 2px black,
+                2px 4px black,
+                0px -2px black,
+                2px 0px black,
+               -2px 0px black;
   transition: filter 2000ms;
 }
 
 #blocks {
-  width: 210px;
+  width: 312px;
   margin: 0 auto;
 }
 
@@ -161,8 +167,11 @@ body {
   display: inline-block;
   margin: 5px;
   margin-top: 20px;
-  height: 200px;
-  width: 60px;
+  height: 300px;
+  width: 90px;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 4px 4px black;
   transition: all 2000ms;
 }
 
@@ -191,6 +200,9 @@ body {
 /*
 Styles the Mathemagicus title on the initial screen*/
 #titleDiv {
+  position: relative;
+  width: 385px;
+  margin: 5px auto;
   font-size: 4em;
   font-weight: bold;
   font-family: monospace;
@@ -201,12 +213,8 @@ Styles the Mathemagicus title on the initial screen*/
                0px 4px black,
                -2px 0px black,
                0px -2px black;
-}
-/*
-Styles the <table> that holds my two start buttons*/
-#titleScreenButtons {
-  margin: auto;
-  margin-top: 20px;
+  border-bottom: 5px solid;
+  box-shadow: 0px 4px black;
 }
 /*
 Styles my two start buttons: "New Game" and "Continue"*/
@@ -221,7 +229,7 @@ Styles my two start buttons: "New Game" and "Continue"*/
                0px 2px black,
                -2px 0px black,
                0px -2px black,
-               0px 4px black;
+               2px 4px black;
   border-bottom: 3px solid rgba(0, 0, 0, 0);
   border-top: 3px solid rgba(0, 0, 0, 0);
   cursor: default;
@@ -236,6 +244,11 @@ Changes the background color of the buttons when hovered*/
   box-shadow: 0px 3px black,
               0px -3px red;
 }
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - Enter Name Page                         /
+/------------------------------------------------------------*/
+
 /*
 Styles the text windows for the game*/
 .textBox {

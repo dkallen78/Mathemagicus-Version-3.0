@@ -816,49 +816,25 @@ function gameStart() {
   function titleScreen() {
     //const playArea = document.getElementById("playArea");
     document.body.appendChild(playArea);
+
+    function titleScreenButton(id, tab, callback, name) {
+      let div = makeDiv(id, "startbuttons");
+      div.tabIndex = tab;
+      div.onclick = callback;
+      insertTextNode(div, name);
+      return div;
+    }
+
     clearElement(playArea);
 
     let titleDiv = makeDiv("titleDiv");
     insertTextNode(titleDiv, "Mathemagicus");
 
-    let newGame = makeDiv("newGame", "startButtons");
-    newGame.tabIndex = "1";
-    newGame.onclick = enterName;
-    insertTextNode(newGame, "New Game");
-    let cont = makeDiv("continue", "startButtons");
-    cont.tabIndex = "2";
-    cont.onclick = test;
-    insertTextNode(cont, "Continue");
-    let options = makeDiv("options", "startButtons");
-    options.tabIndex = "3";
-    insertTextNode(options, "Options");
+    let newGame = titleScreenButton("newGame", "1", enterName, "New Game");
+    let cont = titleScreenButton("continue", "2", test, "Continue");
+    let options = titleScreenButton("options", "3", null, "Options");
 
     let fragment = makeFragment(titleDiv, newGame, cont, options);
-    /*//
-    //This block sets up the <table> that the New Game
-    //and Continue buttons will be placed in
-    let titleScreenButtons = document.createElement("table");
-    titleScreenButtons.id = "titleScreenButtons";
-    let tableRow = document.createElement("tr");
-    let newGameTD = document.createElement("td");
-    let continueTD = document.createElement("td");
-    //
-    //These lines put the New Game button in the table
-    //and define its attributes
-    const newGameButton = makeButton(enterName, "New Game", "", "startButtons");
-    newGameTD.appendChild(newGameButton);
-    tableRow.appendChild(newGameTD);
-    //
-    //These lines put the Continue button in the table
-    //and define its attributes
-    const continueButton = makeButton(test, "Continue", "", "startButtons");
-    continueTD.appendChild(continueButton);
-    tableRow.appendChild(continueTD);
-    //
-    //Puts the buttons from the <tr> into the <table>
-    //then puts that <table> into the playArea
-    titleScreenButtons.appendChild(tableRow);
-    let fragment = makeFragment(titleDiv, titleScreenButtons);*/
 
     playArea.appendChild(fragment);
     setTimeout(function() {
