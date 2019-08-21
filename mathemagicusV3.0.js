@@ -770,15 +770,71 @@ function test() {
 //-------------------------------------------------------------------//
 
 function gameStart() {
+
+  function shadycrzy() {
+
+    let shady = makeDiv("shady");
+    shady.innerHTML = "Shadycrzy Games";
+
+    let blocks = makeDiv("blocks");
+    let red = makeDiv("red");
+    let green = makeDiv("green");
+    let blue = makeDiv("blue");
+
+    blocks.appendChild(red);
+    blocks.appendChild(green);
+    blocks.appendChild(blue);
+
+    let fragment = makeFragment(shady, blocks);
+    document.body.appendChild(fragment);
+
+    setTimeout(function() {
+      red.style.transform = "rotateY(360deg)";
+    }, 10);
+    setTimeout(function() {
+      green.style.transform = "rotateX(360deg)";
+    }, 250);
+    setTimeout(function() {
+      blue.style.transform = "rotateX(360deg)";
+    }, 750);
+    setTimeout(function() {
+      shady.style.filter = "opacity(100%)";
+    }, 2000);
+
+    setTimeout(function() {
+      document.body.style.filter = "opacity(0%)";
+    }, 3000);
+
+    setTimeout(function() {
+      clearElement(document.body);
+      titleScreen();
+    }, 5000);
+
+  }
   //
   //This function sets up the title screen of Mathemagicus
   function titleScreen() {
-    const playArea = document.getElementById("playArea");
+    //const playArea = document.getElementById("playArea");
+    document.body.appendChild(playArea);
     clearElement(playArea);
 
     let titleDiv = makeDiv("titleDiv");
     insertTextNode(titleDiv, "Mathemagicus");
-    //
+
+    let newGame = makeDiv("newGame", "startButtons");
+    newGame.tabIndex = "1";
+    newGame.onclick = enterName;
+    insertTextNode(newGame, "New Game");
+    let cont = makeDiv("continue", "startButtons");
+    cont.tabIndex = "2";
+    cont.onclick = test;
+    insertTextNode(cont, "Continue");
+    let options = makeDiv("options", "startButtons");
+    options.tabIndex = "3";
+    insertTextNode(options, "Options");
+
+    let fragment = makeFragment(titleDiv, newGame, cont, options);
+    /*//
     //This block sets up the <table> that the New Game
     //and Continue buttons will be placed in
     let titleScreenButtons = document.createElement("table");
@@ -802,8 +858,12 @@ function gameStart() {
     //Puts the buttons from the <tr> into the <table>
     //then puts that <table> into the playArea
     titleScreenButtons.appendChild(tableRow);
-    let fragment = makeFragment(titleDiv, titleScreenButtons);
+    let fragment = makeFragment(titleDiv, titleScreenButtons);*/
+
     playArea.appendChild(fragment);
+    setTimeout(function() {
+      document.body.style.filter = "opacity(100%)";
+    }, 10);
   }
   //
   //The New Game screen with player name input
@@ -960,9 +1020,12 @@ function gameStart() {
     introPart1();
   }
 
+  const playArea = makeDiv("playArea");
+
   player = new Player();
 
-  titleScreen();
+  //titleScreen();
+  shadycrzy();
 }
 
 //-------------------------------------------------------------------//
@@ -3460,7 +3523,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       monsterImg.title = this.name;
     }
   }
-
   //
   //This function gets a new boss monster object and puts it on the screen
   class Boss {
@@ -3589,13 +3651,13 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let spellBar = makeDiv("spellBar");
     let imgSrc = "./spellIcons/";
     makeSpellIcon("fibonacci", "ꚙ");
-    makeSpellIcon("triangle", player.spells.triangle);
-    makeSpellIcon("square", player.spells.square);
-    makeSpellIcon("pentagon", player.spells.pentagon);
-    makeSpellIcon("hexagon", player.spells.hexagon);
-    makeSpellIcon("pyramid", player.spells.pyramid);
-    makeSpellIcon("cube", player.spells.cube);
-    makeSpellIcon("star", player.spells.star);
+    makeSpellIcon("triangle", player.spells.euclid.number);
+    makeSpellIcon("square", player.spells.hypatia.number);
+    makeSpellIcon("pentagon", player.spells.lovelace.number);
+    makeSpellIcon("hexagon", player.spells.noether.number);
+    makeSpellIcon("pyramid", player.spells.huygen.number);
+    makeSpellIcon("cube", player.spells.fermat.number);
+    makeSpellIcon("star", player.spells.brahe.number);
     fragment.appendChild(spellBar);
     //
     //The combatDiv holds the player and monster
@@ -4199,7 +4261,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         img.style.filter = "opacity(100%)";
         img.onclick = callback;
       }
-      if (player.spells.learned.fibonacci1) {        //Fibonacci Spell
+      if (player.spells.fibonacci.learned) {        //Fibonacci Spell
         turnOnSpell("fibonacciImg", castFibonacci);
         /*let fibonacciImg = document.getElementById("fibonacciImg");
         if ((spellsCast[0] === 0) && (spellsCast[10] === 0) && (spellsCast[11] === 0)) {
@@ -4351,19 +4413,19 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       switch (operation) {
         case "addition":
           additionHint(terms[0], terms[1]);
-          player.spells.cast[0]++;
+          player.spells.fibonacci.cast++;
           break;
         case "subtraction":
           subtractionHint(terms[0], terms[1]);
-          player.spells.cast[0]++;
+          player.spells.fibonacci.cast++;
           break;
         case "multiplication":
           multiplicationHint(terms[0], terms[1]);
-          player.spells.cast[1]++;
+          player.spells.euler1.cast++;
           break;
         case "division":
           divisionHint(terms[0], terms[1]);
-          player.spells.cast[2]++;
+          player.spells.euler2.cast[2]++;
           break;
        }
 
