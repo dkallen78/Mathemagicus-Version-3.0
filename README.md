@@ -6,7 +6,7 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Spell acquisition
+### Up next: Spell use
 
 Now that I'm starting to put some spell logic in, I want to rework how the player uses spells. I don't like the spell bar. My thought is to have the player push the space bar to pull up a menu w/ a list of available spells and a button to push to cast them.
 
@@ -17,6 +17,12 @@ Find a good principle for subraction hints
 Work on the hints
 
 Improve the division challenge
+
+## 2019.08.20
+
+### Update
+
+I made a new splash screen for my "company" Shadycrzy Games and I revamped the opening screen menu to be a little more stylish. The good part is I love the way it looks. The bad part is that I'll probably end up wanting to update other menus I have... 
 
 ## 2019.08.19
 
