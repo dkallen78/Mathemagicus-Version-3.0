@@ -535,7 +535,7 @@ class Player {
     //
     //0 is for magic notifications
     //1 is for key notifications
-    this.notification = [["Go to the Mages' Guild", 0]];
+    this.notification = null;
     /*//
     //Levels unlocked by the player
     this.level = {
@@ -732,7 +732,7 @@ function test() {
   player.name = "Shady";
   player.maxHealth = 10;
   player.damage = 1;
-  player.addition.level = 3;
+  player.addition.level = 1;
   player.subtraction.level = 0;
   player.multiplication.level = 0;
   player.division.level = 0;
@@ -795,13 +795,13 @@ function gameStart() {
       }
     }, 10);
     setTimeout(function() {
-      green.style.transform = "rotateX(360deg)";
+      green.style.transform = "rotateY(360deg)";
       green.ontransitionend = function(event) {
         event.stopPropagation();
       }
     }, 250);
     setTimeout(function() {
-      blue.style.transform = "rotateX(360deg)";
+      blue.style.transform = "rotateY(360deg)";
     }, 750);
 
     blue.ontransitionend = function(event) {
@@ -825,8 +825,6 @@ function gameStart() {
   //
   //This function sets up the title screen of Mathemagicus
   function titleScreen() {
-    //const playArea = document.getElementById("playArea");
-    document.body.appendChild(playArea);
 
     function titleScreenButton(id, tab, callback, name) {
       let div = makeDiv(id, "startbuttons");
@@ -836,7 +834,7 @@ function gameStart() {
       return div;
     }
 
-    clearElement(playArea);
+    document.body.appendChild(playArea);
 
     let titleDiv = makeDiv("titleDiv");
     insertTextNode(titleDiv, "Mathemagicus");
@@ -855,11 +853,23 @@ function gameStart() {
   //
   //The New Game screen with player name input
   function enterName() {
-    const playArea = document.getElementById("playArea");
-    removeElement("titleScreenButtons");
+
+    function fadeOutElement() {
+      for (let i = 0; i < arguments.length; i++) {
+        let element = document.getElementById(arguments[i]);
+        element.style.filter = "opacity(0%)";
+        element.ontransitionend = function() {
+          element.parentNode.removeChild(element);
+        }
+      }
+    }
+
+    fadeOutElement("newGame", "continue", "options");
+    //removeElement("newGame", "continue", "options");
     //
     //This block displays the "Enter your name" prompt
-    let enterNameDiv = makeDiv("enterNameDiv", "textBox");
+    let enterNameDiv = makeDiv("enterNameDiv", "clearBox");
+    enterNameDiv.style.filter = "opacity(0%)";
     insertTextNode(enterNameDiv, "Please enter your name:");
     insertLineBreak(enterNameDiv);
     //
@@ -871,8 +881,11 @@ function gameStart() {
     insertLineBreak(enterNameDiv);
     //
     //This puts it all into the playArea and puts the focus on the nameTextBox
-    playArea.appendChild(enterNameDiv);
-    nameTextBox.focus();
+    setTimeout(function() {
+      playArea.appendChild(enterNameDiv);
+      nameTextBox.focus();
+      enterNameDiv.style.filter = "opacity(100%)";
+    }, 600);
     //
     //Listens for the enter key
     setTimeout(function() {
@@ -1011,8 +1024,8 @@ function gameStart() {
 
   player = new Player();
 
-  //titleScreen();
-  shadycrzy();
+  titleScreen();
+  //shadycrzy();
 }
 
 //-------------------------------------------------------------------//
