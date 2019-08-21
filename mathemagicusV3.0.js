@@ -571,7 +571,7 @@ class Player {
         name: "Fibonacci's Associative Spell",
         available: true,
         learned: true,
-        cast: 10
+        cast: 0
       },
       euler1: {
         name: "Euler's Left Distributive Spell",
