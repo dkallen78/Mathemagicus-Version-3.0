@@ -548,7 +548,7 @@ class Player {
     this.notification = null;
 
     this.triggers = {
-      newGame: true;
+      newGame: true
     }
     /*//
     //Levels unlocked by the player
