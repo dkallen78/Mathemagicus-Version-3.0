@@ -30,6 +30,13 @@ function isPrime(number) {
   //is a prime, false if there is not
   return primes.includes(number);
 }
+
+function isTriangle(number) {
+
+  let triangleNumbers = [3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136];
+
+  return triangleNumbers.includes(number);
+}
 //
 //This function is my version of the
 //array.indexOf() function, just customized
@@ -251,6 +258,22 @@ function makeCameoDiv(src) {
   div.appendChild(img);
   return div;
 }
+
+function showImage(src, target, duration = 3000) {
+  let img = makeImg(src, "firstKey", "quickImg");
+  img.style.filter = "opacity(0%)";
+  target.appendChild(img);
+  setTimeout(function() {
+    img.style.filter = "opacity(100%)";
+  })
+  setTimeout(function() {
+    img.style.filter = "opacity(0%)";
+    img.ontransitionend = function(e) {
+      e.stopImmediatePropagation();
+      target.removeChild(img);
+    }
+  }, duration);
+}
 //
 //type 0 is the large menu
 //type 1 is the small menu
@@ -386,6 +409,7 @@ function menuMaker(selector, imgData, callback, index = 0) {
   //
   //Puts text above the central menu item
   let menuSelectText = makeDiv(selector.textId, selector.lowClass);
+  imgData.index = index;
   insertTextNode(menuSelectText, selector.text);
   setTimeout(function() {
     menuSelectText.innerHTML = imgData.sprites[imgData.index][imgData.sprites[0].length - 1];
@@ -468,7 +492,7 @@ function menuSwitch(selectorOld, menuFunction) {
   if (menuFunction) {
     menuFunction();
     setTimeout(function() {
-      clearMenu(selectorOld);
+      if (selectorOld) clearMenu(selectorOld);
       let lowClasses = document.getElementsByClassName("menuItemsLow")
       for (let i = lowClasses.length - 1; i >= 0; i--) {
         lowClasses[i].classList.remove("menuItemsLow");
@@ -499,14 +523,15 @@ function fadeOutElement() {
   for (let i = 0; i < arguments.length; i++) {
     let element = document.getElementById(arguments[i]);
     element.style.filter = "opacity(0%)";
-    element.ontransitionend = function() {
+    element.ontransitionend = function(e) {
+      e.stopImmediatePropagation();
       element.parentNode.removeChild(element);
     }
   }
 }
 
 class ScreenFlash {
-  constructor(color) {
+  constructor(color, count = 10) {
     this.count = 10;
     this.flash = null;
     this.color = color
@@ -584,8 +609,9 @@ class Player {
       fibonacci: {
         name: "Fibonacci's Associative Spell",
         available: true,
-        learned: true,
-        cast: 0
+        learned: false,
+        cast: 0,
+        ongoing: false
       },
       euler1: {
         name: "Euler's Left Distributive Spell",
@@ -601,10 +627,11 @@ class Player {
       },
       euclid: {
         name: "Euclid's Fireball Spell",
-        available: true,
+        available: false,
         learned: false,
         cast:0,
-        number: 0
+        number: 0,
+        ongoing: false
       },
       hypatia: {
         name: "Hypatia's Healing Spell",
@@ -651,7 +678,7 @@ class Player {
     }
 
     this.addition = {
-      level: 1,
+      level: 0,
       monsters: [],
       totalAverage: [0, 0],
       runningAverage: [],
@@ -696,12 +723,18 @@ class Player {
     for (let i = 0; i < averages.length; i++) {
       total += averages[0];
     }
-    let average = total/ averages.length;
+    let average = total / averages.length;
     if ((average < 5) && (averages.length >= 20)) {
       return true;
     } else {
       return false;
     }
+  }
+
+  get totalLevel() {
+    let total = this.addition.level + this.subtraction.level;
+    total += this.multiplication.level + this.division.level;
+    return total;
   }
   //
   //Total damage player does when attacking
@@ -752,6 +785,10 @@ function test() {
   player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
+  player.spells.euclid.learned = true;
+  player.spells.euclid.number = 50;
+  player.triggers.newGame = false;
+
   //player.spells.learned = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   //player.addition.monsters = [[0, 1], [1, 5], [2, 10], [3, 20], [30, 20]];
   //player.subtraction.monsters = [[0, 1], [1, 5], [2, 10], [3, 20]];
@@ -782,6 +819,77 @@ function test() {
 //-------------------------------------------------------------------//
 //Game Intro functions                                               //
 //-------------------------------------------------------------------//
+
+function optionMenu() {
+  let optionBox = makeDiv("optionBox", "textBox");
+
+  class MenuOption {
+    constructor(name) {
+      this.name = name;
+      this.options = [];
+      this.index = 0;
+    }
+
+    appendTo(target) {
+
+      function optionLeft(obj, option) {
+        obj.index--;
+        if (obj.index < 0) {
+          obj.index = obj.options.length - 1;
+        }
+        option.innerHTML = obj.options[obj.index];
+      }
+
+      function optionRight(obj, option) {
+        obj.index++;
+        if (obj.index >= obj.options.length) {
+          obj.index = 0;
+        }
+        option.innerHTML = obj.options[obj.index];
+      }
+      let obj = this;
+
+      let menuBox = makeDiv("", "menuBox");
+        insertTextNode(menuBox, this.name);
+        let left = makeDiv("", "optionButton");
+          left.onclick = function() {
+            optionLeft(obj, option);
+          };
+          insertTextNode(left, "<");
+        let option = makeDiv("", "optionWindow");
+          insertTextNode(option, this.options[this.index]);
+        let right = makeDiv("", "optionButton");
+          right.onclick = function() {
+            optionRight(obj, option);
+          };
+          insertTextNode(right, ">");
+        let fragment = makeFragment(left, option, right);
+      menuBox.appendChild(fragment);
+      target.appendChild(menuBox);
+    }
+  }
+
+  let textSpeedBox = new MenuOption("Text Speed: ");
+  textSpeedBox.options = ["Slow", "Fast", "Instant"];
+  textSpeedBox.appendTo(optionBox);
+
+  let languageBox = new MenuOption("\u00A0 Language: ");
+  languageBox.options = ["English", "Spanish", "French", "German"];
+  languageBox.appendTo(optionBox);
+
+  insertLineBreak(optionBox);
+
+  let closeBox = makeDiv("closeBox");
+    let closeButton = makeDiv("closeButton", "optionButton");
+      insertTextNode(closeButton, "Close");
+      closeButton.onclick = function() {
+        playArea.removeChild(optionBox);
+      }
+  closeBox.appendChild(closeButton);
+  optionBox.appendChild(closeBox);
+
+  playArea.insertBefore(optionBox, titleDiv);
+}
 
 function gameStart() {
 
@@ -855,7 +963,7 @@ function gameStart() {
 
     let newGame = titleScreenButton("newGame", "1", enterName, "New Game");
     let cont = titleScreenButton("continue", "2", test, "Continue");
-    let options = titleScreenButton("options", "3", null, "Options");
+    let options = titleScreenButton("options", "3", optionMenu, "Options");
 
     let fragment = makeFragment(titleDiv, newGame, cont, options);
 
@@ -869,7 +977,6 @@ function gameStart() {
   function enterName() {
 
     fadeOutElement("newGame", "continue", "options");
-    //removeElement("newGame", "continue", "options");
     //
     //This block displays the "Enter your name" prompt
     let enterNameDiv = makeDiv("enterNameDiv", "clearBox");
@@ -1696,18 +1803,27 @@ function overworld(player) {
       }
       let menuItem = makeDiv("10", "menuItem");
       menuItem.tabIndex = (number + 1);
-      menuItem.onclick = function() {
-        mageGuild();
-      }
+      menuItem.onclick = mageGuild;
       insertTextNode(menuItem, "Return to Guild");
       spellMenu.appendChild(menuItem);
 
+      let spellText = "Which spell would you like to learn " + player.name + "?";
+
+      if (spellMenu.childNodes.length === 1) {
+        spellText = "It doesn't look like there are any spells you can learn " +
+                    "right now.";
+      }
+
       playArea.appendChild(spellMenu);
       spellMenu.focus();
+
+      clearElement(guildTextDiv);
+      typer(spellText, guildTextDiv);
+
       setTimeout(function() {
         spellMenu.style.filter = "opacity(100%)";
         spellMenu.firstChild.focus();
-      }, 100);
+      }, 10);
 
       number = 0;
 
@@ -1746,6 +1862,8 @@ function overworld(player) {
             divisionClick();
             break;
           case 3:           //Return
+            clearElement(guildTextDiv);
+            typer(introText, guildTextDiv, null);
             guildMenuSelectors.lowClass = "menuItemsLow";
             menuSwitch(keySelectors, function() {
               menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection, 1);
@@ -2077,11 +2195,15 @@ function overworld(player) {
         index: 0
       }
 
+      let keyText = "You're not ready to open any new catacombs right now. " +
+                    "Come back when you're stronger.";
+
       if (player.subtraction.level) {
         keyData.sprites[0][0] = "subtractionKeyCompleted.gif";
       } else if (player.addition.level < 3) {
         keyData.sprites[0][0] = "subtractionKeyLocked.gif";
       } else {
+        keyText = "I think you're ready to take on the Subtraction Catacombs!";
         subtractionClick = subtractionChallenge;
       }
 
@@ -2090,22 +2212,72 @@ function overworld(player) {
       } else if (player.addition.level < 5) {
         keyData.sprites[1][0] = "multiplicationKeyLocked.gif";
       } else {
+        keyText = "I think you're ready to take on the Multiplication Catacombs!";
         multiplicationClick = multiplicationChallenge;
       }
 
       if (player.division.level) {
+        keyText = "You've unlocked all the catacombs! There are no more left to unlock!";
         keyData.sprites[2][0] = "divisionKeyCompleted.gif";
       } else if ((player.subtraction.level < 5) && (player.multiplication.level < 3)) {
         keyData.sprites[2][0] = "divisionKeyLocked.gif";
       } else {
+        keyText = "I think you're ready to take on the Division Catacombs!";
         divisionClick = divisionChallenge;
       }
+
+      clearElement(guildTextDiv);
+
+      typer(keyText, guildTextDiv, null);
 
       let keySelectors = new MenuSelectors(1, "Earn Catacomb Keys");
       keySelectors.lowClass = "menuItemsLow"
       menuSwitch(guildMenuSelectors, function() {
         menuMaker(keySelectors, keyData, keySelection);
       });
+    }
+
+    function firstVisit() {
+
+      function firstVisitPart1() {
+        clearElement(guildTextDiv);
+        let textString = "Welcome to the Mages' Guild, " + player.name + ". ";
+        player.addition.level = 1;
+        typer(textString, guildTextDiv, function() {
+          insertButton(guildTextDiv, "Next", firstVisitPart2);
+        });
+      }
+      function firstVisitPart2() {
+        clearElement(guildTextDiv);
+        let textString = "Before you start clearing out the monsters you'll need " +
+                          "this key. ";
+        typer(textString, guildTextDiv, function() {
+          insertButton(guildTextDiv, "Next", firstVisitPart3);
+          showImage("./mageGuild/keys/addition.gif", playArea);
+        });
+      }
+      function firstVisitPart3() {
+        clearElement(guildTextDiv);
+        let textString = "You can come back for the other keys after you've gained " +
+                          "some more experience. ";
+        typer(textString, guildTextDiv, function() {
+          insertButton(guildTextDiv, "Next", firstVisitPart4);
+        });
+      }
+      function firstVisitPart4() {
+        clearElement(guildTextDiv);
+        let textString = "Before you leave, stop by the spell school for some magic " +
+                          "that will help you in the catacombs.";
+        typer(textString, guildTextDiv, function() {
+          guildMenuSelectors.lowClass = "menuItemsLow";
+          menuSwitch(null, function() {
+            menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection, 2);
+          })
+        });
+      }
+
+      player.triggers.newGame = false;
+      firstVisitPart1();
     }
 
     let tellahDiv = makeCameoDiv("Tellah.gif");
@@ -2116,7 +2288,7 @@ function overworld(player) {
       sprites: [
         ["library.gif", "Library"],
         ["key.gif", "Unlock Catacombs"],
-        ["spells.gif", "Learn Magic"],
+        ["spells.gif", "Spell School"],
         ["return.gif", "Return"]
       ],
       path: "./mageGuild/",
@@ -2134,12 +2306,14 @@ function overworld(player) {
     }
 
     fadeTransition(fragment, playArea, 500, function() {
-
-      typer(introText, guildTextDiv, function () {
-        menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection);
-      });
-    })
-
+      if (player.triggers.newGame) {
+        firstVisit();
+      } else {
+        typer(introText, guildTextDiv, function () {
+          menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection);
+        });
+      }
+    });
   }
   //
   //Controls the Liber Mathemagicus, the book that is
@@ -2551,9 +2725,17 @@ function overworld(player) {
       let pageTurnButtons = turnPageButtons(spells);
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
       pageRight = function() {turnPageRight(spells, statusPage);}
-      pageLeft = function() {
-        turnPageLeft(spells, spellDetailPage, findNextSpell(-1, player.spells));
+
+      if (typeof findNextSpell(-1, player.spells) === "number") {
+        pageLeft = function() {
+          turnPageLeft(spells, spellDetailPage, findNextSpell(-1, player.spells));
+        }
+      } else {
+        pageLeft = function() {
+          turnPageLeft(spells, monstersPage);
+        }
       }
+
       turnButton[0].onclick = pageRight;
       turnButton[1].onclick = pageLeft;
       //
@@ -2599,7 +2781,6 @@ function overworld(player) {
     //This function handles the individual spell pages
     //index is the index of player.spells.learned
     function spellDetailPage(index) {
-
 
       let spell = makeDiv("spellsDetailPage", "bookPage");
       //
@@ -3391,7 +3572,7 @@ function overworld(player) {
   //Makes the overworld menu and puts it on the screen
   fadeTransition(null, playArea, 500, function() {
     launchOverworldMenu(overworldMenuSelectors, menuData, menuSelection);
-  })
+  });
 
 }
 
@@ -3833,6 +4014,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             if (current[operation].level === 4) {
               player.notification = "New Key Challenge Available";
             }
+            if (current[operation].level === 6) {
+              player.notification = "New Spell Available";
+              player.spells.euclid.available = true;
+            }
             break;
           case "subtraction":
             break;
@@ -3842,6 +4027,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             break;
         }
       }
+
       checkForNotifications();
 
       current[operation].level++;
@@ -3904,17 +4090,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           checkAnswer(answer);
           break;
         case 97: //"a" key, Fibonacci Spell
-          event.preventDefault(); //prevents the writing of the "a" key
-          /*if (fibonacciCast) {
-            break;
-          }*/
+          event.preventDefault();
+          if (player.spells.fibonacci.ongoing || !player.spells.fibonacci.learned) break;
           castFibonacci();
           break;
         case 115: //"s" key, Triangle Spell
-          event.preventDefault(); //prevents the writing of the "s" key
-          if (subtractionLevel > 2) {
-            castTriangle();
-          }
+          event.preventDefault();
+          if (player.spells.euclid.ongoing || !player.spells.euclid.learned) break;
+          castEuclid();
           break;
         case 100: //"d" key, Square Spell
           event.preventDefault(); //prevents the writing of the "d" key
@@ -3979,7 +4162,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           return "normal";
         }
       }
-
       //
       //Makes and inserts the <span> for my red numbers
       const insertProblemSpan = function(target, text) {
@@ -3988,7 +4170,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         span.style.color = "#ffbaba";
         target.appendChild(span);
       }
-
 
       const showProblem = function() {
         spellsOn();
@@ -4073,18 +4254,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       saveAverage();
-      if (timer.answerTime <= 1) {
-        player.stats.flash++;
-      }
-      if (timer.timeLeft <= 1) {
-        player.stats.lastSecond++;
-      }
-      if (answer === 42) {
-        player.stats.fortyTwo++;
-      }
-      if (isPrime(answer)) {
-        player.stats.primes++;
-      }
+      if (timer.answerTime <= 1) player.stats.flash++;
+      if (timer.timeLeft <= 1) player.stats.lastSecond++;
+      if (answer === 42) player.stats.fortyTwo++;
+      if (isPrime(answer)) player.stats.primes++;
+      if (isTriangle(answer)) player.spells.euclid.number++;
     }
     //
     //Checks the answer to my problems
@@ -4132,10 +4306,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
 
         player.stats.monstersKilled++;
+        player.damageBoost = 0;
         monsterInterval++
         spellsOff();
         processMonster();
         problemDiv.innerHTML = "Great job, you defeated the " + monster.name + "!<br /><br />";
+
         if (monster.maxHp > 2) {
           setTimeout(levelUp, 1000);
         } else if (player.passingAverage(current[operation].runningAverage)) {
@@ -4281,25 +4457,26 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         img.style.filter = "opacity(100%)";
         img.onclick = callback;
       }
+
       if (player.spells.fibonacci.learned) {        //Fibonacci Spell
         turnOnSpell("fibonacciImg", castFibonacci);
+        player.spells.fibonacci.ongoing = false;
         /*let fibonacciImg = document.getElementById("fibonacciImg");
         if ((spellsCast[0] === 0) && (spellsCast[10] === 0) && (spellsCast[11] === 0)) {
           fibonacciImg.classList.add("highlightNewSpell");
-        }
-        fibonacciImg.style.filter = "opacity(100%)";
-        fibonacciImg.onclick = function(){castFibonacci();}
-        fibonacciCast = false;*/
+        }*/
       }
-      /*if (player.spells.learned.triangle) {     //Triangle Spells
-        let triangleImg = document.getElementById("triangleImg");
+      if (player.spells.euclid.learned) {     //Fireball Spells
+        turnOnSpell("triangleImg", castEuclid);
+        player.spells.euclid.ongoing = false;
+        /*let triangleImg = document.getElementById("triangleImg");
         if (spellsCast[3] === 0) {
           triangleImg.classList.add("highlightNewSpell");
         }
         triangleImg.style.filter = "opacity(100%)";
-        triangleImg.onclick = function(){castTriangle();}
+        triangleImg.onclick = function(){castEuclid();}*/
       }
-      if (player.spells.learned.square) {        //Square Spells
+      /*if (player.spells.learned.square) {        //Square Spells
         let squareImg = document.getElementById("squareImg");
         if (spellsCast[4] === 0) {
           squareImg.classList.add("highlightNewSpell");
@@ -4372,6 +4549,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //
     //Hint Spell
     const castFibonacci = function() {
+      player.spells.fibonacci.ongoing = true;
       let fibonacciImg = document.getElementById("fibonacciImg");
       fibonacciImg.onclick = "";
       timer.stopTime();
@@ -4686,6 +4864,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         let randomCount = 0;
         let spellCast = setInterval(castSpell, 50);
         clearInterval(timer);
+
         function castSpell() {
           randomString = "";
           if (spellCount >= (charactersToPrint + shortener)) {
@@ -4730,6 +4909,281 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           }
         }
       }
+    }
+    //
+    //This function handles my triangle/fireball spell
+    //I may want to play with the animation a bit...
+    const castEuclid = function() {
+
+      function fireballAnimation() {
+
+        function makeCanvas(id) {
+          var canvas = document.createElement("canvas");
+          canvas.id = id;
+          return canvas;
+        }
+
+        function makeEuclidSpark() {
+          let canvas = document.createElement("canvas");
+          canvas.height = 21;
+          canvas.width = 21;
+          canvas.className = "sparkCanvas";
+          this.top = 0;
+          this.left = 0;
+          return canvas;
+        }
+
+        function drawLine1() {
+          context.beginPath();
+
+          context.moveTo(lineX1, 250);
+          lineX1 -= lineXinterval;
+          context.lineTo(lineX1, 250);
+          drawSpark((lineX1 - 10), 240, sparkCanvas1, sparkContext1);
+
+          context.moveTo(lineX2, 250);
+          lineX2 += lineXinterval;
+          context.lineTo(lineX2, 250);
+          drawSpark((lineX2 - 10), 240, sparkCanvas2, sparkContext2);
+
+          context.lineWidth = lineWidth;
+          context.strokeStyle = baseColor;
+          context.stroke();
+
+          if (lineX2 > 450) {
+            clearInterval(lineDraw);
+            playArea.removeChild(sparkCanvas1);
+            playArea.removeChild(sparkCanvas2);
+          }
+          context.shadowBlur = 5;
+          context.shadowColor = baseShadow;
+        }
+
+        function drawCircle1() {
+          context.beginPath();
+          context.arc(150, 250, 150, (circleStart1 * Math.PI), (circleAngle1 * Math.PI));
+          context.lineWidth = lineWidth;
+          context.strokeStyle = baseColor;
+          context.stroke();
+          circleStart1 = circleAngle1;
+          circleAngle1 += circleInterval1;
+
+          let xPos = (140 + (150 * Math.cos(circleStart1 * Math.PI)));
+          let yPos = (240 + (150 * Math.sin(circleStart1 * Math.PI)));
+
+          drawSpark(xPos, yPos, sparkCanvas3, sparkContext3);
+
+          if (circleAngle1 > 2) {
+            context.beginPath();
+            context.arc(150, 250, 150, (circleStart1 * Math.PI), (2 * Math.PI));
+            context.lineWidth = lineWidth;
+            context.strokeStyle = baseColor;
+            context.stroke();
+            clearInterval(circleDraw1);
+            playArea.removeChild(sparkCanvas3);
+          }
+          context.shadowBlur = 5;
+          context.shadowColor = baseShadow;
+        }
+
+        function drawCircle2() {
+          context.beginPath()
+          context.arc(300, 250, 150, (circleStart2 * Math.PI), (circleAngle2 * Math.PI), true);
+          context.lineWidth = lineWidth;
+          context.strokeStyle = baseColor;
+          context.stroke();
+          circleStart2 = circleAngle2;
+          circleAngle2 -= circleInterval2;
+
+          let xPos = (290 + (150 * Math.cos(circleStart2 * Math.PI)));
+          let yPos = (240 + (150 * Math.sin(circleStart2 * Math.PI)));
+
+          drawSpark(xPos, yPos, sparkCanvas4, sparkContext4);
+
+          if (circleAngle2 < 0) {
+            roundTwo = true;
+            circleAngle2 = 2
+          }
+          if ((roundTwo) && (circleAngle2 < 1)) {
+            context.beginPath();
+            context.arc(300, 250, 150, (circleStart2 * Math.PI), (1 * Math.PI), true);
+            context.lineWidth = lineWidth;
+            context.strokeStyle = baseColor;
+            context.stroke();
+            clearInterval(circleDraw2);
+            playArea.removeChild(sparkCanvas4);
+            drawTriangle1();
+          }
+          context.shadowBlur = 5;
+          context.shadowColor = baseShadow;
+        }
+
+        function drawTriangle1() {
+          context.beginPath();
+          context.moveTo(150, 250);
+          context.lineTo(225, 120);
+          context.lineTo(300, 250);
+          context.lineTo(150, 250);
+          context.closePath();
+          context.lineJoin = "round";
+          context.lineWidth = lineWidth + 10;
+          context.strokeStyle = "rgba(255, 255, 0, .75)";
+          context.stroke();
+
+          context.beginPath();
+          context.moveTo(150, 250);
+          context.lineTo(225, 120);
+          context.lineTo(300, 250);
+          context.lineTo(150, 250);
+          context.closePath();
+          context.lineWidth = lineWidth;
+          context.strokeStyle = "#ff0000";
+          context.stroke();
+
+          playArea.classList.add("playAreaRedFlash");
+          setTimeout(function() {
+            requestAnimationFrame(function() {
+              playArea.classList.remove("playAreaRedFlash");
+            });
+          }, 150);
+          animationDone = true;
+        }
+
+        function drawSpark(x, y, sparkCanvas, sparkContext) {
+          sparkContext.clearRect(0, 0, 21, 21);
+          sparkContext.stroke();
+
+          let spark1 = getRandomNumber(0, 21);
+          let spark2 = getRandomNumber(0, 21);
+          let spark3 = getRandomNumber(0, 21);
+          let spark4 = getRandomNumber(0, 21);
+
+          sparkCanvas.style.top = y;
+          sparkCanvas.style.left = x;
+
+          sparkContext.beginPath();
+          sparkContext.moveTo(10, 10);
+          sparkContext.lineTo(21, spark1);
+          sparkContext.moveTo(10, 10);
+          sparkContext.lineTo(spark2, 21);
+          sparkContext.moveTo(10, 10);
+          sparkContext.lineTo(0, spark3);
+          sparkContext.moveTo(10, 10);
+          sparkContext.lineTo(spark4, 0);
+          sparkContext.closePath();
+          sparkContext.strokeStyle = "yellow";
+          sparkContext.stroke();
+        }
+
+        let canvas = makeCanvas("euclidCanvas");
+
+        let levelDiv = document.getElementById("levelDiv");
+        playArea.insertBefore(canvas, levelDiv);
+
+        let sparkCanvas1 = makeEuclidSpark();
+        let sparkContext1 = sparkCanvas1.getContext("2d");
+        playArea.appendChild(sparkCanvas1);
+
+        let sparkCanvas2 = makeEuclidSpark();
+        let sparkContext2 = sparkCanvas2.getContext("2d");
+        playArea.appendChild(sparkCanvas2);
+
+        let sparkCanvas3 = makeEuclidSpark();
+        let sparkContext3 = sparkCanvas3.getContext("2d");
+        playArea.appendChild(sparkCanvas3);
+
+        let sparkCanvas4 = makeEuclidSpark();
+        let sparkContext4 = sparkCanvas4.getContext("2d");
+        playArea.appendChild(sparkCanvas4);
+
+        let context = canvas.getContext("2d");
+        context.canvas.width = 450;
+        context.canvas.height = 450;
+        let lineWidth = 5;
+        let baseColor = "rgba(255, 0, 0, 1)"
+        let baseShadow = "rgba(255, 0, 0, 1)"
+
+        let lineX1 = 225;
+        let lineX2 = 226;
+        let lineXinterval = 10;
+        let lineY = 250;
+
+        let lineDraw = setInterval(function() {
+          requestAnimationFrame(function() {
+            drawLine1();
+          })
+        }, 34);
+
+        let circleStart1 = 0;
+        let circleAngle1 = .05;
+        let circleInterval1 = .05;
+
+        let circleDraw1 = setInterval(function() {
+          requestAnimationFrame(function() {
+            drawCircle1();
+          })
+        }, 20);
+
+        let circleStart2 = 1;
+        let circleAngle2 = .95;
+        let circleInterval2 = .05;
+        let roundTwo = false;
+
+        let circleDraw2 = setInterval(function() {
+          requestAnimationFrame(function() {
+            drawCircle2();
+          })
+        }, 20);
+      }
+
+      player.spells.euclid.ongoing = true;
+      let hintDiv = document.getElementById("hintDiv");
+
+      if (player.spells.euclid.number === 0) {
+        hintDiv.innerHTML = "You don't have any Euclid Magic!";
+        hintDiv.style.visibility = "visible"; //This displays the hint area
+        setTimeout(function() {hintDiv.innerHTML = ""; hintDiv.style.visibility = "hidden";}, 1500)
+        return;
+      }
+      timer.stopTime();
+
+      let animationDone = false;
+      let spellCast;
+      fireballAnimation();
+      let damage = 1;
+
+      for (let i = 0; i < player.totalLevel; i++) {
+        if (isTriangle(i)) damage++;
+      }
+
+      player.damageBoost = damage;
+
+      hintDiv.innerHTML = "You cast Euclid's Fireball!";
+      hintDiv.style.visibility = "visible";
+
+      let flash = new ScreenFlash("playAreaRed", 9);
+
+      let checkAnimation = setInterval(function() {
+        if (animationDone) {
+          clearInterval(checkAnimation);
+          flash.flash = setInterval(function() {
+            flash.screenFlash();
+          }, 75);
+        }
+      }, 10);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+          let canvas = document.getElementById("euclidCanvas");
+          playArea.removeChild(canvas);
+          damageMonster();
+        }
+      }, 250);
+
+      player.spells.euclid.cast++;
+      player.spells.euclid.number--;
+      document.getElementById("triangleCount").innerHTML = player.spells.euclid.number;
     }
 
     let monster = new Monster(catacombLevel);
