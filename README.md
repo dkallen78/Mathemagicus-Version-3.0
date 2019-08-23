@@ -6,9 +6,11 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Spell use
+### Up next: More spells, and notifications
 
-Now that I'm starting to put some spell logic in, I want to rework how the player uses spells. I don't like the spell bar. My thought is to have the player push the space bar to pull up a menu w/ a list of available spells and a button to push to cast them.
+I'm not going to worry about the spell interface until I have everything built in from the last game plus all of the new stuff I want. I'm going to add some more options to the options menu and I'm going to push some more spells into the game.
+
+I'm struggling with the notifications. I've got a very simple system in place right now that works but I don't like it. I'd like it to be a bit more functional, maybe even handle more than one notification.
 
 ### Notes to self:
 
@@ -17,6 +19,12 @@ Find a good principle for subraction hints
 Work on the hints
 
 Improve the division challenge
+
+## 2019.08.22
+
+### Update
+
+I feel like I did good work today. I shoe-horned the Fireball spell into the game and I started setting up the Options menu. The Fireball spell is a bit less ugly than it was before and I am very proud of the class I made to handle the individual menu items for my Options menu. 
 
 ## 2019.08.20
 
