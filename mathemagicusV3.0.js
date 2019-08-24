@@ -37,6 +37,13 @@ function isTriangle(number) {
 
   return triangleNumbers.includes(number);
 }
+
+function isSquare(number) {
+
+  let squareNumbers = [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196];
+
+  return squareNumbers.includes(number);
+}
 //
 //This function is my version of the
 //array.indexOf() function, just customized
@@ -78,6 +85,13 @@ function clearElement() {
   for (let i = 0; i < arguments.length; i++) {
     arguments[i].innerHTML = "";
   }
+}
+
+function hideElement(element, time) {
+  setTimeout(function() {
+    element.innerHTML = "";
+    element.style.visibility = "hidden";
+  }, time)
 }
 //
 //Removes elements from their parent
@@ -162,7 +176,12 @@ function typer(text, target, callback, i = 0) {
   //
   //This is the wait time in ms between each new
   //character of the text string
-  let waitTime = 3;
+  let waitTime = (player.textSpeed > 0) ? ((player.textSpeed * 20) - 10):0;
+
+  if (waitTime === 0) {
+    i = text.length;
+    target.innerHTML = text;
+  }
   //
   //As long i is less than the length of the text string
   //there are more letters to type
@@ -172,7 +191,7 @@ function typer(text, target, callback, i = 0) {
     //If the character being typed is a comma or period
     //an additional delay is added, unless it's the end of
     //the string
-    if (((text.charAt(i) == ".") || (text.charAt(i) == ",")) && ((i + 2) < text.length)) {
+    if (((text.charAt(i) === ".") || (text.charAt(i) === ",")) && ((i + 2) < text.length)) {
       waitTime = waitTime * 5;
     }
     i++;
@@ -186,7 +205,7 @@ function typer(text, target, callback, i = 0) {
   //callback function is called
   } else {
     document.onkeydown = "";
-    callback();
+    if (typeof callback === "function") callback();
   }
 }
 //
@@ -538,14 +557,19 @@ class ScreenFlash {
   }
 
   screenFlash() {
+    if (arguments.length > 0 && arguments[1] === 1) {
+      arguments[0]();
+    }
     if (this.count > 0) {
       if ((this.count % 2) === 0) {
         playArea.classList.remove(this.color);
+        if (arguments.length > 0 && arguments[1] === 2) {
+          arguments[0]();
+        }
       } else {
         playArea.classList.add(this.color);
       }
       this.count--;
-
     } else {
       playArea.classList.remove(this.color);
       clearInterval(this.flash);
@@ -567,22 +591,28 @@ class Player {
     this.maxHealth = 10;            //The player's maximum health (used for healing)
     this.damage = 1;                //The base damage done by the player
     this.damageBoost = 0;           //Additional damage caused by the Strength spell
-    //
-    //0 is for magic notifications
-    //1 is for key notifications
-    this.notification = null;
+
+    this.notification = {
+      subtractionKey: false,
+      multiplicationKey: false,
+      divisionKey: false,
+      fibonacciSpell: "Fibonacci Spell Available",
+      eulerSpell1: false,
+      eulerSpell2: false,
+      euclidSpell: false,
+      hypatiaSpell: false,
+      lovelaceSpell: false,
+      huygenSpell: false,
+      fermatSpell: false,
+      noetherSpell: false,
+      braheSpell: false
+    };
 
     this.triggers = {
       newGame: true
     }
-    /*//
-    //Levels unlocked by the player
-    this.level = {
-      addition: 1,
-      subtraction: 0,
-      multiplication: 0,
-      division: 0
-    }*/
+
+    this.textSpeed = 0;
     //
     //Avatar sprites for the player
     this.sprites = {
@@ -611,19 +641,22 @@ class Player {
         available: true,
         learned: false,
         cast: 0,
-        ongoing: false
+        ongoing: false,
+        notificationIndex: 3
       },
       euler1: {
         name: "Euler's Left Distributive Spell",
         available: false,
         learned: false,
-        cast: 0
+        cast: 0,
+        notificationIndex: 4
       },
       euler2: {
         name: "Euler's Right Distributive Spell",
         available: false,
         learned: false,
-        cast: 0
+        cast: 0,
+        notificationIndex: 5
       },
       euclid: {
         name: "Euclid's Fireball Spell",
@@ -631,49 +664,58 @@ class Player {
         learned: false,
         cast:0,
         number: 0,
-        ongoing: false
+        ongoing: false,
+        notificationIndex: 6
       },
       hypatia: {
         name: "Hypatia's Healing Spell",
         available: false,
         learned: false,
         cast: 0,
-        number: 0
+        number: 0,
+        ongoing: false,
+        notificationIndex: 7
       },
       lovelace: {
         name: "Lovelace's Reduction Spell",
         available: false,
         learned: false,
         cast: 0,
-        number: 0
+        number: 0,
+        ongoing: false,
+        notificationIndex: 8
       },
       huygen: {
         name: "Huygen's Stop-time Spell",
         available: false,
         learned: false,
         cast: 0,
-        number: 0
+        number: 0,
+        notificationIndex: 9
       },
       fermat: {
         name: "Fermat's Polymorph Monster Spell",
         available: false,
         learned: false,
         cast: 0,
-        number: 0
+        number: 0,
+        notificationIndex: 10
       },
       noether: {
         name: "Noether's Strength Spell",
         available: false,
         learned: false,
         cast: 0,
-        number: 0
+        number: 0,
+        notificationIndex: 11
       },
       brahe: {
         name: "Brahe's Nova Spell",
         available: false,
         learned: false,
         cast: 0,
-        number: 0
+        number: 0,
+        notificationIndex: 12
       },
     }
 
@@ -731,6 +773,15 @@ class Player {
     }
   }
 
+  get hasNotifications() {
+    for (let i = 0; i < Object.keys(this.notification).length; i++) {
+      if (Object.values(this.notification)[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   get totalLevel() {
     let total = this.addition.level + this.subtraction.level;
     total += this.multiplication.level + this.division.level;
@@ -768,10 +819,6 @@ class Player {
     }
     return total;
   }
-
-  /*set setNotification(text) {
-
-  }*/
 }
 
 function test() {
@@ -779,35 +826,27 @@ function test() {
   player.name = "Shady";
   player.maxHealth = 10;
   player.damage = 1;
-  player.addition.level = 1;
+  player.addition.level = 2;
   player.subtraction.level = 0;
-  player.multiplication.level = 0;
+  player.multiplication.level = 4;
   player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
+  player.spells.fibonacci.learned = true;
   player.spells.euclid.learned = true;
   player.spells.euclid.number = 50;
+  player.spells.lovelace.learned = true;
+  player.spells.lovelace.number = 50;
+  player.spells.hypatia.learned = true;
+  player.spells.hypatia.number = 50;
   player.triggers.newGame = false;
-
-  //player.spells.learned = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  //player.addition.monsters = [[0, 1], [1, 5], [2, 10], [3, 20], [30, 20]];
-  //player.subtraction.monsters = [[0, 1], [1, 5], [2, 10], [3, 20]];
-  //player.multiplication.monsters = [[0, 1], [1, 5], [2, 10], [3, 20]];
-  //player.division.monsters = [[0, 1], [1, 5], [2, 10], [3, 20]];
-  //player.spells.cast = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-  //player.stats.monstersKilled = 150;
-  //player.stats.fortyTwo = 55;
-  //player.stats.flash = 20;
-  //player.stats.primes = 1;
-  //player.stats.damage.dealt = 2000;
-  //player.stats.damage.received = 200;
-  //player.stats.damage.healed = 200;
+  player.notification.fibonacciSpell = false;
 
   /*let xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       let monsterData = JSON.parse(this.responseText);
-      catacombs(player, "addition", 0, 5, monsterData);
+      catacombs(player, "addition", 1, 5, monsterData);
     }
   };
   xmlhttp.open("GET", "./monsterData.json", true);
@@ -870,8 +909,10 @@ function optionMenu() {
   }
 
   let textSpeedBox = new MenuOption("Text Speed: ");
-  textSpeedBox.options = ["Slow", "Fast", "Instant"];
+  textSpeedBox.options = ["Instant", "Fast", "Slow"];
   textSpeedBox.appendTo(optionBox);
+
+  insertLineBreak(optionBox);
 
   let languageBox = new MenuOption("\u00A0 Language: ");
   languageBox.options = ["English", "Spanish", "French", "German"];
@@ -883,6 +924,7 @@ function optionMenu() {
     let closeButton = makeDiv("closeButton", "optionButton");
       insertTextNode(closeButton, "Close");
       closeButton.onclick = function() {
+        player.textSpeed = textSpeedBox.index;
         playArea.removeChild(optionBox);
       }
   closeBox.appendChild(closeButton);
@@ -1141,8 +1183,8 @@ function gameStart() {
 
   player = new Player();
 
-  //titleScreen();
-  shadycrzy();
+  titleScreen();
+  //shadycrzy();
 }
 
 //-------------------------------------------------------------------//
@@ -1160,12 +1202,10 @@ function overworld(player) {
     if (player.subtraction.level) menuData.sprites[1][0] = "subtractionDoorOpen.gif";
     if (player.multiplication.level) menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
     if (player.division.level) menuData.sprites[3][0] = "divisionDoorOpen.gif";
-    if (player.notification) {
+    if (player.hasNotifications) {
       postNotifications();
     }
     menuMaker(selectors, imgData, callback, index);
-
-
   }
   //
   //This function returns to the overworld menu
@@ -1342,6 +1382,11 @@ function overworld(player) {
   //
   //Loads the Mages' Guild menu
   function mageGuild() {
+
+    function removeNotification(index) {
+      let key = Object.keys(player.notification)[index]
+      player.notification[key] = false;
+    }
     //
     //What to do when the player makes a menu selection
     function guildMenuSelection(imgData) {
@@ -1399,6 +1444,7 @@ function overworld(player) {
           } else {
             spell.available = false;
             spell.learned = victory(spell.name);
+            removeNotification(spell.notificationIndex);
           }
         } else {
           let text = challengeDiv.innerHTML;
@@ -1729,6 +1775,87 @@ function overworld(player) {
         })
       }
 
+      function learnHeal() {
+
+        function beginChallenge() {
+
+          function challenge() {
+            questions++;
+            clearElement(challengeDiv);
+
+            let addend = questions + 1;
+            let answer = addend * addend;
+
+            let fragment = document.createDocumentFragment();
+
+            insertTextNode(fragment, addend + "² = " + addend + " × " + addend);
+            insertLineBreak(fragment, 2);
+
+            insertTextNode(fragment, addend + " × " + addend + " = ");
+            insertAnswerInput(fragment, answer);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.hypatia, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Hypatia's Healing Spell is powered by Square Numbers, numbers thats " +
+                        "parts can be arranged to form a square.";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "\u00A0 ▫▫ 4");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "▫▫ ");
+
+          insertLineBreak(challengeDiv, 2);
+
+          insertTextNode(challengeDiv, "▫▫▫");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "\u00A0 ▫▫▫ 9");
+          insertLineBreak(challengeDiv);
+          insertTextNode(challengeDiv, "▫▫▫");
+
+          let textTwo = "To earn this spell you must find 10 Square Numbers. ";
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = 0;
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+
+        })
+      }
+
       function menuUp() {
         number--;
         if (number < 0) {
@@ -1759,8 +1886,8 @@ function overworld(player) {
           case 3:     //Euclid's Fireball Spell
             learnFireball();
             break;
-          case "4":     //Hypatia's Healing Spell
-
+          case 4:     //Hypatia's Healing Spell
+            learnHeal();
             break;
           case "5":     //Lovelace's Reduction Spell
 
@@ -1818,12 +1945,12 @@ function overworld(player) {
       spellMenu.focus();
 
       clearElement(guildTextDiv);
-      typer(spellText, guildTextDiv);
-
-      setTimeout(function() {
-        spellMenu.style.filter = "opacity(100%)";
-        spellMenu.firstChild.focus();
-      }, 10);
+      typer(spellText, guildTextDiv, function() {
+        setTimeout(function() {
+          spellMenu.style.filter = "opacity(100%)";
+          spellMenu.firstChild.focus();
+        }, 10);
+      });
 
       number = 0;
 
@@ -1912,6 +2039,7 @@ function overworld(player) {
                 challenge();
               } else {
                 player.subtraction.level = victory("Subtraction");
+                player.notification.subtractionKey = false;
               }
             } else {
               if (challengeDiv.childNodes.length > 6) {removeLastChild(challengeDiv, 3);}
@@ -2001,8 +2129,9 @@ function overworld(player) {
                 questions++;
                 challenge();
               } else {
-                player.spells.learned.fibonacci2 = true;
+                player.spells.euler1.learned = true;
                 player.multiplication.level = victory("Multiplication");
+                player.notification.multiplicationKey = false;
               }
             } else {
               console.log(challengeDiv.lastChild.nodeType);
@@ -2104,8 +2233,9 @@ function overworld(player) {
                 questions++;
                 challenge();
               } else {
-                player.spells.learned.fibonacci3 = true;
+                player.spells.euler2.learned = true;
                 player.division.level = victory("Division");
+                player.notification.divisionKey = false;
               }
             } else {
               if (challengeDiv.childNodes.length > 6) {removeLastChild(challengeDiv, 3);}
@@ -2297,13 +2427,6 @@ function overworld(player) {
     let guildMenuSelectors = new MenuSelectors(1, "Welcome to the Mages' Guild")
     let introText = "It's good to see you again " + player.name +
                     ", what can I do for you?";
-
-    if (player.notification) {player.notification = false;}
-
-    function removeNotification() {
-      player.notification = false;
-      removeElement("notification");
-    }
 
     fadeTransition(fragment, playArea, 500, function() {
       if (player.triggers.newGame) {
@@ -2520,7 +2643,19 @@ function overworld(player) {
       //
       //Makes the Quick Buttons and makes sure they link
       //to the right page
+
+      /*function setQuickButtons(buttons, origin, remove) {
+        let quickButton = buttons.getElementsByClassName("quickButtons");
+        quickButton[0].onclick = function() {turnPageLeft(origin, contentsPage);}
+        quickButton[1].onclick = function() {turnPageLeft(origin, statusPage);}
+        quickButton[2].onclick = function() {turnPageLeft(origin, spellsPage);}
+        quickButton[3].onclick = function() {turnPageLeft(origin, monstersPage);}
+        quickButton[4].onclick = function() {turnPageLeft(origin, achievementsPage);}
+        quickButton[remove].parentNode.removeChild(quickButton[remove]);
+      }*/
+
       let quickButtons = makeQuickButtons(tableOfContents);
+      //setQuickButtons(quickButtons, tableOfContents, 0)
       let quickButton = quickButtons.getElementsByClassName("quickButtons");
       quickButton[1].onclick = function() {turnPageLeft(tableOfContents, statusPage);}
       quickButton[2].onclick = function() {turnPageLeft(tableOfContents, spellsPage);}
@@ -2757,7 +2892,7 @@ function overworld(player) {
           span.onclick = function() {
             turnPageLeft(spells, spellDetailPage, i);
           }
-          insertTextNode(span, spellBookContent[i][0])
+          insertTextNode(span, Object.values(player.spells)[i].name)
           insertLineBreak(span);
           spells.appendChild(span);
         }
@@ -3541,13 +3676,19 @@ function overworld(player) {
 
   function postNotifications() {
     let notification = makeDiv("notification");
-    /*for (let i = 0; i < player.notification.length; i++) {
-      insertTextNode(notification, player.notification[i]);
-      insertLineBreak(notification);
-    }*/
-    insertTextNode(notification, player.notification);
+      insertTextNode(notification, "New Notifications");
+    let notificationContent = makeDiv("notificationContent");
+    for (let i = 0; i < Object.keys(player.notification).length; i++) {
+      if (Object.values(player.notification)[i]) {
+        insertTextNode(notificationContent, Object.values(player.notification)[i]);
+        insertLineBreak(notificationContent);
+      }
+    }
+    notification.appendChild(notificationContent);
     playArea.appendChild(notification);
   }
+
+
 
   let playArea = document.getElementById("playArea");
   //
@@ -4009,19 +4150,29 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         switch (operation) {
           case "addition":
             if (current[operation].level === 2) {
-              player.notification = "New Key Challenge Available";
+              player.notification.subtractionKey = "Subtraction Key Available";
             }
             if (current[operation].level === 4) {
-              player.notification = "New Key Challenge Available";
+              player.notification.multiplicationKey = "Multiplication Key Available";
             }
             if (current[operation].level === 6) {
-              player.notification = "New Spell Available";
+              player.notification.euclidSpell = "Fireball Spell Available";
               player.spells.euclid.available = true;
             }
             break;
           case "subtraction":
+            if (current[operation].level === 4 && player.multiplication.level === 2) {
+              player.notification.divisionKey = "Division Key Available";
+            }
             break;
           case "multiplication":
+            if (current[operation].level === 2 && player.subtraction.level === 4) {
+              player.notification.divisionKey = "Division Key Available";
+            }
+            if (current[operation].level === 4) {
+              player.notification.hypatiaSpell = "Healing Spell Available";
+              player.spells.hypatia.available = true;
+            }
             break;
           case "division":
             break;
@@ -4094,25 +4245,20 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           if (player.spells.fibonacci.ongoing || !player.spells.fibonacci.learned) break;
           castFibonacci();
           break;
-        case 115: //"s" key, Triangle Spell
+        case 115: //"s" key, Fireball Spell
           event.preventDefault();
           if (player.spells.euclid.ongoing || !player.spells.euclid.learned) break;
           castEuclid();
           break;
-        case 100: //"d" key, Square Spell
-          event.preventDefault(); //prevents the writing of the "d" key
-          if (additionLevel > 6) {
-            castSquare();
-          }
+        case 100: //"d" key, Heal Spell
+          event.preventDefault();
+          if (player.spells.hypatia.ongoing || !player.spells.hypatia.learned) break;
+          castHypatia();
           break;
-        case 101: //"e" key, Pentagon Spell
-          event.preventDefault(); //prevents the writing of the "e" key
-          if (pentagonCast) {
-            break;
-          }
-          if (subtractionLevel > 8) {
-            castPentagon();
-          }
+        case 101: //"e" key, Reduction Spell
+          event.preventDefault();
+          if (player.spells.lovelace.ongoing || !player.spells.lovelace.learned) break;
+          castLovelace();
           break;
         case 102: //"f" key, Pyramid Spell
           event.preventDefault(); //prevents the writing of the key
@@ -4259,6 +4405,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (answer === 42) player.stats.fortyTwo++;
       if (isPrime(answer)) player.stats.primes++;
       if (isTriangle(answer)) player.spells.euclid.number++;
+      if (isSquare(answer)) player.spells.hypatia.number++;
     }
     //
     //Checks the answer to my problems
@@ -4458,42 +4605,29 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         img.onclick = callback;
       }
 
-      if (player.spells.fibonacci.learned) {        //Fibonacci Spell
+      if (player.spells.fibonacci.learned) {      //Hint Spell
         turnOnSpell("fibonacciImg", castFibonacci);
         player.spells.fibonacci.ongoing = false;
-        /*let fibonacciImg = document.getElementById("fibonacciImg");
-        if ((spellsCast[0] === 0) && (spellsCast[10] === 0) && (spellsCast[11] === 0)) {
-          fibonacciImg.classList.add("highlightNewSpell");
-        }*/
       }
-      if (player.spells.euclid.learned) {     //Fireball Spells
+      if (player.spells.euclid.learned) {         //Fireball Spells
         turnOnSpell("triangleImg", castEuclid);
         player.spells.euclid.ongoing = false;
-        /*let triangleImg = document.getElementById("triangleImg");
-        if (spellsCast[3] === 0) {
-          triangleImg.classList.add("highlightNewSpell");
-        }
-        triangleImg.style.filter = "opacity(100%)";
-        triangleImg.onclick = function(){castEuclid();}*/
       }
-      /*if (player.spells.learned.square) {        //Square Spells
-        let squareImg = document.getElementById("squareImg");
-        if (spellsCast[4] === 0) {
-          squareImg.classList.add("highlightNewSpell");
-        }
-        squareImg.style.filter = "opacity(100%)";
-        squareImg.onclick = function(){castSquare();}
+      if (player.spells.hypatia.learned) {        //Heal Spells
+        turnOnSpell("squareImg", castHypatia);
+        player.spells.hypatia.ongoing = false;
       }
-      if (player.spells.learned.pentagon) {     //Pentagon Spells
-        let pentagonImg = document.getElementById("pentagonImg");
+      if (player.spells.lovelace.learned) {     //Reduction Spells
+        turnOnSpell("pentagonImg", castLovelace);
+        /*let pentagonImg = document.getElementById("pentagonImg");
         if (spellsCast[6] === 0) {
           pentagonImg.classList.add("highlightNewSpell");
         }
         pentagonImg.style.filter = "opacity(100%)";
-        pentagonImg.onclick = function(){castPentagon();}
-        pentagonCast = false;
+        pentagonImg.onclick = function(){castPentagon();}*/
+        player.spells.lovelace.ongoing = false;
       }
-      if (player.spells.learned.hexagon) {  //Hexagon Spells
+      /*if (player.spells.learned.hexagon) {  //Hexagon Spells
         let hexagonImg = document.getElementById("hexagonImg");
         if (spellsCast[7] === 0) {
           hexagonImg.classList.add("highlightNewSpell");
@@ -5184,6 +5318,175 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       player.spells.euclid.cast++;
       player.spells.euclid.number--;
       document.getElementById("triangleCount").innerHTML = player.spells.euclid.number;
+    }
+    //
+    //This function handles my healing spell
+    const castHypatia = function() {
+
+      player.spells.hypatia.ongoing = true;
+      let squareImg = document.getElementById("squareImg");
+      //squareImg.classList.remove("highlightNewSpell");
+      let hintDiv = document.getElementById("hintDiv");
+
+      if (player.spells.hypatia.number === 0) {
+        hintDiv.innerHTML = "You don't have any Healing Magic!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      if (player.health === player.maxHealth) {
+        hintDiv.innerHTML = "You already have full health!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      timer.stopTime();
+
+      let heal = 2;
+      if (player.subtraction.level > 6) {
+        heal++;
+      }
+      if (player.multiplication.level > 6) {
+        heal++;
+      }
+      if (player.division.level > 6) {
+        heal++;
+      }
+
+      hintDiv.innerHTML = "You cast Hypatia's Health!";
+      hintDiv.style.visibility = "visible";
+      hideElement(hintDiv, 1500);
+
+      let flash = new ScreenFlash("playAreaBlue", 10);
+
+      const healAnimation = function() {
+        let squareSpellAnimation = makeDiv("squareSpellAnimation");
+        squareSpellAnimation.innerHTML = "+";
+        squareSpellAnimation.style.left = (((flash.count / 2) * (10 + (flash.count / 2))) - 3) + "%";
+        playerDiv.appendChild(squareSpellAnimation);
+        setTimeout(function() {
+          squareSpellAnimation.style.bottom = "100%";
+          squareSpellAnimation.style.filter = "opacity(0%)";
+        }, 100);
+
+        setTimeout(function() {
+          playerDiv.removeChild(squareSpellAnimation);
+        }, 2100);
+      }
+
+      flash.flash = setInterval(function() {
+        flash.screenFlash(healAnimation, 2);
+      }, 75);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+
+          let answerInput = document.getElementById("answerInput");
+          answerInput.focus();
+
+          player.health += heal;
+          if (player.health > player.maxHealth) player.health = player.maxHealth;
+
+          let healthBarFront = document.getElementById("healthBarFront");
+          healthBarFront.style.height = ((player.health / player.maxHealth) * 110) + "px";
+
+          player.spells.hypatia.ongoing = false;
+
+          if (timerValue > 0) {
+            timer.time = setInterval(function() {
+              timer.timeDown();
+            }, 10);
+          }
+          timer.startTimer();
+          //if (!pyramidCast) {
+
+          //}
+        }
+      }, 250);
+
+      player.stats.damage.healed += heal;
+      player.spells.hypatia.cast++;
+      player.spells.hypatia.number--;
+      document.getElementById("squareCount").innerHTML = player.spells.hypatia.number;
+    }
+
+    function castLovelace() {
+
+      player.spells.lovelace.ongoing = true;
+      let pentagonImg = document.getElementById("pentagonImg");
+      pentagonImg.style.filter = "opacity(30%)";
+      pentagonImg.onclick = "";
+
+      player.spells.fibonacci.ongoing = false;
+      /*let fibonacciImg = document.getElementById("fibonacciImg");
+      fibonacciImg.style.filter = "opacity(100%)";
+      fibonacciImg.onclick = function(){castFibonacci();}*/
+      let hintDiv = document.getElementById("hintDiv");
+      //
+      //If the player has no magic, then no magic is cast
+      if (player.spells.lovelace.number === 0) {
+        hintDiv.innerHTML = "You don't have any Reduction Magic!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      timer.stopTime();
+      hintDiv.innerHTML = "You cast Lovelace's Reduction!";
+      hintDiv.style.visibility = "visible";
+      hideElement(hintDiv, 1500);
+
+      let flash = new ScreenFlash("playAreaOrange", 10);
+
+      const numberAnimation = function() {
+        let possible = "1234567890÷×+- ";
+        let text = "";
+        for (let i = 0; i < 15; i++) {
+          text += possible.charAt(getRandomNumber(0, (possible.length - 1)));
+        }
+        problemDiv.innerHTML = text;
+      }
+
+      flash.flash = setInterval(function() {
+        flash.screenFlash(numberAnimation, 1);
+      }, 75);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+
+          let terms = getTerms(operation, Math.ceil(monster.level / 2));
+
+          clearElement(problemDiv);
+          insertTextNode(problemDiv, terms[0] + " " + current[operation].sign + " ");
+            let span = document.createElement("span");
+            span.style.color = "#ffbaba";
+              insertTextNode(span, terms[1]);
+            problemDiv.appendChild(span);
+            insertTextNode(problemDiv, " = ");
+          insertAnswerInput(problemDiv, terms[2], checkKeyPress);
+
+          var answerInput = document.getElementById("answerInput");
+          answerInput.focus();
+
+          if (timerValue > 0) {
+            timer.time = setInterval(function() {
+              timer.timeDown();
+            }, 10);
+          }
+          timer.startTimer();
+          //if (!pyramidCast) {
+
+          //}
+        }
+      }, 250);
+
+      player.spells.lovelace.cast++;
+      player.spells.lovelace.number--;
+      document.getElementById("pentagonCount").innerHTML = player.spells.lovelace.number;
     }
 
     let monster = new Monster(catacombLevel);

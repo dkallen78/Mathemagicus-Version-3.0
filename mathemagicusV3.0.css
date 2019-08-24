@@ -506,6 +506,7 @@ This handles the animation for my blinking "next" button*/
 /*
 This styles the "next" button I use to advance long text blocks*/
 #nextButton {
+  margin-top: 5px;
   color: white;
   font-family: monospace;
   background-color: #777777;
@@ -553,8 +554,7 @@ on the townIntro() screen*/
 
 @keyframes notificationBlink {
   0% {background-color: #555555;}
-  50% {background-color: #999999;
-      color: black;}
+  50% {background-color: #999999;}
   100% {background-color: #555555;}
 }
 
@@ -567,13 +567,43 @@ on the townIntro() screen*/
   padding: 2px;
   background-color: #555555;
   color: white;
+  font-size: 1.25em;
   text-align: center;
   box-shadow: 5px 5px 5px black;
   border-radius: 5px;
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 3px black;
   transition: all 500ms;
   animation-name: notificationBlink;
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
+  cursor: default;
+}
+
+#notificationContent {
+  display: none;
+  position: relative;
+  width: 99%;
+  margin: 0 auto;
+  background-color: #777777;
+  color: white;
+  border: 2px solid black;
+  border-radius: 5px;
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 3px black;
+  line-height: 1.5em;
+}
+
+#notification:hover #notificationContent {
+  display: block;
+  animation-name: none !important;
+  animation-iteration-count: 1;
 }
 
 /*-------------------------------------------------------------
@@ -1292,6 +1322,10 @@ This controls the behavior of the <div>s inside of the spellBar*/
   animation-iteration-count: infinite;
 }
 
+/*------------------------------------------------------------/
+/ Underworld Styles = Magic                                   /
+/------------------------------------------------------------*/
+
 #euclidCanvas, #novaCanvas, #timeCanvas {
   position: absolute;
   z-index: 4;
@@ -1361,9 +1395,7 @@ This controls the behavior of the <div>s inside of the spellBar*/
   position: absolute;
   z-index: 3;
   bottom: 0;
-  /*left: 0;
-  right: 0;*/
-  color: red;
+  color: lawnGreen;
   font-size: 3em;
   font-weight: bold;
   font-family: monospace;
