@@ -6,11 +6,9 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: More spells, and notifications
+### Up next: More spells, more challenges
 
-I'm not going to worry about the spell interface until I have everything built in from the last game plus all of the new stuff I want. I'm going to add some more options to the options menu and I'm going to push some more spells into the game.
-
-I'm struggling with the notifications. I've got a very simple system in place right now that works but I don't like it. I'd like it to be a bit more functional, maybe even handle more than one notification.
+I'm going to continue porting the spells from v2 to v3. Next up is the Strength Spell. But before I do that I have to make a challenge for the Reduce Terms Spell. Once I've got all of these done, I'm going to reach out to the math community for feedback on my challenges. 
 
 ### Notes to self:
 
@@ -19,6 +17,18 @@ Find a good principle for subraction hints
 Work on the hints
 
 Improve the division challenge
+
+## 2019.08.23
+
+### Update
+
+I've put in the Reduce Terms spell, but it doesn't quite work the same. Since my terms aren't global variables anymore I can't just divide them in half like I used to. Instead, I produce new terms that have a smaller range. This doesn't guarantee a problem w/ smaller terms but I kind of like the chance that it backfires.
+
+Putting in the spells is tricky because for everyone I put in, I have to make an accompanying challenge. Converting the old spells into my new system isn't too hard, but the new challenges slow me down because I can't decide exactly how I want to do them.
+
+I've also put in a lot of work with the notification system. When there are notifications now a little box blinks on top of the play area. When the mouse hovers over this box, the notification(s) show up in a drop down. I've thought about making them clickable but I'm not sure that's possible w/out an overhaul. I'll look into it.
+
+I made the options menu functional as well. Only the text speed option is functional at this point but I'm very happy w/ how it works.
 
 ## 2019.08.22
 
