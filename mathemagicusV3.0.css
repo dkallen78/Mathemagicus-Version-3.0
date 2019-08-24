@@ -508,10 +508,16 @@ This styles the "next" button I use to advance long text blocks*/
 #nextButton {
   margin-top: 5px;
   color: white;
+  font-size: 1em;
   font-family: monospace;
   background-color: #777777;
   border: 1px solid black;
   border-radius: 5px;
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 3px black;
   animation-name: nextButtonBlink;
   animation-duration: 500ms;
   animation-iteration-count: infinite;
@@ -553,9 +559,9 @@ on the townIntro() screen*/
 /------------------------------------------------------------*/
 
 @keyframes notificationBlink {
-  0% {background-color: #555555;}
+  0% {background-color: black;}
   50% {background-color: #999999;}
-  100% {background-color: #555555;}
+  100% {background-color: black;}
 }
 
 #notification {
@@ -563,9 +569,9 @@ on the townIntro() screen*/
   top: 10px;
   left: 20px;
   width: 400px;
-  border: 1px solid black;
+  border: 2px solid black;
   padding: 2px;
-  background-color: #555555;
+  background-color: #999999;
   color: white;
   font-size: 1.25em;
   text-align: center;
@@ -1232,7 +1238,6 @@ This styles the box that tells the player what level of the dungeon they're on*/
 #levelDiv {
   margin: auto;
   margin-top: 5px;
-  /*padding: 5px;*/
   width: 80px;
   height: 20px;
   color: white;
@@ -1247,7 +1252,9 @@ This styles the box that tells the player what level of the dungeon they're on*/
   text-shadow: 2px 0px black,
                0px 2px black,
                -2px 0px black,
-               0px -2px black;
+               0px -2px black,
+               1px 3px black;
+  cursor: default;
 }
 /*
 Styles the level progress bar*/
@@ -1286,6 +1293,7 @@ This styles the area where the spells are displayed*/
   margin-top: 5px;
   border: 2px solid black;
   border-radius: 5px;
+  cursor: default;
 }
 /*
 This styles the images for the spells*/
@@ -1611,8 +1619,14 @@ damage the player or a monster receives*/
 This sets the size of the answerInput <input> box
 and makes sure the numbers are centered in the box*/
 #answerInput {
+  -moz-appearance: textfield;
+  appearance: textfield;
   width: 50px;
   text-align: center;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: .85em;
+  border-radius: 5px;
 }
 /*
 This styles the scroll that pops up when a player

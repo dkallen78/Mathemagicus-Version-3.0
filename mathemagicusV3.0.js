@@ -269,6 +269,16 @@ function makeFragment() {
   }
   return fragment;
 }
+
+function makeCanvas(id) {
+  var canvas = document.createElement("canvas");
+  canvas.id = id;
+  if (arguments.length > 1) {
+    canvas.height = arguments[1];
+    canvas.width = arguments[2];
+  }
+  return canvas;
+}
 //
 //
 function makeCameoDiv(src) {
@@ -602,7 +612,7 @@ class Player {
       euclidSpell: false,
       hypatiaSpell: false,
       lovelaceSpell: false,
-      huygenSpell: false,
+      huygensSpell: false,
       fermatSpell: false,
       noetherSpell: false,
       braheSpell: false
@@ -685,12 +695,13 @@ class Player {
         ongoing: false,
         notificationIndex: 8
       },
-      huygen: {
+      huygens: {
         name: "Huygen's Stop-time Spell",
         available: false,
         learned: false,
         cast: 0,
         number: 0,
+        ongoing: false,
         notificationIndex: 9
       },
       fermat: {
@@ -699,6 +710,7 @@ class Player {
         learned: false,
         cast: 0,
         number: 0,
+        ongoing: false,
         notificationIndex: 10
       },
       noether: {
@@ -707,6 +719,7 @@ class Player {
         learned: false,
         cast: 0,
         number: 0,
+        ongoing: false,
         notificationIndex: 11
       },
       brahe: {
@@ -715,6 +728,7 @@ class Player {
         learned: false,
         cast: 0,
         number: 0,
+        ongoing: false,
         notificationIndex: 12
       },
     }
@@ -839,20 +853,28 @@ function test() {
   player.spells.lovelace.number = 50;
   player.spells.hypatia.learned = true;
   player.spells.hypatia.number = 50;
+  player.spells.noether.learned = true;
+  player.spells.noether.number = 50;
+  player.spells.huygens.learned = true;
+  player.spells.huygens.number = 50;
+  player.spells.fermat.learned = true;
+  player.spells.fermat.number = 50;
+  player.spells.brahe.learned = true;
+  player.spells.brahe.number = 50;
   player.triggers.newGame = false;
-  player.notification.fibonacciSpell = false;
+  player.notification.fibonacciSpell = "some notification";
 
-  /*let xmlhttp = new XMLHttpRequest();
+  let xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       let monsterData = JSON.parse(this.responseText);
-      catacombs(player, "addition", 1, 5, monsterData);
+      catacombs(player, "addition", 0, 2, monsterData);
     }
   };
   xmlhttp.open("GET", "./monsterData.json", true);
-  xmlhttp.send();*/
+  xmlhttp.send();
 
-  overworld(player);
+  //overworld(player);
 }
 
 //-------------------------------------------------------------------//
@@ -1856,6 +1878,97 @@ function overworld(player) {
         })
       }
 
+      function learnReduce() {
+
+        function beginChallenge() {
+
+          function challenge() {
+
+            function showProblem(text, increment) {
+              insertTextNode(fragment, answers[answers.length - 1]);
+              for (let i = 0; i < answers.length; i++) {
+                insertTextNode(fragment, text);
+              }
+              insertTextNode(fragment, "= ?");
+              insertLineBreak(fragment, 2);
+              insertTextNode(fragment, answers[0] + text + "= ");
+              answer = answers[0] + increment
+              answers.unshift(answer);
+            }
+
+            questions++;
+            clearElement(challengeDiv);
+
+            if (answers.length === 0) {
+              answers[0] = getRandomNumber(11, 50);
+            } else if (answers.length > 5) {
+              answers = [];
+              answers[0] = getRandomNumber(15, 50);
+            }
+            let answer = null;
+            let fragment = document.createDocumentFragment();
+
+            if (questions < 1) showProblem(" + 2 ", 2);
+            if (questions > 0) showProblem(" - 2 ", -2);
+
+            insertAnswerInput(fragment, answer);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.hypatia, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Lovelace's Reduction Spell is powered by numbers that end " +
+                        "with the number 2.";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "2, 4, 6, 8, 10...");
+
+          insertLineBreak(challengeDiv, 2);
+
+          insertTextNode(challengeDiv, "19, 17, 15, 13, 11...");
+
+          let textTwo = "Earn this spell by adding and subtracting by 2. ";
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = -10;
+          let answers = [];
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+        });
+      }
+
       function menuUp() {
         number--;
         if (number < 0) {
@@ -1889,8 +2002,8 @@ function overworld(player) {
           case 4:     //Hypatia's Healing Spell
             learnHeal();
             break;
-          case "5":     //Lovelace's Reduction Spell
-
+          case 5:     //Lovelace's Reduction Spell
+            learnReduce();
             break;
           case "6":     //Huygen's Stop-time Spell
 
@@ -1957,7 +2070,6 @@ function overworld(player) {
       document.onkeydown = function(event) {
 
         if (event.which === 13) {     //Enter key
-          console.log(spellMenu.children[number].id)
           selectSpell(spellMenu.children[number].id);
         }
         if (event.which === 38) {     //Up Arrow
@@ -3688,8 +3800,6 @@ function overworld(player) {
     playArea.appendChild(notification);
   }
 
-
-
   let playArea = document.getElementById("playArea");
   //
   //The image data for the overworld menu
@@ -3997,7 +4107,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     makeSpellIcon("square", player.spells.hypatia.number);
     makeSpellIcon("pentagon", player.spells.lovelace.number);
     makeSpellIcon("hexagon", player.spells.noether.number);
-    makeSpellIcon("pyramid", player.spells.huygen.number);
+    makeSpellIcon("pyramid", player.spells.huygens.number);
     makeSpellIcon("cube", player.spells.fermat.number);
     makeSpellIcon("star", player.spells.brahe.number);
     fragment.appendChild(spellBar);
@@ -4161,6 +4271,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }
             break;
           case "subtraction":
+            if (current[operation].level === 2) {
+              player.notification.lovelaceSpell = "Reduce Terms Spell Available";
+              player.spells.lovelace.available = true;
+            }
             if (current[operation].level === 4 && player.multiplication.level === 2) {
               player.notification.divisionKey = "Division Key Available";
             }
@@ -4236,6 +4350,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //checkAnswer() function if enter is pressed
     const checkKeyPress = function(event, answer) {
       var key = event.which;
+      if (buttonsOff) {
+        event.preventDefault();
+        return;
+      }
       switch(key) {
         case 13: //Enter key, check answer
           checkAnswer(answer);
@@ -4260,35 +4378,25 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           if (player.spells.lovelace.ongoing || !player.spells.lovelace.learned) break;
           castLovelace();
           break;
-        case 102: //"f" key, Pyramid Spell
-          event.preventDefault(); //prevents the writing of the key
-          if (pyramidCast) {
-            break;
-          }
-          if (additionLevel > 8) {
-            castPyramid();
-          }
+        case 102: //"f" key, Stop Time Spell
+          event.preventDefault();
+          if (player.spells.huygens.ongoing || !player.spells.huygens.learned) break;
+          castHuygens();
           break;
         case 113: //"q" key, Cube Spell
-          event.preventDefault(); //prevents the writing of the key
-          if (cubeCast) {
-            break;
-          }
-          if (divisionLevel > 2) {
-            castCube();
-          }
+          event.preventDefault();
+          if (player.spells.fermat.ongoing || !player.spells.fermat.learned) break;
+          castFermat();
           break;
-        case 114: //"r" key, Hexagon Spell
-          event.preventDefault(); //prevents the writing of the key
-          if (multiplicationLevel > 8) {
-            castHexagon();
-          }
+        case 114: //"r" key, Strength Spell
+          event.preventDefault();
+          if (player.spells.noether.ongoing || !player.spells.noether.learned) break;
+          castNoether();
           break;
         case 119: //"w" key, Nova Spell
-          event.preventDefault(); //prevents the writing of the key
-          if (divisionLevel > 8) {
-            castStar();
-          }
+          event.preventDefault();
+          if (player.spells.brahe.ongoing || !player.spells.brahe.learned) break;
+          castBrahe();
           break;
       }
     }
@@ -4318,7 +4426,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       const showProblem = function() {
-        spellsOn();
+
         clearElement(problemDiv);
         problemDiv.appendChild(fragment);
         timer = new Timer(timerValue);
@@ -4328,6 +4436,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           }, 10);
         }
         timer.startTimer();
+        spellsOn();
 
         let answerInput = document.getElementById("answerInput");
         answerInput.focus();
@@ -4404,8 +4513,9 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (timer.timeLeft <= 1) player.stats.lastSecond++;
       if (answer === 42) player.stats.fortyTwo++;
       if (isPrime(answer)) player.stats.primes++;
-      if (isTriangle(answer)) player.spells.euclid.number++;
-      if (isSquare(answer)) player.spells.hypatia.number++;
+      if (isTriangle(answer) && player.spells.euclid.learned) player.spells.euclid.number++;
+      if (isSquare(answer) && player.spells.hypatia.learned) player.spells.hypatia.number++;
+      if (answer % 10 === 2 && player.spells.lovelace.learned) player.spells.lovelace.number++;
     }
     //
     //Checks the answer to my problems
@@ -4413,7 +4523,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       let answerInput = document.getElementById("answerInput");
       if (parseInt(answerInput.value) === answer) {
-        timer.stopTime();
         getNumberData(answer);
         damageMonster();
       } else {
@@ -4474,6 +4583,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
       }
 
+      timer.stopTime();
       player.stats.damage.dealt += player.totalDamage;
       monster.hp = (player.totalDamage > monster.hp) ? 0:(monster.hp - player.totalDamage);
 
@@ -4617,156 +4727,51 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         turnOnSpell("squareImg", castHypatia);
         player.spells.hypatia.ongoing = false;
       }
-      if (player.spells.lovelace.learned) {     //Reduction Spells
+      if (player.spells.lovelace.learned) {       //Reduction Spells
         turnOnSpell("pentagonImg", castLovelace);
-        /*let pentagonImg = document.getElementById("pentagonImg");
-        if (spellsCast[6] === 0) {
-          pentagonImg.classList.add("highlightNewSpell");
-        }
-        pentagonImg.style.filter = "opacity(100%)";
-        pentagonImg.onclick = function(){castPentagon();}*/
         player.spells.lovelace.ongoing = false;
       }
-      /*if (player.spells.learned.hexagon) {  //Hexagon Spells
-        let hexagonImg = document.getElementById("hexagonImg");
-        if (spellsCast[7] === 0) {
-          hexagonImg.classList.add("highlightNewSpell");
-        }
-        hexagonImg.style.filter = "opacity(100%)";
-        hexagonImg.onclick = function(){castHexagon();}
+      if (player.spells.noether.learned) {        //Strength Spells
+        turnOnSpell("hexagonImg", castNoether);
+        player.spells.noether.ongoing = false;
       }
-      if (player.spells.learned.pyramid) {        //Pyramid Spells
-        let pyramidImg = document.getElementById("pyramidImg");
-        if (spellsCast[5] === 0) {
-          pyramidImg.classList.add("highlightNewSpell");
-        }
-        pyramidImg.style.filter = "opacity(100%)";
-        pyramidImg.onclick = function(){castPyramid();}
-        pyramidCast = false;
+      if (player.spells.huygens.learned) {        //Stop Time Spells
+        turnOnSpell("pyramidImg", castHuygens);
+        player.spells.huygens.ongoing = false;
       }
-      if (player.spells.learned.cube) {        //Cube Spells
-        let cubeImg = document.getElementById("cubeImg");
-        if (spellsCast[8] === 0) {
-          cubeImg.classList.add("highlightNewSpell");
-        }
-        cubeImg.style.filter = "opacity(100%)";
-        cubeImg.onclick = function(){castCube();}
+      if (player.spells.fermat.learned) {         //Polymorph Spells
+        turnOnSpell("cubeImg", castFermat);
+        player.spells.fermat.ongoing = false;
       }
-      if (player.spells.learned.star) {        //Star Spells
-        let starImg = document.getElementById("starImg");
-        if (spellsCast[9] === 0) {
-          starImg.classList.add("highlightNewSpell");
-        }
-        starImg.style.filter = "opacity(100%)";
-        starImg.onclick = function(){castStar();}
-      }*/
+      if (player.spells.brahe.learned) {            //Star Spells
+        turnOnSpell("starImg", castBrahe);
+        player.spells.brahe.ongoing = false;
+      }
     }
     //
     //Disables spell functionality
     const spellsOff = function() {
 
-      const turnOffSpell = function(id) {
+      const turnOffSpell = function(id, spell) {
         img = document.getElementById(id);
         img.style.filter = "opacity(30%)";
         img.onclick = "";
+        //spell.ongoing = true;
       }
 
-      turnOffSpell("fibonacciImg");
-      turnOffSpell("triangleImg");
-      turnOffSpell("squareImg");
-      turnOffSpell("pentagonImg");
-      turnOffSpell("hexagonImg");
-      turnOffSpell("pyramidImg");
-      turnOffSpell("cubeImg");
-      turnOffSpell("starImg");
+      turnOffSpell("fibonacciImg", player.spells.fibonacci);
+      turnOffSpell("triangleImg", player.spells.euclid);
+      turnOffSpell("squareImg", player.spells.hypatia);
+      turnOffSpell("pentagonImg", player.spells.lovelace);
+      turnOffSpell("hexagonImg", player.spells.noether);
+      turnOffSpell("pyramidImg", player.spells.noether);
+      turnOffSpell("cubeImg", player.spells.fermat);
+      turnOffSpell("starImg", player.spells.brahe);
     }
     //
     //Hint Spell
     const castFibonacci = function() {
-      player.spells.fibonacci.ongoing = true;
-      let fibonacciImg = document.getElementById("fibonacciImg");
-      fibonacciImg.onclick = "";
-      timer.stopTime();
-      //
-      //This holds the string that will become the hint
-      let hintString = "";
-      let redSpan = "<span style=\"color:#ffbaba\">";
 
-      showHintDiv();
-      let problemDiv = document.getElementById("problemDiv");
-      //
-      //If the enemy cast Algebra, then this small hint code runs.
-      //I will probably update it with better hints as I develop
-      //subtraction problems and hints.
-      if (problemDiv.childNodes.length === 3) {
-        //
-        //Determines what the hint will be based on what
-        //the current operator is
-        switch (operation) {
-          case "addition":
-            hintString += terms[2] + " - " + terms[0] + " = ? <br />";
-            subtractionHint(terms[2], terms[0]);
-            break;
-          case "subtraction":
-            hintString += terms[0] + " - " + terms[2] + " = ? <br />";
-            subtractionHint(terms[0], terms[2]);
-            break;
-          case "multiplication":
-            hintString += terms[2] + " ÷ " + terms[0] + " = ? <br />";
-            divisionHint(terms[2], terms[0]);
-            break;
-          case "division":
-            hintString += terms[0] + " ÷ " + terms[2] + " = ? <br />";
-            divisionHint(terms[0], terms[2]);
-            break;
-        }
-
-        fibonacciAnimation();
-        player.spells.cast[10]++
-        return;
-      }
-      //
-      //If the problem is a number sequence, this logic
-      //runs to display a sequence hint
-      if (terms.length === 5) {
-        if ((operation === "addition") || (operation === "multiplication")) {
-          hintString += terms[1] + " - " + terms[0] + " = ?<br />";
-          hintString += terms[2] + " - " + terms[1] + " = ?";
-        } else {
-          hintString += terms[0] + " - " + terms[1] + " = ?<br />";
-          hintString += terms[1] + " - " + terms[2] + " = ?";
-        }
-        fibonacciAnimation();
-        player.spells.cast[11]++;
-        return;
-      }
-      //
-      //This switch determines which hint to display
-      switch (operation) {
-        case "addition":
-          additionHint(terms[0], terms[1]);
-          player.spells.fibonacci.cast++;
-          break;
-        case "subtraction":
-          subtractionHint(terms[0], terms[1]);
-          player.spells.fibonacci.cast++;
-          break;
-        case "multiplication":
-          multiplicationHint(terms[0], terms[1]);
-          player.spells.euler1.cast++;
-          break;
-        case "division":
-          divisionHint(terms[0], terms[1]);
-          player.spells.euler2.cast[2]++;
-          break;
-       }
-
-      //showHintDiv();
-      fibonacciAnimation();
-
-      //fibonacciCast = true;
-      fibonacciImg.style.filter = "opacity(30%)";
-      fibonacciImg.onclick = "";
       //
       //This is the logic that handles the addition hints
       function additionHint(addend1, addend2) {
@@ -4964,8 +4969,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       function fibonacciAnimation() {
-        //hintDiv.style.visibility = "visible";
-        let possible = "1234567890+-/*()";
+        let possible = "1234567890+-÷×()%½²";
         let randomString = "";
         let spellCount = 1;
 
@@ -4997,7 +5001,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         let br1 = 0;
         let randomCount = 0;
         let spellCast = setInterval(castSpell, 50);
-        clearInterval(timer);
 
         function castSpell() {
           randomString = "";
@@ -5006,12 +5009,17 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             let answerInput = document.getElementById("answerInput");
             answerInput.focus();
             clearInterval(spellCast);
-            if (timerValue) {
+            if (timerValue && !player.spells.huygens.ongoing) {
               timer.time = setInterval(function() {
                 timer.timeDown();
               }, 10);
             }
             timer.startTimer();
+            buttonsOff = false;
+            player.spells.fibonacci.ongoing = true;
+            let fibonacciImg = document.getElementById("fibonacciImg");
+            fibonacciImg.style.filter = "opacity(30%)";
+            fibonacciImg.onclick = "";
           } else {
             span1 = 0;
             span2 = 0;
@@ -5043,27 +5051,96 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           }
         }
       }
+
+      buttonsOff = true;
+      player.spells.fibonacci.ongoing = true;
+      timer.stopTime();
+      //
+      //This holds the string that will become the hint
+      let hintString = "";
+      let redSpan = "<span style=\"color:#ffbaba\">";
+
+      showHintDiv();
+      let problemDiv = document.getElementById("problemDiv");
+      //
+      //If the enemy cast Algebra, then this small hint code runs.
+      //I will probably update it with better hints as I develop
+      //subtraction problems and hints.
+      if (problemDiv.childNodes.length === 3) {
+        //
+        //Determines what the hint will be based on what
+        //the current operator is
+        switch (operation) {
+          case "addition":
+            hintString += terms[2] + " - " + terms[0] + " = ? <br />";
+            subtractionHint(terms[2], terms[0]);
+            break;
+          case "subtraction":
+            hintString += terms[0] + " - " + terms[2] + " = ? <br />";
+            subtractionHint(terms[0], terms[2]);
+            break;
+          case "multiplication":
+            hintString += terms[2] + " ÷ " + terms[0] + " = ? <br />";
+            divisionHint(terms[2], terms[0]);
+            break;
+          case "division":
+            hintString += terms[0] + " ÷ " + terms[2] + " = ? <br />";
+            divisionHint(terms[0], terms[2]);
+            break;
+        }
+
+        fibonacciAnimation();
+        player.spells.cast[10]++
+        return;
+      }
+      //
+      //If the problem is a number sequence, this logic
+      //runs to display a sequence hint
+      if (terms.length === 5) {
+        if ((operation === "addition") || (operation === "multiplication")) {
+          hintString += terms[1] + " - " + terms[0] + " = ?<br />";
+          hintString += terms[2] + " - " + terms[1] + " = ?";
+        } else {
+          hintString += terms[0] + " - " + terms[1] + " = ?<br />";
+          hintString += terms[1] + " - " + terms[2] + " = ?";
+        }
+        fibonacciAnimation();
+        player.spells.cast[11]++;
+        return;
+      }
+      //
+      //This switch determines which hint to display
+      switch (operation) {
+        case "addition":
+          additionHint(terms[0], terms[1]);
+          player.spells.fibonacci.cast++;
+          break;
+        case "subtraction":
+          subtractionHint(terms[0], terms[1]);
+          player.spells.fibonacci.cast++;
+          break;
+        case "multiplication":
+          multiplicationHint(terms[0], terms[1]);
+          player.spells.euler1.cast++;
+          break;
+        case "division":
+          divisionHint(terms[0], terms[1]);
+          player.spells.euler2.cast[2]++;
+          break;
+       }
+
+      fibonacciAnimation();
+
     }
     //
-    //This function handles my triangle/fireball spell
-    //I may want to play with the animation a bit...
+    //Fireball spell
     const castEuclid = function() {
 
       function fireballAnimation() {
 
-        function makeCanvas(id) {
-          var canvas = document.createElement("canvas");
-          canvas.id = id;
-          return canvas;
-        }
-
         function makeEuclidSpark() {
-          let canvas = document.createElement("canvas");
-          canvas.height = 21;
-          canvas.width = 21;
+          let canvas = makeCanvas("", 21, 21);
           canvas.className = "sparkCanvas";
-          this.top = 0;
-          this.left = 0;
           return canvas;
         }
 
@@ -5209,7 +5286,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           sparkContext.stroke();
         }
 
-        let canvas = makeCanvas("euclidCanvas");
+        let canvas = makeCanvas("euclidCanvas", 450, 450);
 
         let levelDiv = document.getElementById("levelDiv");
         playArea.insertBefore(canvas, levelDiv);
@@ -5231,8 +5308,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         playArea.appendChild(sparkCanvas4);
 
         let context = canvas.getContext("2d");
-        context.canvas.width = 450;
-        context.canvas.height = 450;
         let lineWidth = 5;
         let baseColor = "rgba(255, 0, 0, 1)"
         let baseShadow = "rgba(255, 0, 0, 1)"
@@ -5270,7 +5345,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }, 20);
       }
 
-      player.spells.euclid.ongoing = true;
       let hintDiv = document.getElementById("hintDiv");
 
       if (player.spells.euclid.number === 0) {
@@ -5280,6 +5354,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         return;
       }
       timer.stopTime();
+      player.spells.euclid.ongoing = true;
+      buttonsOff = true;
 
       let animationDone = false;
       let spellCast;
@@ -5311,6 +5387,13 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           clearInterval(checkFlash);
           let canvas = document.getElementById("euclidCanvas");
           playArea.removeChild(canvas);
+          if (timerValue && !player.spells.huygens.ongoing) {
+            timer.time = setInterval(function() {
+              timer.timeDown();
+            }, 10);
+          }
+          timer.startTimer();
+          buttonsOff = false;
           damageMonster();
         }
       }, 250);
@@ -5320,12 +5403,9 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       document.getElementById("triangleCount").innerHTML = player.spells.euclid.number;
     }
     //
-    //This function handles my healing spell
+    //Healing spell
     const castHypatia = function() {
 
-      player.spells.hypatia.ongoing = true;
-      let squareImg = document.getElementById("squareImg");
-      //squareImg.classList.remove("highlightNewSpell");
       let hintDiv = document.getElementById("hintDiv");
 
       if (player.spells.hypatia.number === 0) {
@@ -5342,6 +5422,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         return;
       }
 
+      player.spells.hypatia.ongoing = true;
+      buttonsOff = true;
       timer.stopTime();
 
       let heal = 2;
@@ -5395,15 +5477,13 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
           player.spells.hypatia.ongoing = false;
 
-          if (timerValue > 0) {
+          if (timerValue && !player.spells.huygens.ongoing) {
             timer.time = setInterval(function() {
               timer.timeDown();
             }, 10);
           }
           timer.startTimer();
-          //if (!pyramidCast) {
-
-          //}
+          buttonsOff = false;
         }
       }, 250);
 
@@ -5412,21 +5492,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       player.spells.hypatia.number--;
       document.getElementById("squareCount").innerHTML = player.spells.hypatia.number;
     }
+    //
+    //Reduce terms spell
+    const castLovelace = function() {
 
-    function castLovelace() {
-
-      player.spells.lovelace.ongoing = true;
-      let pentagonImg = document.getElementById("pentagonImg");
-      pentagonImg.style.filter = "opacity(30%)";
-      pentagonImg.onclick = "";
-
-      player.spells.fibonacci.ongoing = false;
-      /*let fibonacciImg = document.getElementById("fibonacciImg");
-      fibonacciImg.style.filter = "opacity(100%)";
-      fibonacciImg.onclick = function(){castFibonacci();}*/
       let hintDiv = document.getElementById("hintDiv");
-      //
-      //If the player has no magic, then no magic is cast
+
       if (player.spells.lovelace.number === 0) {
         hintDiv.innerHTML = "You don't have any Reduction Magic!";
         hintDiv.style.visibility = "visible";
@@ -5434,7 +5505,16 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         return;
       }
 
+      player.spells.lovelace.ongoing = true;
+      if (player.spells.fibonacci.ongoing) {
+        let fibonacciImg = document.getElementById("fibonacciImg");
+        fibonacciImg.style.filter = "opacity(100%)";
+        fibonacciImg.onclick = castFibonacci;
+        player.spells.fibonacci.ongoing = false;
+      }
+      buttonsOff = true;
       timer.stopTime();
+
       hintDiv.innerHTML = "You cast Lovelace's Reduction!";
       hintDiv.style.visibility = "visible";
       hideElement(hintDiv, 1500);
@@ -5458,7 +5538,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         if (flash.count === 0) {
           clearInterval(checkFlash);
 
-          let terms = getTerms(operation, Math.ceil(monster.level / 2));
+          let newTerms = getTerms(operation, Math.ceil(monster.level / 2));
+
+          for (let i = 0; i < terms.length; i++) {
+            terms[i] = newTerms[i];
+          }
 
           clearElement(problemDiv);
           insertTextNode(problemDiv, terms[0] + " " + current[operation].sign + " ");
@@ -5472,15 +5556,17 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           var answerInput = document.getElementById("answerInput");
           answerInput.focus();
 
-          if (timerValue > 0) {
+          if (timerValue && !player.spells.huygens.ongoing) {
             timer.time = setInterval(function() {
               timer.timeDown();
             }, 10);
           }
           timer.startTimer();
-          //if (!pyramidCast) {
-
-          //}
+          buttonsOff = false;
+          player.spells.lovelace.ongoing = true;
+          let pentagonImg = document.getElementById("pentagonImg");
+          pentagonImg.style.filter = "opacity(30%)";
+          pentagonImg.onclick = "";
         }
       }, 250);
 
@@ -5488,11 +5574,651 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       player.spells.lovelace.number--;
       document.getElementById("pentagonCount").innerHTML = player.spells.lovelace.number;
     }
+    //
+    //Strength spell
+    const castNoether = function() {
+      let hintDiv = document.getElementById("hintDiv");
+
+      if (player.spells.noether.number === 0) {
+        hintDiv.innerHTML = "You don't have any Strength Magic!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      timer.stopTime();
+      player.spells.noether.ongoing = true;
+      buttonsOff = true;
+
+      hintDiv.innerHTML = "You cast Noether's Strength!";
+      hintDiv.style.visibility = "visible";
+      hideElement(hintDiv, 1500);
+
+      let flash = new ScreenFlash("playAreaWhite", 10);
+
+      let playerImgHeight = 100;
+
+      const strengthAnimation = function() {
+        playerImgHeight += 25;
+        playerImg.style.height = playerImgHeight;
+      }
+
+      flash.flash = setInterval(function() {
+        flash.screenFlash(strengthAnimation, 2);
+      }, 100);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+
+          if (timerValue && !player.spells.huygens.ongoing) {
+            timer.time = setInterval(function() {
+              timer.timeDown();
+            }, 10);
+          }
+          timer.startTimer();
+          buttonsOff = false;
+
+          setTimeout(function() {
+            playerImg.style.height = 100;
+            player.spells.noether.ongoing = false;
+          }, 250);
+        }
+      }, 250);
+
+      player.spells.noether.cast++;
+      player.spells.noether.number--;
+      player.damageBoost++;
+      document.getElementById("hexagonCount").innerHTML = player.spells.noether.number;
+    }
+    //
+    //Stop time spell
+    const castHuygens = function() {
+
+      function stopTimeAnimation() {
+
+        function drawClock() {
+          let minuteX1 = (225 + (20 * Math.cos(minuteAngle * Math.PI)));
+          let minuteY1 = (225 + (20 * Math.sin(minuteAngle * Math.PI)));
+
+          let minuteX2 = (225 + (180 * Math.cos(minuteAngle * Math.PI)));
+          let minuteY2 = (225 + (180 * Math.sin(minuteAngle * Math.PI)));
+
+          let hourX1 = (225 + (20 * Math.cos(hourAngle * Math.PI)));
+          let hourY1 = (225 + (20 * Math.sin(hourAngle * Math.PI)));
+
+          let hourX2 = (225 + (100 * Math.cos(hourAngle * Math.PI)));
+          let hourY2 = (225 + (100 * Math.sin(hourAngle * Math.PI)));
+
+          handContext.beginPath();
+          handContext.moveTo(minuteX1, minuteY1);
+          handContext.lineTo(minuteX2, minuteY2);
+          handContext.strokeStyle = baseColor;
+          handContext.lineWidth = 15;
+          handContext.shadowOffsetX = 5;
+          handContext.shadowOffsetY = 5;
+          handContext.shadowBlur = 5;
+          handContext.shadowColor = "black";
+          handContext.stroke();
+          handContext.closePath();
+
+          handContext.beginPath();
+          handContext.moveTo(hourX1, hourY1);
+          handContext.lineTo(hourX2, hourY2);
+          handContext.strokeStyle = baseColor;
+          handContext.lineWidth = 20;
+          handContext.shadowOffsetX = 5;
+          handContext.shadowOffsetY = 5;
+          handContext.shadowBlur = 5;
+          handContext.shadowColor = "black";
+          handContext.stroke();
+          handContext.closePath();
+        }
+
+        function incrementClock() {
+          minuteAngle += timeIncrement;
+          hourAngle += (timeIncrement / 12);
+        }
+
+        let canvas = makeCanvas("timeCanvas", 450, 450);
+        let levelDiv = document.getElementById("levelDiv");
+        playArea.insertBefore(canvas, levelDiv);
+
+        let context = canvas.getContext("2d");
+
+        let handCanvas = makeCanvas("handCanvas", 450, 450);
+        playArea.insertBefore(handCanvas, canvas);
+
+        let handContext = handCanvas.getContext("2d");
+
+        let lineWidth = 5;
+        let baseColor = "rgba(0, 255, 0, 1)"
+        let baseShadow = "rgba(255, 0, 0, 1)"
+
+        context.beginPath();
+        context.arc(225, 225, 200, 0, (2 * Math.PI));
+
+        for (let i = 0; i < 2; i += .166666666) {
+          let xPos = (225 + (150 * Math.cos(i * Math.PI)));
+          let yPos = (225 + (150 * Math.sin(i * Math.PI)));
+
+          let xPos2 = (225 + (190 * Math.cos(i * Math.PI)));
+          let yPos2 = (225 + (190 * Math.sin(i * Math.PI)));
+
+          context.moveTo(xPos, yPos);
+          context.lineTo(xPos2, yPos2);
+        }
+
+        context.shadowOffsetX = 5;
+        context.shadowOffsetY = 5;
+        context.shadowBlur = 5;
+        context.shadowColor = "black";
+        context.lineWidth = lineWidth * 2;
+        context.strokeStyle = baseColor;
+
+        context.stroke();
+        context.closePath();
+
+        context.beginPath();
+        context.arc(225, 225, 10, 0, (2 * Math.PI));
+        context.fillStyle = baseColor;
+        context.fill();
+        context.shadowOffsetX = 5;
+        context.shadowOffsetY = 5;
+        context.shadowBlur = 5;
+        context.shadowColor = "black";
+        context.closePath();
+
+        let minuteAngle = 1.5;
+        let hourAngle = 0.5;
+        let timeIncrement = 0.125;
+
+        let flashing = false;
+
+
+        let pyramidTimer = setInterval(function() {
+          handContext.clearRect(0, 0, 450, 450);
+          if (hourAngle > 1.5) {
+            clearInterval(pyramidTimer);
+            minuteAngle = 1.5;
+            hourAngle = 1.5;
+            drawClock();
+            animationDone = true;
+          }
+          if (((Math.floor(minuteAngle + .5) % 2) == 0) && (!flashing)) {
+            flashing = true;
+            requestAnimationFrame(function() {
+              playArea.classList.add("playAreaGreenFlash");
+            });
+            setTimeout(function() {
+              requestAnimationFrame(function() {
+                playArea.classList.remove("playAreaGreenFlash");
+              });
+            }, 160);
+          }
+          if ((Math.floor(minuteAngle + .5) % 2) != 0) {
+            flashing = false;
+          }
+          if (hourAngle > 1.37) {
+            timeIncrement = 0.03333333;
+          } else if (hourAngle > 1.25) {
+            timeIncrement = 0.05555555;
+          }
+          drawClock();
+          incrementClock();
+        }, 10);
+
+
+
+
+      }
+
+      let hintDiv = document.getElementById("hintDiv");
+
+      if (player.spells.huygens.number === 0) {
+        hintDiv.innerHTML = "You don't have any Stop Time Magic!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      timer.stopTime();
+      player.spells.huygens.ongoing = true;
+      buttonsOff = true;
+
+      let animationDone = false;
+      stopTimeAnimation();
+
+      hintDiv.innerHTML = "You cast Huygen's Stop Time!";
+      hintDiv.style.visibility = "visible";
+      hideElement(hintDiv, 1500);
+
+      let flash = new ScreenFlash("playAreaGreen", 9);
+
+      let checkAnimation = setInterval(function() {
+        if (animationDone) {
+          clearInterval(checkAnimation);
+          flash.flash = setInterval(function() {
+            flash.screenFlash();
+          }, 75);
+        }
+      }, 10);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+          let canvas = document.getElementById("timeCanvas");
+          playArea.removeChild(canvas);
+          let handCanvas = document.getElementById("handCanvas");
+          playArea.removeChild(handCanvas);
+          playArea.classList.remove("playAreaGreen");
+          let answerInput = document.getElementById("answerInput");
+          answerInput.focus();
+          buttonsOff = false;
+          player.spells.huygens.ongoing = true;
+        }
+      }, 250);
+
+      player.spells.huygens.cast++;
+      player.spells.huygens.number--;
+      document.getElementById("pyramidCount").innerHTML = player.spells.huygens.number;
+
+      pyramidImg = document.getElementById("pyramidImg");
+      pyramidImg.style.filter = "opacity(30%)";
+      pyramidImg.onclick = "";
+    }
+    //
+    //Polymorph monster spell
+    const castFermat = function() {
+
+      let hintDiv = document.getElementById("hintDiv");
+
+      if (player.spells.fermat.number === 0) {
+        hintDiv.innerHTML = "You don't have any Cube Magic!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      if ((monster.index > 29) && (current[operation].level < 9)) {
+        hintDiv.innerHTML = "You can't polymorph the " + monster.name + "!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      timer.stopTime();
+      player.spells.fermat.ongoing = true;
+      buttonsOff = true;
+
+      hintDiv.innerHTML = "You cast Fermet's Polymorph Monster!";
+      hintDiv.style.visibility = "visible";
+      hideElement(hintDiv, 1500);
+
+      let flash = new ScreenFlash("playAreaPurple", 10);
+
+      let monsterDiv = document.getElementById("monsterDiv");
+
+      function polymorphAnimation() {
+        if ((flash.count % 4) === 0) {
+          monsterDiv.style.transform = "rotateY(-" + (flash.count * 360) + "deg)";
+        }
+      }
+
+      flash.flash = setInterval(function() {
+        flash.screenFlash(polymorphAnimation, 2);
+      }, 75);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+          let newMonsterLevel = getRandomNumber(1, (Math.ceil(catacombLevel / 2)));
+          monsterDiv.style.transform = "rotateY(-180deg)";
+          monster = new Monster(newMonsterLevel);
+          monsterDiv.style.transform = "rotateY(-360deg)";
+
+          if (timerValue && !player.spells.huygens.ongoing) {
+            timer.time = setInterval(function() {
+              timer.timeDown();
+            }, 10);
+          }
+          timer.startTimer();
+          buttonsOff = false;
+          player.spells.fermat.ongoing = true;
+          cubeImg = document.getElementById("cubeImg");
+          cubeImg.style.filter = "opacity(30%)";
+          cubeImg.onclick = "";
+        }
+      }, 250);
+
+      player.spells.fermat.cast++;
+      player.spells.fermat.number--;
+      document.getElementById("cubeCount").innerHTML = player.spells.fermat.number;
+    }
+    //
+    //This function handles my star/nova spell
+    const castBrahe = function() {
+
+      function novaAnimation() {
+
+        function incrementStar() {
+          point1 += interval;
+          point2 += interval;
+          point3 += interval;
+          point4 += interval;
+          point5 += interval;
+          point6 += interval;
+        }
+
+        function growStar() {
+          triangle1x1 = (225 + (starRadius * Math.cos(point1 * Math.PI)));
+          triangle1y1 = (225 + (starRadius * Math.sin(point1 * Math.PI)));
+
+          triangle1x2 = (225 + (starRadius * Math.cos(point2 * Math.PI)));
+          triangle1y2 = (225 + (starRadius * Math.sin(point2 * Math.PI)));
+
+          triangle1x3 = (225 + (starRadius * Math.cos(point3 * Math.PI)));
+          triangle1y3 = (225 + (starRadius * Math.sin(point3 * Math.PI)));
+
+          triangle2x1 = (225 + (starRadius * Math.cos(point4 * Math.PI)));
+          triangle2y1 = (225 + (starRadius * Math.sin(point4 * Math.PI)));
+
+          triangle2x2 = (225 + (starRadius * Math.cos(point5 * Math.PI)));
+          triangle2y2 = (225 + (starRadius * Math.sin(point5 * Math.PI)));
+
+          triangle2x3 = (225 + (starRadius * Math.cos(point6 * Math.PI)));
+          triangle2y3 = (225 + (starRadius * Math.sin(point6 * Math.PI)));
+
+          context.beginPath();
+
+          context.moveTo(triangle1x1, triangle1y1);
+          context.lineTo(triangle1x2, triangle1y2);
+          context.lineTo(triangle1x3, triangle1y3);
+          context.lineTo(triangle1x1, triangle1y1);
+          context.lineTo(triangle1x2, triangle1y2);
+
+          context.moveTo(triangle2x1, triangle2y1);
+          context.lineTo(triangle2x2, triangle2y2);
+          context.lineTo(triangle2x3, triangle2y3);
+          context.lineTo(triangle2x1, triangle2y1);
+          context.closePath();
+
+          context.shadowOffsetX = 5;
+          context.shadowOffsetY = 5;
+          context.shadowBlur = 5;
+          context.shadowColor = "black";
+          context.lineWidth = lineWidth;
+          context.strokeStyle = baseColor;
+          context.stroke();
+        }
+
+        function drawStar() {
+          triangle1x1 = getX(225, 150, point1);
+          triangle1y1 = getY(225, 150, point1);
+
+          triangle1x2 = getX(225, 150, point2);
+          triangle1y2 = getY(225, 150, point2);
+
+          triangle1x3 = getX(225, 150, point3);
+          triangle1y3 = getY(225, 150, point3);
+
+          triangle2x1 = getX(225, 150, point4);
+          triangle2y1 = getY(225, 150, point4);
+
+          triangle2x2 = getX(225, 150, point5);
+          triangle2y2 = getY(225, 150, point5);
+
+          triangle2x3 = getX(225, 150, point6);
+          triangle2y3 = getY(225, 150, point6);
+
+          context.beginPath();
+
+          context.moveTo(triangle1x1, triangle1y1);
+          context.lineTo(triangle1x2, triangle1y2);
+          context.lineTo(triangle1x3, triangle1y3);
+          context.lineTo(triangle1x1, triangle1y1);
+          context.lineTo(triangle1x2, triangle1y2);
+
+          context.moveTo(triangle2x1, triangle2y1);
+          context.lineTo(triangle2x2, triangle2y2);
+          context.lineTo(triangle2x3, triangle2y3);
+          context.lineTo(triangle2x1, triangle2y1);
+          context.closePath();
+
+          context.shadowOffsetX = 5;
+          context.shadowOffsetY = 5;
+          context.shadowBlur = 5;
+          context.shadowColor = "black";
+          context.lineWidth = lineWidth;
+          context.strokeStyle = baseColor;
+          context.stroke();
+        }
+
+        function drawSpark(sparkCanvas, sparkContext, angle) {
+          let x = getX(225, 157, angle);
+          let y = getY(225, 157, angle);
+
+          y -= sparkBoxCenter;
+          x -= sparkBoxCenter;
+
+          angle = ((angle * Math.PI) * (180 / Math.PI))
+
+          setTimeout(function() {
+            sparkContext.clearRect(0, 0, sparkBox, sparkBox);
+            sparkContext.stroke();
+          }, (animationRate * 3));
+
+          let spark1 = getRandomNumber((sparkBox / 4), ((sparkBox * 3) / 4));
+          let spark2 = getRandomNumber((sparkBox / 4), ((sparkBox * 3) / 4));
+          let spark3 = getRandomNumber((sparkBox / 4), ((sparkBox * 3) / 4));
+          let spark4 = getRandomNumber((sparkBox / 4), ((sparkBox * 3) / 4));
+
+          sparkCanvas.style.top = y;
+          sparkCanvas.style.left = x;
+          sparkCanvas.style.transform = "rotate(" + angle + "deg)";
+
+          sparkContext.beginPath();
+          sparkContext.moveTo(sparkBoxCenter, sparkBoxCenter);
+          sparkContext.lineTo(spark1, 0);
+          sparkContext.moveTo(sparkBoxCenter, sparkBoxCenter);
+          sparkContext.lineTo(spark2, 0);
+          sparkContext.moveTo(sparkBoxCenter, sparkBoxCenter);
+          sparkContext.lineTo(spark3, 0);
+          sparkContext.moveTo(sparkBoxCenter, sparkBoxCenter);
+          sparkContext.lineTo(spark4, 0);
+          sparkContext.closePath();
+          sparkContext.strokeStyle = "orange";
+          sparkContext.stroke();
+        }
+
+        function drawSparks() {
+          drawSpark(sparkCanvas1, sparkContext1, point1);
+          drawSpark(sparkCanvas2, sparkContext2, point2);
+          drawSpark(sparkCanvas3, sparkContext3, point3);
+          drawSpark(sparkCanvas4, sparkContext4, point4);
+          drawSpark(sparkCanvas5, sparkContext5, point5);
+          drawSpark(sparkCanvas6, sparkContext6, point6);
+        }
+
+        function makeSparkCanvas() {
+          let sparkCanvas = makeCanvas("", sparkBox, sparkBox);
+          sparkCanvas.className = "sparkCanvas";
+          return sparkCanvas;
+        }
+
+        function getX(center, radius, angle) {
+          return (center + (radius * Math.cos(angle * Math.PI)));
+        }
+
+        function getY(center, radius, angle) {
+          return (center + (radius * Math.sin(angle * Math.PI)));
+        }
+
+        let canvas = makeCanvas("novaCanvas", 450, 450);
+        let levelDiv = document.getElementById("levelDiv");
+        playArea.insertBefore(canvas, levelDiv);
+
+        let context = canvas.getContext("2d");
+
+        let sparkBox = 81;
+        let sparkBoxCenter = 40;
+
+        let sparkCanvas1 = makeSparkCanvas()
+        let sparkContext1 = sparkCanvas1.getContext("2d");
+        playArea.appendChild(sparkCanvas1);
+
+        let sparkCanvas2 = makeSparkCanvas()
+        let sparkContext2 = sparkCanvas2.getContext("2d");
+        playArea.appendChild(sparkCanvas2);
+
+        let sparkCanvas3 = makeSparkCanvas()
+        let sparkContext3 = sparkCanvas3.getContext("2d");
+        playArea.appendChild(sparkCanvas3);
+
+        let sparkCanvas4 = makeSparkCanvas()
+        let sparkContext4 = sparkCanvas4.getContext("2d");
+        playArea.appendChild(sparkCanvas4);
+
+        let sparkCanvas5 = makeSparkCanvas()
+        let sparkContext5 = sparkCanvas5.getContext("2d");
+        playArea.appendChild(sparkCanvas5);
+
+        let sparkCanvas6 = makeSparkCanvas()
+        let sparkContext6 = sparkCanvas6.getContext("2d");
+        playArea.appendChild(sparkCanvas6);
+
+        let lineWidth = 10;
+        let baseColor = "rgba(233, 249, 0, 1)"
+        let baseShadow = "rgba(255, 0, 0, 1)"
+
+        let point1 = 1.5;
+        let point2 = 2.16666666;
+        let point3 = 2.83333333;
+        let point4 = 0.5;
+        let point5 = 1.16666666;
+        let point6 = 1.83333333;
+        let starRadius = 0;
+
+        let interval = 0.05;
+        let animationRate = 25;
+        let animationCounter = 0;
+
+        let starGrow = setInterval(function() {
+          context.clearRect(0, 0, 450, 450);
+          growStar();
+          starRadius += 7;
+          if (starRadius > 150) {
+            clearInterval(starGrow);
+            requestAnimationFrame(function() {
+              playArea.classList.add("playAreaYellowFlash");
+            });
+            setTimeout(function() {
+              requestAnimationFrame(function() {
+                playArea.classList.remove("playAreaYellowFlash");
+              });
+            }, 750);
+            let starTimer = setInterval(function() {
+              context.clearRect(0, 0, 450, 450);
+              drawStar();
+              drawSparks();
+
+              incrementStar();
+              animationCounter += animationRate;
+              if (animationCounter > 1000) {
+                interval = 0.075;
+              }
+              if (animationCounter > 2000) {
+                clearInterval(starTimer);
+                point1 = 1.5;
+                point2 = 2.16666666;
+                point3 = 2.83333333;
+                point4 = 0.5;
+                point5 = 1.16666666;
+                point6 = 1.83333333;
+                context.clearRect(0, 0, 450, 450);
+                playArea.removeChild(sparkCanvas1);
+                playArea.removeChild(sparkCanvas2);
+                playArea.removeChild(sparkCanvas3);
+                playArea.removeChild(sparkCanvas4);
+                playArea.removeChild(sparkCanvas5);
+                playArea.removeChild(sparkCanvas6);
+                drawStar();
+                playArea.classList.add("playAreaYellowFlash");
+                setTimeout(function() {
+                  requestAnimationFrame(function() {
+                    playArea.classList.remove("playAreaYellowFlash");
+                  });
+                }, 250);
+                animationDone = true;
+              }
+            }, animationRate);
+          }
+        }, animationRate);
+
+
+      }
+
+      let hintDiv = document.getElementById("hintDiv");
+
+      if (player.spells.brahe.number === 0) {
+        hintDiv.innerHTML = "You don't have any Star Magic!";
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
+      timer.stopTime();
+      buttonsOff = true;
+      novaAnimation();
+      hintDiv.innerHTML = "You cast Brahe's Nova!";
+      hintDiv.style.visibility = "visible";
+      hideElement(hintDiv, 1500);
+      player.spells.brahe.ongoing = true;
+
+      let flash = new ScreenFlash("playAreaYellow", 9);
+
+      let animationDone = false;
+
+      let checkAnimation = setInterval(function() {
+        if (animationDone) {
+          clearInterval(checkAnimation);
+          flash.flash = setInterval(function() {
+            flash.screenFlash();
+          }, 75);
+        }
+      }, 10);
+
+      let checkFlash = setInterval(function() {
+        if (flash.count === 0) {
+          clearInterval(checkFlash);
+          playArea.classList.remove("playAreaYellow");
+          let canvas = document.getElementById("novaCanvas");
+          playArea.removeChild(canvas);
+          player.damageBoost = 5;
+
+          if (timerValue && !player.spells.huygens.ongoing) {
+            timer.time = setInterval(function() {
+              timer.timeDown();
+            }, 10);
+          }
+          timer.startTimer();
+          buttonsOff = false;
+          damageMonster();
+        }
+      }, 250);
+
+      player.spells.brahe.cast++;
+      player.spells.brahe.number--;
+      document.getElementById("starCount").innerHTML = player.spells.brahe.number;
+
+
+    }
 
     let monster = new Monster(catacombLevel);
     let timer = new Timer(timerValue);
     let monsterInterval = 0;
     let terms = null;
+    let buttonsOff = false;
     getProblem();
   }
 
