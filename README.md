@@ -6,9 +6,9 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: More spells, more challenges
+### Up next: Challenges
 
-I'm going to continue porting the spells from v2 to v3. Next up is the Strength Spell. But before I do that I have to make a challenge for the Reduce Terms Spell. Once I've got all of these done, I'm going to reach out to the math community for feedback on my challenges. 
+Now that I have all of the spells in the game I'm going to start work on the challenges for the player to earn those spells. 
 
 ### Notes to self:
 
@@ -17,6 +17,12 @@ Find a good principle for subraction hints
 Work on the hints
 
 Improve the division challenge
+
+## 2019.08.24
+
+### Update
+
+I've put all the spells into the game. I still have to do all of the challenges for them but I've got the magic in. I also put in a button to let you leave the catacombs whenever. I'll probably have to take out that every 5 monsters "intermission" function that I didn't really like anyway. I also fixed some bugs and other stuff.
 
 ## 2019.08.23
 
