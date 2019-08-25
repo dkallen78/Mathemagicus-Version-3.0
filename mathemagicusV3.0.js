@@ -840,9 +840,9 @@ function test() {
   player.name = "Shady";
   player.maxHealth = 10;
   player.damage = 1;
-  player.addition.level = 2;
+  player.addition.level = 1;
   player.subtraction.level = 0;
-  player.multiplication.level = 4;
+  player.multiplication.level = 0;
   player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
@@ -862,7 +862,6 @@ function test() {
   player.spells.brahe.learned = true;
   player.spells.brahe.number = 50;
   player.triggers.newGame = false;
-  player.notification.fibonacciSpell = "some notification";
 
   let xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
@@ -1205,8 +1204,8 @@ function gameStart() {
 
   player = new Player();
 
-  titleScreen();
-  //shadycrzy();
+  //titleScreen();
+  shadycrzy();
 }
 
 //-------------------------------------------------------------------//
@@ -4075,7 +4074,13 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //
     //Creates the level display
     let levelDiv = makeDiv("levelDiv");
-    insertTextNode(levelDiv, "Level " + catacombLevel);
+      insertTextNode(levelDiv, "Level " + catacombLevel);
+      let exitDiv = makeDiv("exitDiv");
+        insertTextNode(exitDiv, "Exit")
+        exitDiv.onclick = function() {
+          overworld(player);
+        }
+      levelDiv.appendChild(exitDiv);
     fragment.appendChild(levelDiv);
     //
     //Creates the box to display the problem

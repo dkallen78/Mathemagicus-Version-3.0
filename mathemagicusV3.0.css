@@ -1256,6 +1256,20 @@ This styles the box that tells the player what level of the dungeon they're on*/
                1px 3px black;
   cursor: default;
 }
+
+#exitDiv {
+  /*display: none;*/
+  position: relative;
+  top: -18px;
+  background-color: #555555;
+  border: 1px solid;
+  border-radius: 5px;
+  filter: opacity(0%);
+  transition: 500ms;
+}
+#levelDiv:hover #exitDiv {
+  filter: opacity(100%);
+}
 /*
 Styles the level progress bar*/
 #levelProgressDiv {
