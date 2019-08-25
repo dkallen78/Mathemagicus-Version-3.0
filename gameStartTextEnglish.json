@@ -1,0 +1,14 @@
+{
+  "enterName": "Please enter your name:",
+  "chooseCharacter1": "Welcome to Arithmeticia. You must be ",
+  "chooseCharacter2": ", the new mage. Let me get a better look at you.",
+  "mageText": "Choose your mage",
+  "mageName": ["Black Mage", "White Mage", "Turban Mage", "Blue Mage", "Red Mage", "Cat Mage", "Green Mage"],
+  "introPart1": "Ah, that's better. We're glad you're here because we have a monster problem. ",
+  "introPart2": "The old catacombs beneath the city are overrun with monsters and they've been attacking people. ",
+  "introPart3": "We need you to clear them out to make our town safe again. ",
+  "introPart4": "We've sealed up all of the catacombs to keep people from going down there. We keep the keys at the Mages' Guild. ",
+  "introPart5": "We have also have something that will help you in your fight. ",
+  "skip": "Skip",
+  "next": "Next"
+}

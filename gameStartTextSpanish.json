@@ -1,0 +1,14 @@
+{
+  "enterName": "Escriba su nombre:",
+  "chooseCharacter1": "Bienvenido a Arithmeticia. Debes ser ",
+  "chooseCharacter2": ", el nuevo mago. Déjame verte mejor.",
+  "mageText": "Elige tu mago",
+  "mageName": ["Mago Negro", "Mago Blanco", "Mago Turbante", "Mago Azul", "Mago Rojo", "Mago Gato", "Mago Verde"],
+  "introPart1": "Ah, eso es mejor. Nos alegra que estés aquí porque tenemos un problema monstruoso. ",
+  "introPart2": "Las viejas catacumbas debajo de la ciudad están invadidas por monstruos y han estado atacando a la gente. ",
+  "introPart3": "Necesitamos que los limpies para que nuestra ciudad vuelva a estar segura. ",
+  "introPart4": "Hemos sellado todas las catacumbas para evitar que la gente vaya allí. Guardamos las llaves en el gremio de magos. ",
+  "introPart5": "También tenemos algo que te ayudará en tu lucha. ",
+  "skip": "Salta",
+  "next": "Siquiente"
+}

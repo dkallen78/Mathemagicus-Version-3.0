@@ -880,7 +880,7 @@ function test() {
 //Game Intro functions                                               //
 //-------------------------------------------------------------------//
 
-function optionMenu() {
+function optionMenu(player, textData) {
   let optionBox = makeDiv("optionBox", "textBox");
 
   class MenuOption {
@@ -936,18 +936,40 @@ function optionMenu() {
   insertLineBreak(optionBox);
 
   let languageBox = new MenuOption("\u00A0 Language: ");
-  languageBox.options = ["English", "Spanish", "French", "German"];
+  languageBox.options = ["English", "Español"];
   languageBox.appendTo(optionBox);
+  let languageFiles = ["./gameStartTextEnglsh.json", "./gameStartTextSpanish.json"]
 
   insertLineBreak(optionBox);
 
   let closeBox = makeDiv("closeBox");
     let closeButton = makeDiv("closeButton", "optionButton");
       insertTextNode(closeButton, "Close");
+
       closeButton.onclick = function() {
         player.textSpeed = textSpeedBox.index;
-        playArea.removeChild(optionBox);
+
+        /*let xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+          if (this.readyState === 4 && this.status === 200) {
+            textData = JSON.parse(this.responseText);
+            playArea.removeChild(optionBox);
+          }
+        };
+        xmlhttp.open("GET", languageFiles[languageBox.index], true);
+        xmlhttp.send();*/
+        fetch(languageFiles[languageBox.index])
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson) {
+            textData = myJson;
+            playArea.removeChild(optionBox);
+            console.log(textData.enterName);
+          });
+
       }
+
   closeBox.appendChild(closeButton);
   optionBox.appendChild(closeBox);
 
@@ -1011,7 +1033,7 @@ function gameStart() {
   //This function sets up the title screen of Mathemagicus
   function titleScreen() {
 
-    function titleScreenButton(id, tab, callback, name) {
+    function titleScreenButton(id, name, tab, callback) {
       let div = makeDiv(id, "startbuttons");
       div.tabIndex = tab;
       div.onclick = callback;
@@ -1019,14 +1041,34 @@ function gameStart() {
       return div;
     }
 
+    function changeOptionLanguage(index) {
+      options.innerHTML = optionArray[index];
+    }
+
     document.body.appendChild(playArea);
 
     let titleDiv = makeDiv("titleDiv");
     insertTextNode(titleDiv, "Mathemagicus");
 
-    let newGame = titleScreenButton("newGame", "1", enterName, "New Game");
-    let cont = titleScreenButton("continue", "2", test, "Continue");
-    let options = titleScreenButton("options", "3", optionMenu, "Options");
+    let newGame = titleScreenButton("newGame", "New Game", "1", function() {
+      clearInterval(options);
+      enterName();
+    });
+    let cont = titleScreenButton("continue", "Continue", "2", function() {
+      clearInterval(options);
+      test();
+    });
+
+    let optionArray = ["Options", "Opciones", "Options", "Optionen"];
+    let optionIndex = 0;
+    let options = titleScreenButton("options", "Options", "3", function() {
+      textData = optionMenu(player, textData);
+    });
+
+    let optionChange = setInterval(function() {
+      optionIndex++;
+      changeOptionLanguage(optionIndex % optionArray.length);
+    }, 2000);
 
     let fragment = makeFragment(titleDiv, newGame, cont, options);
 
@@ -1039,6 +1081,8 @@ function gameStart() {
   //The New Game screen with player name input
   function enterName() {
 
+    console.log(player.textSpeed);
+    console.log(textData.enterName);
     fadeOutElement("newGame", "continue", "options");
     //
     //This block displays the "Enter your name" prompt
@@ -1181,7 +1225,7 @@ function gameStart() {
     }
     function introPart5() {
       clearElement(introTextDiv);
-      let textString = "We have also have something that will help you in your fight. ";
+      let textString = "We also have something that will help you in your fight. ";
       typer(textString, introTextDiv, function() {
         insertButton(introTextDiv, "Next", function() {
           overworld(player);
@@ -1202,10 +1246,11 @@ function gameStart() {
 
   const playArea = makeDiv("playArea");
 
-  player = new Player();
+  let player = new Player();
+  let textData = null;
 
-  //titleScreen();
-  shadycrzy();
+  titleScreen();
+  //shadycrzy();
 }
 
 //-------------------------------------------------------------------//
