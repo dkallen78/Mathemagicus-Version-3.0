@@ -1245,7 +1245,10 @@ function gameStart() {
       return response.json();
     })
     .then(function(myJson) {
+
       textData = myJson;
+      console.log(textData.newGame);
+      console.log(textData.continue);
       titleScreen();
     });
 
