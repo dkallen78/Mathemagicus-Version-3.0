@@ -130,6 +130,10 @@ the playArea for a flashing visual effect I have*/
   background-color: #bbbbbb;
 }
 
+*:focus {
+  outline: none;
+}
+
 /*-------------------------------------------------------------
 / Game Intro Styles                                           /
 /------------------------------------------------------------*/
@@ -522,18 +526,24 @@ This styles the "next" button I use to advance long text blocks*/
   animation-duration: 500ms;
   animation-iteration-count: infinite;
 }
+
+#skipDiv {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  display: flex;
+}
 /*
 This positions and styles my skip intro button
 on the townIntro() screen*/
 #skipButton {
-  position: absolute;
+  position: relative;
+  margin: 0 auto;
   color: orange;
   background-color: rgba(0, 0, 0, 0);
   font-family: monospace;
   font-size: 2em;
   font-weight: bold;
-  bottom: 24px;
-  left: 195px;
   border: none;
   border-bottom: 3px solid rgba(0, 0, 0, 0);
   border-top: 3px solid rgba(0, 0, 0, 0);
@@ -1258,7 +1268,6 @@ This styles the box that tells the player what level of the dungeon they're on*/
 }
 
 #exitDiv {
-  /*display: none;*/
   position: relative;
   top: -18px;
   background-color: #555555;
@@ -1267,6 +1276,7 @@ This styles the box that tells the player what level of the dungeon they're on*/
   filter: opacity(0%);
   transition: 500ms;
 }
+
 #levelDiv:hover #exitDiv {
   filter: opacity(100%);
 }
@@ -1614,7 +1624,7 @@ Styles the little box that displays how much
 damage the player or a monster receives*/
 #damageDiv {
   position: absolute;
-  z-index: 3;
+  z-index: 5;
   bottom: 30%;
   left: 0;
   right: 0;
@@ -1641,6 +1651,10 @@ and makes sure the numbers are centered in the box*/
   font-weight: bold;
   font-size: .85em;
   border-radius: 5px;
+}
+
+#answerInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }
 /*
 This styles the scroll that pops up when a player

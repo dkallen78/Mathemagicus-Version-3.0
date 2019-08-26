@@ -552,10 +552,11 @@ function fadeOutElement() {
   for (let i = 0; i < arguments.length; i++) {
     let element = document.getElementById(arguments[i]);
     element.style.filter = "opacity(0%)";
-    element.ontransitionend = function(e) {
-      e.stopImmediatePropagation();
+
+    element.addEventListener("transitionend", function(e) {
       element.parentNode.removeChild(element);
-    }
+      e.stopImmediatePropagation();
+    });
   }
 }
 
@@ -840,7 +841,7 @@ function test() {
   player.name = "Shady";
   player.maxHealth = 10;
   player.damage = 1;
-  player.addition.level = 1;
+  player.addition.level = 2;
   player.subtraction.level = 0;
   player.multiplication.level = 0;
   player.division.level = 0;
@@ -880,7 +881,7 @@ function test() {
 //Game Intro functions                                               //
 //-------------------------------------------------------------------//
 
-function optionMenu(player, textData) {
+function optionMenu(player) {
   let optionBox = makeDiv("optionBox", "textBox");
 
   class MenuOption {
@@ -938,7 +939,7 @@ function optionMenu(player, textData) {
   let languageBox = new MenuOption("\u00A0 Language: ");
   languageBox.options = ["English", "Español"];
   languageBox.appendTo(optionBox);
-  let languageFiles = ["./gameStartTextEnglsh.json", "./gameStartTextSpanish.json"]
+  let languageFiles = ["./gameStartTextEnglish.json", "./gameStartTextSpanish.json"]
 
   insertLineBreak(optionBox);
 
@@ -949,15 +950,6 @@ function optionMenu(player, textData) {
       closeButton.onclick = function() {
         player.textSpeed = textSpeedBox.index;
 
-        /*let xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-          if (this.readyState === 4 && this.status === 200) {
-            textData = JSON.parse(this.responseText);
-            playArea.removeChild(optionBox);
-          }
-        };
-        xmlhttp.open("GET", languageFiles[languageBox.index], true);
-        xmlhttp.send();*/
         fetch(languageFiles[languageBox.index])
           .then(function(response) {
             return response.json();
@@ -965,7 +957,6 @@ function optionMenu(player, textData) {
           .then(function(myJson) {
             textData = myJson;
             playArea.removeChild(optionBox);
-            console.log(textData.enterName);
           });
 
       }
@@ -997,35 +988,35 @@ function gameStart() {
 
     setTimeout(function() {
       red.style.transform = "rotateY(360deg)";
-      red.ontransitionend = function(event) {
+      red.addEventListener("transitionend", function(event) {
         event.stopPropagation();
-      }
+      });
     }, 10);
     setTimeout(function() {
       green.style.transform = "rotateY(360deg)";
-      green.ontransitionend = function(event) {
+      green.addEventListener("transitionend", function(event) {
         event.stopPropagation();
-      }
+      });
     }, 260);
     setTimeout(function() {
       blue.style.transform = "rotateY(360deg)";
     }, 760);
 
-    blue.ontransitionend = function(event) {
+    blue.addEventListener("transitionend", function(event) {
       event.stopPropagation();
       shady.style.filter = "opacity(100%)";
-    }
+    });
 
-    shady.ontransitionend = function(event) {
+    shady.addEventListener("transitionend", function(event) {
       event.stopPropagation();
       document.body.style.filter = "opacity(0%)";
-    }
+    });
 
-    document.body.ontransitionend = function(event) {
-      document.body.ontransitionend = "";
+    document.body.addEventListener("transitionend", function toGameIntro(event) {
+      document.body.removeEventListener("transitionend", toGameIntro);
       clearElement(document.body);
       titleScreen();
-    }
+    });
 
 
   }
@@ -1050,11 +1041,11 @@ function gameStart() {
     let titleDiv = makeDiv("titleDiv");
     insertTextNode(titleDiv, "Mathemagicus");
 
-    let newGame = titleScreenButton("newGame", "New Game", "1", function() {
+    let newGame = titleScreenButton("newGame", textData.newGame, "1", function() {
       clearInterval(options);
       enterName();
     });
-    let cont = titleScreenButton("continue", "Continue", "2", function() {
+    let cont = titleScreenButton("continue", textData.continue, "2", function() {
       clearInterval(options);
       test();
     });
@@ -1062,7 +1053,8 @@ function gameStart() {
     let optionArray = ["Options", "Opciones", "Options", "Optionen"];
     let optionIndex = 0;
     let options = titleScreenButton("options", "Options", "3", function() {
-      textData = optionMenu(player, textData);
+      textData = optionMenu(player);
+      //console.log(textData.enterName);
     });
 
     let optionChange = setInterval(function() {
@@ -1074,21 +1066,27 @@ function gameStart() {
 
     playArea.appendChild(fragment);
     setTimeout(function() {
-      document.body.style.filter = "opacity(100%)";
+      fetch("./gameStartTextEnglish.json")
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          textData = myJson;
+          document.body.style.filter = "opacity(100%)";
+        });
+      //document.body.style.filter = "opacity(100%)";
     }, 10);
   }
   //
   //The New Game screen with player name input
   function enterName() {
 
-    console.log(player.textSpeed);
-    console.log(textData.enterName);
     fadeOutElement("newGame", "continue", "options");
     //
     //This block displays the "Enter your name" prompt
     let enterNameDiv = makeDiv("enterNameDiv", "clearBox");
     enterNameDiv.style.filter = "opacity(0%)";
-    insertTextNode(enterNameDiv, "Please enter your name:");
+    insertTextNode(enterNameDiv, textData.enterName);
     insertLineBreak(enterNameDiv);
     //
     //This block displays the text input box
@@ -1151,18 +1149,18 @@ function gameStart() {
     let introTextDiv = makeDiv("introTextDiv", "textBox");
     //
     //Object with data for the menu maker
-    let avatarMenuSelectors = new MenuSelectors(1, "Choose your mage");
+    let avatarMenuSelectors = new MenuSelectors(1, textData.mageText);
     //
     //This object holds the information for accessing the mage sprites
     let mageData = {
       sprites: [
-        ["mage0.gif", "mage0fight.gif", "mage0hurt.gif", "mage0dead.gif", "Black Mage"],
-        ["mage1.gif", "mage1fight.gif", "mage1hurt.gif", "mage1dead.gif", "White Mage"],
-        ["mage2.gif", "mage2fight.gif", "mage2hurt.gif", "mage2dead.gif", "Turban Mage"],
-        ["mage3.gif", "mage3fight.gif", "mage3hurt.gif", "mage3dead.gif", "Blue Mage"],
-        ["mage4.gif", "mage4fight.gif", "mage4hurt.gif", "mage4dead.gif", "Red Mage"],
-        ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"],
-        ["mage6.gif", "mage6fight.gif", "mage6hurt.gif", "mage6dead.gif", "Green Mage"]
+        ["mage0.gif", "mage0fight.gif", "mage0hurt.gif", "mage0dead.gif", textData.mageName[0]],
+        ["mage1.gif", "mage1fight.gif", "mage1hurt.gif", "mage1dead.gif", textData.mageName[1]],
+        ["mage2.gif", "mage2fight.gif", "mage2hurt.gif", "mage2dead.gif", textData.mageName[2]],
+        ["mage3.gif", "mage3fight.gif", "mage3hurt.gif", "mage3dead.gif", textData.mageName[3]],
+        ["mage4.gif", "mage4fight.gif", "mage4hurt.gif", "mage4dead.gif", textData.mageName[4]],
+        ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", textData.mageName[5]],
+        ["mage6.gif", "mage6fight.gif", "mage6hurt.gif", "mage6dead.gif", textData.mageName[6]]
       ],
       path: "./mages/",
       index: 0
@@ -1178,8 +1176,7 @@ function gameStart() {
       playArea.appendChild(fragment);
       //
       //This is the intro text for character selection
-      let introText = "Welcome to Arithmeticia. You must be " + player.name +
-                      ", the new mage. Let me get a better look at you.";
+      let introText = textData.chooseCharacter1 + player.name + textData.chooseCharacter2;
       typer(introText, introTextDiv, function () {
         menuMaker(avatarMenuSelectors, mageData, saveCharacterData);
       });
@@ -1195,39 +1192,32 @@ function gameStart() {
     //introduction of the game
     function introPart1() {
       clearElement(introTextDiv);
-      let textString = "Ah, that's better. We're glad you're here because we have a monster problem. ";
-      typer(textString, introTextDiv, function() {
-        insertButton(introTextDiv, "Next", introPart2);
+      typer(textData.introPart1, introTextDiv, function() {
+        insertButton(introTextDiv, textData.next, introPart2);
       });
     }
     function introPart2() {
       clearElement(introTextDiv);
-      let textString = "The old catacombs beneath the city are overrun with monsters " +
-                        "and they've been attacking people. ";
-      typer(textString, introTextDiv, function() {
-        insertButton(introTextDiv, "Next", introPart3);
+      typer(textData.introPart2, introTextDiv, function() {
+        insertButton(introTextDiv, textData.next, introPart3);
       });
     }
     function introPart3() {
       clearElement(introTextDiv);
-      let textString = "We need you to clear them out to make our town safe again. ";
-      typer(textString, introTextDiv, function() {
-        insertButton(introTextDiv, "Next", introPart4);
+      typer(textData.introPart3, introTextDiv, function() {
+        insertButton(introTextDiv, textData.next, introPart4);
       });
     }
     function introPart4() {
       clearElement(introTextDiv);
-      let textString = "We've sealed up all of the catacombs to keep people from going down " +
-                        "there. We keep the keys at the Mages' Guild. ";
-      typer(textString, introTextDiv, function() {
-        insertButton(introTextDiv, "Next", introPart5);
+      typer(textData.introPart4, introTextDiv, function() {
+        insertButton(introTextDiv, textData.next, introPart5);
       });
     }
     function introPart5() {
       clearElement(introTextDiv);
-      let textString = "We also have something that will help you in your fight. ";
-      typer(textString, introTextDiv, function() {
-        insertButton(introTextDiv, "Next", function() {
+      typer(textData.introPart5, introTextDiv, function() {
+        insertButton(introTextDiv, textData.next, function() {
           overworld(player);
         });
       });
@@ -1239,17 +1229,26 @@ function gameStart() {
     //a button that lets the player skip the game intro
     const skipButton = makeButton(function() {
       overworld(player);
-    }, "Skip", "skipButton");
-    playArea.appendChild(skipButton);
+    }, textData.skip, "skipButton");
+    let skipDiv = makeDiv("skipDiv");
+    skipDiv.appendChild(skipButton);
+    playArea.appendChild(skipDiv);
     introPart1();
   }
 
   const playArea = makeDiv("playArea");
 
-  let player = new Player();
-  let textData = null;
+  player = new Player();
 
-  titleScreen();
+  fetch("./gameStartTextEnglish.json")
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(myJson) {
+      textData = myJson;
+      titleScreen();
+    });
+
   //shadycrzy();
 }
 
@@ -4587,10 +4586,13 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //Inserts the floating damage numbers
     const insertDamageNumbers = function(target, damage) {
       let damageDiv = makeDiv("damageDiv");
-      insertTextNode(damageDiv, damage);
-      target.appendChild(damageDiv);
-      requestAnimationFrame(function() {damageDiv.style.bottom = "100%";});
-      requestAnimationFrame(function() {damageDiv.style.filter = "opacity(0%)";});
+        insertTextNode(damageDiv, damage);
+        target.appendChild(damageDiv);
+
+      setTimeout(function() {
+        damageDiv.style.bottom = "100%";
+        damageDiv.style.filter = "opacity(0%)";
+      }, 50);
     }
     //
     //What to do when a monster is damaged
@@ -5055,6 +5057,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         function castSpell() {
           randomString = "";
           if (spellCount >= (charactersToPrint + shortener)) {
+            let hintDiv = document.getElementById("hintDiv");
+            hintDiv.style.visibility = "visible";
             hintDiv.innerHTML = hintString;
             let answerInput = document.getElementById("answerInput");
             answerInput.focus();
@@ -5399,8 +5403,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       if (player.spells.euclid.number === 0) {
         hintDiv.innerHTML = "You don't have any Euclid Magic!";
-        hintDiv.style.visibility = "visible"; //This displays the hint area
-        setTimeout(function() {hintDiv.innerHTML = ""; hintDiv.style.visibility = "hidden";}, 1500)
+        hintDiv.style.visibility = "visible";
+        hideElement(hintDiv, 1500);
         return;
       }
       timer.stopTime();
@@ -5587,7 +5591,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       let checkFlash = setInterval(function() {
         if (flash.count === 0) {
           clearInterval(checkFlash);
-
           let newTerms = getTerms(operation, Math.ceil(monster.level / 2));
 
           for (let i = 0; i < terms.length; i++) {
@@ -5612,13 +5615,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }, 10);
           }
           timer.startTimer();
+
           buttonsOff = false;
           player.spells.lovelace.ongoing = true;
           let pentagonImg = document.getElementById("pentagonImg");
           pentagonImg.style.filter = "opacity(30%)";
           pentagonImg.onclick = "";
         }
-      }, 250);
+      }, 300);
 
       player.spells.lovelace.cast++;
       player.spells.lovelace.number--;
@@ -5861,11 +5865,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           playArea.removeChild(canvas);
           let handCanvas = document.getElementById("handCanvas");
           playArea.removeChild(handCanvas);
-          playArea.classList.remove("playAreaGreen");
           let answerInput = document.getElementById("answerInput");
           answerInput.focus();
           buttonsOff = false;
           player.spells.huygens.ongoing = true;
+          timer.startTimer();
         }
       }, 250);
 
