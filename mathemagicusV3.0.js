@@ -1240,7 +1240,7 @@ function gameStart() {
 
   player = new Player();
 
-  fetch("./gameStartTextEnglish.json")
+  fetch("./gameStartTextSpanish.json")
     .then(function(response) {
       return response.json();
     })
