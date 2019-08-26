@@ -1074,7 +1074,6 @@ function gameStart() {
           textData = myJson;
           document.body.style.filter = "opacity(100%)";
         });
-      //document.body.style.filter = "opacity(100%)";
     }, 10);
   }
   //
@@ -1240,7 +1239,7 @@ function gameStart() {
 
   player = new Player();
 
-  fetch("./gameStartTextSpanish.json")
+  /*fetch("./gameStartTextSpanish.json")
     .then(function(response) {
       return response.json();
     })
@@ -1250,7 +1249,16 @@ function gameStart() {
       console.log(myJson.newGame);
       console.log(myJson.continue);
       titleScreen();
-    });
+    });*/
+
+    fetch("./gameStartTextEnglish.json")
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(myJson) {
+        textData = myJson;
+        titleScreen();
+      });
 
   //shadycrzy();
 }
