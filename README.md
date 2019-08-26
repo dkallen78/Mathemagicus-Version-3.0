@@ -22,7 +22,7 @@ Improve the division challenge
 
 ### Update
 
-It's Sunday so I didn't work too hard today. I learned the basics of using fetch to get my JSON files. I'm not sure if i'm going to keep using that or XMLHTTPRequest... I got some good advice on how to use my IDE (Atom) to run a local server for easier testing of my program and how it gets files. I also started changing some things so that I had Chrome and Firefox support. It turns out Chrome doesn't like .ontransitionend. Who knew?
+It's Sunday so I didn't work too hard today. I learned the basics of using fetch to get my JSON files. I'm not sure if i'm going to keep using that or XMLHTTPRequest... I got some good advice on how to use my IDE (Atom) to run a local server for easier testing of my program and how it gets files. I also started changing some things so that I had Chrome and Firefox support. It turns out Chrome doesn't like .ontransitionend. Who knew? I also started putting in support for other languages by making all of my text in a JSON file that gets loaded at the beginning of the game. I'm not going to play a lot more with that until I get a good idea of what the text in the rest of the game will be.
 
 ## 2019.08.24
 
