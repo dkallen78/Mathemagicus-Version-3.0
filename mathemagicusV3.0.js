@@ -1247,8 +1247,8 @@ function gameStart() {
     .then(function(myJson) {
 
       textData = myJson;
-      console.log(textData.newGame);
-      console.log(textData.continue);
+      console.log(myJson.newGame);
+      console.log(myJson.continue);
       titleScreen();
     });
 
