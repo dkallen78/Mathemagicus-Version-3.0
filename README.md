@@ -18,6 +18,12 @@ Work on the hints
 
 Improve the division challenge
 
+## 2019.08.25
+
+### Update
+
+It's Sunday so I didn't work too hard today. I learned the basics of using fetch to get my JSON files. I'm not sure if i'm going to keep using that or XMLHTTPRequest... I got some good advice on how to use my IDE (Atom) to run a local server for easier testing of my program and how it gets files. I also started changing some things so that I had Chrome and Firefox support. It turns out Chrome doesn't like .ontransitionend. Who knew?
+
 ## 2019.08.24
 
 ### Update
