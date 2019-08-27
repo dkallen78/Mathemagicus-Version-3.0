@@ -863,8 +863,9 @@ function test() {
   player.spells.brahe.learned = true;
   player.spells.brahe.number = 50;
   player.triggers.newGame = false;
+  player.spells.huygens.available = true;
 
-  let xmlhttp = new XMLHttpRequest();
+  /*let xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       let monsterData = JSON.parse(this.responseText);
@@ -872,9 +873,9 @@ function test() {
     }
   };
   xmlhttp.open("GET", "./monsterData.json", true);
-  xmlhttp.send();
+  xmlhttp.send();*/
 
-  //overworld(player);
+  overworld(player);
 }
 
 //-------------------------------------------------------------------//
@@ -1239,26 +1240,14 @@ function gameStart() {
 
   player = new Player();
 
-  /*fetch("./gameStartTextSpanish.json")
+  fetch("./gameStartTextEnglish.json")
     .then(function(response) {
       return response.json();
     })
     .then(function(myJson) {
-
       textData = myJson;
-      console.log(myJson.newGame);
-      console.log(myJson.continue);
       titleScreen();
-    });*/
-
-    fetch("./gameStartTextEnglish.json")
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(myJson) {
-        textData = myJson;
-        titleScreen();
-      });
+    });
 
   //shadycrzy();
 }
@@ -2023,6 +2012,188 @@ function overworld(player) {
         });
       }
 
+      function learnStrength() {
+
+        function beginChallenge() {
+
+          function challenge() {
+
+            function showProblem(text, increment) {
+              insertTextNode(fragment, answers[answers.length - 1]);
+              for (let i = 0; i < answers.length; i++) {
+                insertTextNode(fragment, text);
+              }
+              insertTextNode(fragment, "= ?");
+              insertLineBreak(fragment, 2);
+              insertTextNode(fragment, answers[0] + text + "= ");
+              answer = answers[0] + increment
+              answers.unshift(answer);
+            }
+
+            questions++;
+            clearElement(challengeDiv);
+
+            if (answers.length === 0) {
+              answers[0] = getRandomNumber(11, 50);
+            } else if (answers.length > 5) {
+              answers = [];
+              answers[0] = getRandomNumber(20, 50);
+            }
+            let answer = null;
+            let fragment = document.createDocumentFragment();
+
+            if (questions < 1) showProblem(" + 3 ", 3);
+            if (questions > 0) showProblem(" - 3 ", -3);
+
+            insertAnswerInput(fragment, answer);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.noether, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Noether's Strength Spell is powered by numbers that end " +
+                        "with the number 3.";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "3, 6, 9, 12, 15...");
+
+          insertLineBreak(challengeDiv, 2);
+
+          insertTextNode(challengeDiv, "25, 22, 19, 16, 13...");
+
+          let textTwo = "Earn this spell by adding and subtracting by 3. ";
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = -10;
+          let answers = [];
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+        });
+      }
+
+      function learnStopTime() {
+
+        function beginChallenge() {
+
+          function challenge() {
+
+            function showProblem(text, increment) {
+              insertTextNode(fragment, answers[answers.length - 1]);
+              for (let i = 0; i < answers.length; i++) {
+                insertTextNode(fragment, text);
+              }
+              insertTextNode(fragment, "= ?");
+              insertLineBreak(fragment, 2);
+              insertTextNode(fragment, answers[0] + text + "= ");
+              answer = answers[0] + increment
+              answers.unshift(answer);
+            }
+
+            questions++;
+            clearElement(challengeDiv);
+
+            if (answers.length === 0) {
+              answers[0] = getRandomNumber(3, 70);
+            } else if (answers.length > 5) {
+              answers = [];
+              answers[0] = getRandomNumber(25, 80);
+            }
+            let answer = null;
+            let fragment = document.createDocumentFragment();
+
+            if (questions < 1) showProblem(" + 5 ", 5);
+            if (questions > 0) showProblem(" - 5 ", -5);
+
+            insertAnswerInput(fragment, answer);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.huygens, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Huygens' Stop Time Spell is powered by numbers that end " +
+                        "with the number 5.";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "5, 10, 15, 20, 25...");
+
+          insertLineBreak(challengeDiv, 2);
+
+          insertTextNode(challengeDiv, "52, 47, 42, 37, 32...");
+
+          let textTwo = "Earn this spell by adding and subtracting by 5. ";
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = -10;
+          let answers = [];
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+        });
+      }
+
       function menuUp() {
         number--;
         if (number < 0) {
@@ -2059,14 +2230,14 @@ function overworld(player) {
           case 5:     //Lovelace's Reduction Spell
             learnReduce();
             break;
-          case "6":     //Huygen's Stop-time Spell
-
+          case 6:     //Huygen's Stop-time Spell
+            learnStopTime();
             break;
           case "7":     //Fermat's Polymorph Monster Spell
 
             break;
-          case "8":     //Noether's Strength Spell
-
+          case 8:     //Noether's Strength Spell
+            learnStrength();
             break;
           case "9":     //Brahe's Nova Spell
 
@@ -4076,6 +4247,61 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
   }
   //
+  //This handles the countdown bar
+  class Timer {
+
+    constructor(timerValue) {
+      this.width = 340;
+      this.decrement = (timerValue > 2) ? .068 : (.017 * timerValue);
+      this.time = null;
+      this.timeLeft = 0;
+      this.timeIndex = timerValue;
+      this.timeStart = null;
+      this.timeStop = null;
+      this.timer = 0;
+    }
+
+    get answerTime() {
+      return this.timer / 1000;
+    }
+
+    timeDown() {
+      if (this.width <= 0) {
+        this.stopTimer();
+        this.startTimer();
+        this.width = 340;
+        damagePlayer();
+      } else {
+        this.width = 340 - (this.checkTimer * this.decrement);
+        countdownBarFront.style.width = this.width + "px";
+        this.timeLeft = (this.width / (this.decrement * 1000)).toFixed(2);
+        countdownTimer.innerHTML = this.timeLeft;
+      }
+    }
+
+    startTimer() {
+      this.timeStart = new Date();
+    }
+
+    get checkTimer() {
+      let checkTime = new Date();
+      return checkTime - this.timeStart;
+    }
+
+    stopTimer() {
+      this.timeStop = new Date();
+      this.timer += (this.timeStop - this.timeStart);
+    }
+
+    stopTime() {
+      if (this.timeIndex) {
+        clearInterval(this.time);
+      }
+      this.stopTimer();
+    }
+
+  }
+  //
   //A quick dungeon intro screen
   function catacombIntro() {
 
@@ -4133,6 +4359,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       let exitDiv = makeDiv("exitDiv");
         insertTextNode(exitDiv, "Exit")
         exitDiv.onclick = function() {
+          clearInterval(timer.time);
           overworld(player);
         }
       levelDiv.appendChild(exitDiv);
@@ -4203,55 +4430,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
   }
 
   function combat() {
-    //
-    //This handles the countdown bar
-    class Timer {
 
-      constructor(timerValue) {
-        this.width = 340;
-        this.decrement = (timerValue > 2) ? (.17 * 4):(.17 * timerValue);
-        this.time = null;
-        this.totalTime = (timerValue) ? (timerValue > 2) ? 5:(20 / timerValue) :null;
-        this.increment = this.totalTime;
-        this.timeLeft = null;
-        this.timeIndex = timerValue;
-      }
-
-      get answerTime() {
-        return (this.totalTime - this.timeLeft) / 1000;
-      }
-
-      timeDown() {
-        if (this.width < 1) {
-          this.width = 340;
-          this.totalTime += this.increment;
-          damagePlayer();
-        } else {
-          this.width -= this.decrement;
-          countdownBarFront.style.width = this.width + "px";
-          let timeLeft = (this.width / (this.decrement * 100));
-          countdownTimer.innerHTML = timeLeft.toFixed(2);
-        }
-      }
-
-      startTimer() {
-        this.timeLeft = new Date();
-      }
-
-      stopTimer() {
-        this.totalTime = new Date();
-        this.time += (this.totalTime - this.timeLeft);
-
-      }
-
-      stopTime() {
-        if (this.timeIndex) {
-          clearInterval(this.time);
-        }
-        this.stopTimer();
-      }
-
-    }
     //
     //Handles the flash animation after damage
     class DamageFlash {
@@ -4496,6 +4675,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           }, 10);
         }
         timer.startTimer();
+
+        /*let timeTest = setInterval(function() {
+          timer.stopTimer();
+          console.clear();
+          console.log(timer.answerTime);
+          timer.startTimer();
+        }, 100);*/
+
         spellsOn();
 
         let answerInput = document.getElementById("answerInput");
@@ -4569,6 +4756,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       saveAverage();
+
+      console.clear();
+      console.log(timer.answerTime);
+      console.log(current[operation].totalAverage);
+
       if (timer.answerTime <= 1) player.stats.flash++;
       if (timer.timeLeft <= 1) player.stats.lastSecond++;
       if (answer === 42) player.stats.fortyTwo++;
@@ -4583,6 +4775,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       let answerInput = document.getElementById("answerInput");
       if (parseInt(answerInput.value) === answer) {
+        timer.stopTime();
         getNumberData(answer);
         damageMonster();
       } else {
@@ -4646,7 +4839,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
       }
 
-      timer.stopTime();
+
       player.stats.damage.dealt += player.totalDamage;
       monster.hp = (player.totalDamage > monster.hp) ? 0:(monster.hp - player.totalDamage);
 
@@ -4715,8 +4908,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           const skipButton = makeButton(function() {
             overworld(player);
           }, "Skip", "skipButton");
+          let skipDiv = makeDiv("skipDiv");
+          skipDiv.appendChild(skipButton);
 
-          let fragment = makeFragment(tellahDiv, introTextDiv, skipButton);
+          let fragment = makeFragment(tellahDiv, introTextDiv, skipDiv);
           playArea.appendChild(fragment);
 
           playArea.style.filter = "brightness(100%)";
@@ -4742,6 +4937,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }, 3000)
       }
 
+      buttonsOff = true;
       player.stats.damage.received += monster.damage;
       player.health = (monster.damage > player.health) ? 0:(player.health - monster.damage);
 
@@ -4760,13 +4956,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           clearInterval(checkFlash);
           if (player.health) {
             playerImg.src = player.sprites.path + player.sprites.files[0];
+            buttonsOff = false;
           } else {
             timer.stopTime();
             killPlayer();
             playerImg.src = player.sprites.path + player.sprites.files[3];
           }
         }
-      }, 250);
+      }, 300);
     }
     //
     //This function turns my spells "on" at the beginning of the battle
@@ -5112,6 +5309,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }
             spellCount++;
             randomCount++;
+            let hintDiv = document.getElementById("hintDiv");
+            hintDiv.style.visibility = "visible";
             hintDiv.innerHTML = randomString;
           }
         }
@@ -6280,7 +6479,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
 
     let monster = new Monster(catacombLevel);
-    let timer = new Timer(timerValue);
     let monsterInterval = 0;
     let terms = null;
     let buttonsOff = false;
@@ -6288,6 +6486,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
   }
 
   let playArea = document.getElementById("playArea");
+  let timer = new Timer(timerValue);
 
   catacombIntro();
 }
