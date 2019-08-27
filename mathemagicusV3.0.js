@@ -848,22 +848,32 @@ function test() {
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
   player.spells.fibonacci.learned = true;
+  player.spells.fibonacci.available = true;
+  player.spells.euler1.available = true;
+  player.spells.euler2.available = true;
+  player.spells.euclid.available = true;
   player.spells.euclid.learned = true;
   player.spells.euclid.number = 50;
+  player.spells.lovelace.available = true;
   player.spells.lovelace.learned = true;
   player.spells.lovelace.number = 50;
+  player.spells.hypatia.available = true;
   player.spells.hypatia.learned = true;
   player.spells.hypatia.number = 50;
+  player.spells.noether.available = true;
   player.spells.noether.learned = true;
   player.spells.noether.number = 50;
+  player.spells.huygens.available = true;
   player.spells.huygens.learned = true;
   player.spells.huygens.number = 50;
+  player.spells.fermat.available = true;
   player.spells.fermat.learned = true;
   player.spells.fermat.number = 50;
+  player.spells.brahe.available = true;
   player.spells.brahe.learned = true;
   player.spells.brahe.number = 50;
   player.triggers.newGame = false;
-  player.spells.huygens.available = true;
+
 
   /*let xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
@@ -2194,6 +2204,195 @@ function overworld(player) {
         });
       }
 
+      function learnPolymorph() {
+
+        function beginChallenge() {
+
+          function challenge() {
+
+            function showProblem(text, increment) {
+              insertTextNode(fragment, answers[answers.length - 1]);
+              for (let i = 0; i < answers.length; i++) {
+                insertTextNode(fragment, text);
+              }
+              insertTextNode(fragment, "= ?");
+              insertLineBreak(fragment, 2);
+              insertTextNode(fragment, answers[0] + text + "= ");
+              answer = answers[0] + increment
+              answers.unshift(answer);
+            }
+
+            questions++;
+            clearElement(challengeDiv);
+
+            if (answers.length === 0) {
+              answers[0] = getRandomNumber(3, 70);
+            } else if (answers.length > 5) {
+              answers = [];
+              answers[0] = getRandomNumber(51, 150);
+            }
+            let answer = null;
+            let fragment = document.createDocumentFragment();
+
+            if (questions < 1) showProblem(" + 10 ", 10);
+            if (questions > 0) showProblem(" - 10 ", -10);
+
+            insertAnswerInput(fragment, answer);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.fermat, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Fermat's Polymorph Monsters Spell is powered by numbers that are " +
+                        "factors of 10.";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "10, 20, 30, 40, 50...");
+
+          insertLineBreak(challengeDiv, 2);
+
+          insertTextNode(challengeDiv, "83, 73, 63, 53, 43...");
+
+          let textTwo = "Earn this spell by adding and subtracting by 10. ";
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = -10;
+          let answers = [];
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+        });
+      }
+
+      function learnNova() {
+
+        function beginChallenge() {
+
+          function challenge() {
+
+            function showProblem(text, increment) {
+              insertTextNode(fragment, answers[answers.length - 1]);
+              for (let i = 0; i < answers.length; i++) {
+                insertTextNode(fragment, text);
+              }
+              insertTextNode(fragment, "= ?");
+              insertLineBreak(fragment, 2);
+              insertTextNode(fragment, answers[0] + text + "= ");
+              answer = answers[0] + increment
+              answers.unshift(answer);
+            }
+
+            questions++;
+            clearElement(challengeDiv);
+
+            insertTextNode(challengeDiv, "2");
+            let sup = document.createElement("sup");
+            insertTextNode(sup, questions);
+            challengeDiv.appendChild(sup);
+
+            insertLineBreak(challengeDiv, 2);
+
+            for (let i = 0; i < questions; i++) {
+              insertTextNode(challengeDiv, "2");
+              if (i < questions - 1) {
+                insertTextNode(challengeDiv, " × ");
+              }
+            }
+            insertTextNode(challengeDiv, " = ");
+
+            let answer = Math.pow(2, questions);
+
+            insertAnswerInput(challengeDiv, answer);
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.brahe, questions, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.appendChild(fragment);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+
+          let textOne = "Brahe's Nova Spell is powered by powers of 2";
+          insertTextNode(challengeDiv, textOne);
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, "2 × 2 = 2² ");
+
+          insertLineBreak(challengeDiv, 2);
+
+          insertTextNode(challengeDiv, "2 × 2 × 2 = 2³");
+
+          insertLineBreak(challengeDiv, 2);
+
+          insertTextNode(challengeDiv, "2 × 2 × 2 × 2 =  2⁴");
+
+          let textTwo = "Earn this spell by finding powers of 2. ";
+          insertLineBreak(challengeDiv, 2);
+          insertTextNode(challengeDiv, textTwo);
+          insertLineBreak(challengeDiv, 2);
+
+          fadeTransition(challengeDiv, playArea);
+          setTimeout(function() {
+            insertButton(challengeDiv, "Begin", challenge);
+          }, 501);
+          let questions = 1;
+        }
+
+        let challengeText = "To earn this spell, you must prove your worthiness. " +
+                            "Are you ready? "
+
+        clearElement(guildTextDiv);
+
+        spellMenu.style.filter = "opacity(0%)";
+
+        typer(challengeText, guildTextDiv, function() {
+          insertButton(guildTextDiv, "No", function() {
+            clearElement(guildTextDiv);
+            catacombKeys();
+            typer(introText, guildTextDiv, null);
+          });
+          insertTextNode(guildTextDiv, " ");
+          insertButton(guildTextDiv, "Yes!", beginChallenge);
+        });
+      }
+
       function menuUp() {
         number--;
         if (number < 0) {
@@ -2233,14 +2432,14 @@ function overworld(player) {
           case 6:     //Huygen's Stop-time Spell
             learnStopTime();
             break;
-          case "7":     //Fermat's Polymorph Monster Spell
-
+          case 7:     //Fermat's Polymorph Monster Spell
+            learnPolymorph();
             break;
           case 8:     //Noether's Strength Spell
             learnStrength();
             break;
-          case "9":     //Brahe's Nova Spell
-
+          case 9:     //Brahe's Nova Spell
+            learnNova();
             break;
           case 10:
             mageGuild();
