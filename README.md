@@ -8,7 +8,7 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 ### Up next: Challenges
 
-Now that I have all of the spells in the game I'm going to start work on the challenges for the player to earn those spells. 
+I have one more challenge to put in the game and then I have to put in the logic that unlocks them. Tomorrow I want to reach out to math teachers to see if they have suggestions for improving them.
 
 ### Notes to self:
 
@@ -17,6 +17,14 @@ Find a good principle for subraction hints
 Work on the hints
 
 Improve the division challenge
+
+## 2019.08.26
+
+### Update
+
+I put in most of the other challenges today. I don't really like them but they're in there and can be changed later. I want to talk to math teachers to find out what kinds of drills and skills students need and cater to that. I have one more to put in which shouldn't take too long. After that, I need to make sure they're unlockable in the game when they're supposed to be.
+
+I also fixed a bug I discovered. The timer bar was slower than actual time. So the time I was keeping wasn't the same as the time on the bar. Not a big issue but it needed to be fixed. I found a way to make the timer bar directly dependent on the system time and not the setInterval() function I used to run it roughly every 10ms. It was a simple solution and it made the class I use to manage the timer a bit simpler as well. Good times.
 
 ## 2019.08.25
 
