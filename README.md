@@ -6,9 +6,9 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Challenges
+### Up next: Library
 
-I have one more challenge to put in the game and then I have to put in the logic that unlocks them. Tomorrow I want to reach out to math teachers to see if they have suggestions for improving them.
+I've pixelated the portraits of the mathematicians for whom my spells are named, the next step is to implement the library functionality of the Mage Guild. I'm going to use it to display mini-bios of mathematicians and scientists, starting w/ the set I have now.
 
 ### Notes to self:
 
@@ -17,6 +17,26 @@ Find a good principle for subraction hints
 Work on the hints
 
 Improve the division challenge
+
+Training Hall
+
+## 2020.03.08
+
+### Update
+
+I have audited most of the MIT CS 6.001 online course and I'm going back through putting stuff in and changing other things. On a personal note, I think I'm finally starting to understand recursion! 
+
+I removed the typer function I borrowed from somewhere online because people hated the typing effect and replaced it w/ a smaller recursive function that I can use in a lot of places and I saved a bunch of code.
+
+I cut a lot of the chaff out of the Mage Guild code to make it more compact and found ways to refactor the similar code. I think I shaved off about 500 lines of code...
+
+All of the spell challenges are in the game and unlockable. I've improved them a bit but I think I can do a few days of work and really make them shine. The new showText() function gives me a lot of flexibility with what I can explain onscreen so I'm going to take advantage of that more as well.
+
+With some of my new MIT knowledge I implemented a circular number class for when I need to loop over my arrays and other menu items. Because of this and my new understanding of Python I'm really hoping for operator overloading in the near future for Javascript. 
+
+I've been going through the CSS as well trying to cut down the 1500+ lines of CSS.
+
+Currently, I'm going through the program looking for ways to implement keyboard functionality on every screen.
 
 ## 2019.08.26
 
