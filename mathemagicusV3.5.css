@@ -1,0 +1,1662 @@
+/*-------------------------------------------------------------
+/ Play Area Styles                                            /
+/------------------------------------------------------------*/
+
+/*
+Styles the play area where the game takes place*/
+#playArea {
+  position: relative;
+  overflow: hidden;
+  margin: auto;
+  width: 450px;
+  height: 450px;
+  border: 8px solid #996633;
+  border-radius: 5px;
+  background-image: url("tile.png");
+  color: white;
+  font-family: monospace;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 2px 0px black,
+               0px 2px black,
+               -2px 0px black,
+               0px -2px black,
+               2px 4px black;
+  cursor: default;
+  transition: height 500ms;
+  transition: filter 500ms;
+}
+
+.playAreaSpotlight::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  filter: opacity(0%);
+  background-image: radial-gradient(circle farthest-corner at 33% 92%, rgba(255, 255, 255, 0), black 30%, black);
+  transition: all 1000ms;
+}
+/*
+I use this class to put a red overlay on top of
+the playArea for a flashing visual effect I have*/
+.playAreaRed::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(255, 0, 0, 0.5);
+}
+/*
+I use this class to put a white overlay on top of
+the playArea for a flashing visual effect I have*/
+.playAreaWhite::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+/*
+I use this class to put a blue overlay on top of
+the playArea for a flashing visual effect I have*/
+.playAreaBlue::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(10, 250, 250, 0.5);
+}
+/*
+I use this class to put a green overlay on top of
+the playArea for a flashing visual effect I have*/
+.playAreaGreen::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(10, 250, 34, 0.5);
+}
+/*
+I use this class to put a orange overlay on top of
+the playArea for a flashing visual effect I have*/
+.playAreaOrange::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(249, 141, 0, 0.5);
+}
+/*
+I use this class to put a yellow overlay on top of
+the playArea for a flashing visual effect I have*/
+.playAreaYellow::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(233, 249, 0, 0.5);
+}
+/*
+I use this class to put a purple overlay on top of
+the playArea for a flashing visual effect I have*/
+.playAreaPurple::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(141, 0, 249, 0.5);
+}
+
+/*
+Styles the text windows for the game*/
+.textBox {
+  margin: 15px auto 0px;
+  padding: 10px;
+  width: 350px;
+  background-color: #555555;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+  font-size: 1.5em;
+  z-index: 3;
+}
+
+.buttonHover {
+  transition: all 500ms;
+}
+
+.buttonHover:hover {
+  background-color: #bbbbbb;
+}
+
+body {
+  transition: filter 2000ms;
+}
+
+*:focus {
+  outline: none;
+}
+
+/*-------------------------------------------------------------
+/ Game Intro Styles                                           /
+/------------------------------------------------------------*/
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - Shadycrzy Games                         /
+/------------------------------------------------------------*/
+
+#shady {
+  margin-top: 25px;
+  color: white;
+  text-align: center;
+  font-size: 3em;
+  font-weight: bold;
+  font-family: monospace;
+  filter: opacity(0%);
+  text-shadow: -1px 2px black,
+                2px 4px black,
+                0px -2px black,
+                2px 0px black,
+               -2px 0px black;
+  transition: filter 2000ms;
+}
+
+#blockDiv {
+  width: 312px;
+  margin: 0 auto;
+}
+
+.block {
+  display: inline-block;
+  margin: 5px;
+  margin-top: 20px;
+  height: 300px;
+  width: 90px;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 4px 4px black;
+  backface-visibility: hidden;
+  transition: all 2000ms;
+  transform: rotateY(180deg);
+}
+
+#red {
+  background-color: red;
+}
+
+#green {
+  background-color: green;
+}
+
+#blue {
+  background-color: blue;
+}
+
+/*------------------------------------------------------------/
+/ Game Intro Styles - New Game Page                           /
+/------------------------------------------------------------*/
+
+/*
+Styles the Mathemagicus title on the initial screen*/
+#titleDiv {
+  width: 385px;
+  margin: 5px auto;
+  font-size: 4em;
+  padding: 5px;
+  border-bottom: 5px solid;
+  box-shadow: 0px 4px black;
+  color: orange;
+  text-shadow: 2px 0px black,
+               0px 4px black,
+               -2px 0px black,
+               0px -2px black;
+}
+/*
+Styles my two start buttons: "New Game" and "Continue"*/
+.startButtons {
+  display: table;
+  width: auto;
+  margin: 20px auto;
+  padding: 0 5px;
+  border-bottom: 3px solid rgba(0, 0, 0, 0);
+  border-top: 3px solid rgba(0, 0, 0, 0);
+  font-size: 2.5em;
+  transition: all 500ms;
+}
+/*
+Changes the background color of the buttons when hovered*/
+.startButtons:hover {
+  border-bottom: 3px solid red;
+  border-top: 3px solid black;
+  color: red;
+  box-shadow: 0px 3px black,
+              0px -3px red;
+  border-radius: 10px;
+}
+
+/*------------------------------------------------------------/
+/ Game Intro Styles - Option Menu                             /
+/------------------------------------------------------------*/
+
+#optionBox {
+  position: absolute;
+  left: 9px;
+  width: 90%;
+}
+
+.optionButton {
+  display: inline-block;
+  padding: 0px 10px 3px;
+  border-bottom: 3px solid rgba(0, 0, 0, 0);
+  border-top: 3px solid rgba(0, 0, 0, 0);
+  font-size: 1em;
+  transition: all 500ms;
+}
+
+.optionButton:hover {
+  border-bottom: 3px solid red;
+  border-top: 3px solid black;
+  color: red;
+  box-shadow: 0px 3px black,
+              0px -3px red;
+  border-radius: 10px;
+}
+
+.optionWindow {
+  display: inline-block;
+  width: 150px;
+}
+
+#closeButton {
+
+}
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - Enter Name Page                         /
+/------------------------------------------------------------*/
+
+.clearBox {
+  margin: 25px auto;
+  width: 400px;
+  font-size: 2em;
+  z-index: 3;
+}
+
+#enterNameDiv {
+  transition: all 500ms;
+}
+/*
+Styles the text input for the player's name*/
+#nameTextBox {
+  width: 80%;
+  height: 45px;
+  margin: 5px;
+  border: 3px solid orange;
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px black;
+  font-size: 1.25em;
+  font-weight: bold;
+  font-family: monospace;
+  text-align: center;
+}
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - Character Select Page                   /
+/------------------------------------------------------------*/
+
+#cameo {
+  margin-top: 15px;
+  margin-left: 306px;
+  width: 102px;
+  height: 102px;
+  background-color: #555555;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+}
+/*
+I think this is temporary until I resize my cameo image*/
+#cameoImg {
+  width: 100%;
+}
+/*
+Positions and styles the text that goes above
+the character selection area*/
+#smallMenuText {
+  position: relative;
+  bottom: -25px;
+  font-size: 1.75em;
+  color: orange;
+  transition: all 500ms;
+}
+/*
+Styles the buttons that move the character images
+during character selection*/
+.smallMenuButtons {
+  position: absolute;
+  font-family: monospace;
+  font-size: 3em;
+  font-weight: bold;
+  bottom: 50px;
+  z-index: 2;
+  border: none;
+  border-bottom: 3px solid rgba(0, 0, 0, 0);
+  border-top: 3px solid rgba(0, 0, 0, 0);
+  color: orange;
+  background-color: rgba(0, 0, 0, 0);
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 4px black;
+  transition: all 500ms;
+}
+/*
+Changes the background color when the mouse hovers
+over the butons*/
+.smallMenuButtons:hover {
+  border-bottom: 3px solid orange;
+  border-top: 3px solid black;
+  color: orange;
+  box-shadow: 0px 3px black,
+              0px -3px orange;
+  border-radius: 10px;
+}
+/*
+Positions the left button*/
+#smallMenuLeftButton {
+  left: 105px;
+}
+/*
+Positions the right button*/
+#smallMenuRightButton {
+  left: 304px;
+}
+/*
+The general styling information for the <div>s that
+hold the character images during character selection*/
+#smallMenuLeft, #smallMenuMiddle, #smallMenuRight {
+  position: absolute;
+  padding: 5px;
+  height: 100px;
+  width: 85px;
+  left: 175px;
+  bottom: 15px;
+  background-color: #555555;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+  transition: all 500ms;
+}
+/*
+Handles the blinking border for when the mouse hovers
+over the character <div>s during character selection*/
+@keyframes characterBoxBlink {
+  from {border: 2px solid black;}
+  to {border: 2px solid white;}
+}
+/*
+Defines the hover styling for the visible <div> during
+character selection*/
+#smallMenuMiddle:hover {
+  background-color: #777777;
+  animation-name: characterBoxBlink;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+}
+/*
+Positions the first <div> outside of the playArea*/
+#smallMenuLeft {
+  left: -120px;
+}
+/*
+Positions the third <div> outside of the playArea*/
+#smallMenuRight {
+  left: 460px;
+}
+/*
+Defines how the <img>s behave in the character
+selection screen*/
+.smallMenuImg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  margin: auto;
+  z-index: 1;
+}
+
+.menuItemsLow {
+  bottom: -300px !important;
+}
+
+/*-------------------------------------------------------------
+/ Game Intro Styles - Story Introduction Page                 /
+/------------------------------------------------------------*/
+
+/*
+This handles the animation for my blinking "next" button*/
+@keyframes nextButtonBlink {
+  0% {border: 1px solid black;}
+  50% {border: 1px solid white;}
+  100% {border: 1px solid black;}
+}
+/*
+This styles the "next" button I use to advance long text blocks*/
+#nextButton {
+  margin-top: 5px;
+  color: white;
+  font-size: 1em;
+  font-family: monospace;
+  background-color: #777777;
+  border: 1px solid black;
+  border-radius: 5px;
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 3px black;
+  box-shadow: inset .05em .05em .1em white,
+              inset -.05em -.05em .1em black;
+  animation-name: nextButtonBlink;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+  transition: all 200ms;
+}
+
+#nextButton:hover {
+  background-color: #999;
+}
+
+#skipDiv {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+}
+/*
+This positions and styles my skip intro button
+on the townIntro() screen*/
+#skipButton {
+  margin: 0 auto;
+  color: orange;
+  background-color: rgba(0, 0, 0, 0);
+  font-family: monospace;
+  font-size: 2em;
+  font-weight: bold;
+  border: none;
+  border-bottom: 3px solid rgba(0, 0, 0, 0);
+  border-top: 3px solid rgba(0, 0, 0, 0);
+  text-shadow: 2px 0px black,
+               0px 2px black,
+               -2px 0px black,
+               0px -2px black,
+               2px 4px black;
+  transition: all 500ms;
+}
+
+#skipButton:hover {
+  border-bottom: 3px solid orange;
+  border-top: 3px solid black;
+  color: orange;
+  box-shadow: 0px 3px black,
+              0px -3px orange;
+  border-radius: 10px;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles                                            /
+/------------------------------------------------------------*/
+
+@keyframes notificationBlink {
+  0% {background-color: black;}
+  50% {background-color: #999999;}
+  100% {background-color: black;}
+}
+
+#notification {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  width: 400px;
+  border: 2px solid black;
+  padding: 2px;
+  background-color: #999999;
+  font-size: 1.25em;
+  box-shadow: 5px 5px 5px black;
+  border-radius: 5px;
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 3px black;
+  transition: all 500ms;
+  animation-name: notificationBlink;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+}
+
+#notificationContent {
+  display: none;
+  position: relative;
+  width: 99%;
+  margin: 0 auto;
+  background-color: #777777;
+  border: 2px solid black;
+  border-radius: 5px;
+  line-height: 1.5em;
+}
+
+#notification:hover #notificationContent {
+  display: block;
+  animation-name: none !important;
+  animation-iteration-count: 1;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Overworld Menu                           /
+/------------------------------------------------------------*/
+
+#largeMenuText {
+  margin: 50px auto 0 auto;
+  width: 400px;
+  font-size: 3em;
+  color: orange;
+}
+
+.largeMenuButtons {
+  position: absolute;
+  font-family: monospace;
+  color: orange;
+  font-size: 3em;
+  font-weight: bold;
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 4px black;
+  bottom: 155px;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  border-bottom: 3px solid rgba(0, 0, 0, 0);
+  border-top: 3px solid rgba(0, 0, 0, 0);
+  transition: all 500ms;
+}
+
+.largeMenuButtons:hover {
+  border-bottom: 3px solid orange;
+  border-top: 3px solid black;
+  color: orange;
+  box-shadow: 0px 3px black,
+              0px -3px orange;
+  border-radius: 10px;
+}
+
+#largeMenuLeftButton {
+  left: 20px;
+}
+
+#largeMenuRightButton {
+  left: 390px;
+}
+
+#largeMenuLeft, #largeMenuMiddle, #largeMenuRight {
+  position: absolute;
+  height: 218px;
+  width: 200px;
+  left: 125px;
+  bottom: 75px;
+  border-radius: 5px;
+  transition: all 500ms;
+}
+
+#largeMenuLeft {
+  left: -200px;
+}
+
+#largeMenuRight {
+  left: 460px;
+}
+
+.largeMenuImg {
+  position: absolute;
+  width: 200px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 1;
+}
+
+.largeMenuHover {
+  transition: filter 500ms;
+}
+
+.largeMenuHover:hover {
+  filter: brightness(140%);
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Overworld Menu - Dungeon Level Menu      /
+/------------------------------------------------------------*/
+
+#dungeonSelectDiv {
+  position: relative;
+  width: 50%;
+  left: 55%;
+  margin-top: 25px;
+  transition: filter 1000ms;
+}
+
+.dungeonSelectButton {
+  display: flex;
+  margin: 0 auto;
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
+  background-color: #999999;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+@keyframes buttonSelectedAnimation2 {
+  0% {filter: brightness(100%);}
+  1% {filter: brightness(105%);}
+  2% {filter: brightness(110%);}
+  3% {filter: brightness(115%);}
+  4% {filter: brightness(110%);}
+  5% {filter: brightness(105%);}
+  6% {filter: brightness(100%);}
+  100% {filter: brightness(100%);}
+}
+
+.levelButtonClicked {
+  background-image: radial-gradient(closest-side at 50% 50%, orange, red, crimson, fireBrick);
+  animation-name: buttonSelectedAnimation2;
+  animation-duration: 6s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+#timerSelectDiv {
+  position: absolute;
+  width: 32%;
+  left: 59px;
+  top: 27%;
+}
+
+.timerSelectButtons {
+  height: 25px;
+  width: 25px;
+  border: 2px solid black;
+  border-radius: 50%;
+  margin: 5px;
+  background-image: radial-gradient(#999999, #777777, #555555);
+}
+
+.timerSelectButtons:hover {
+  background-image: radial-gradient(#bbbbbb, #999999, #555555);
+}
+
+@keyframes buttonSelectedAnimation {
+  0% {background-image: radial-gradient(closest-corner at 0% 00%, orange, red, crimson, FireBrick);}
+  1% {background-image: radial-gradient(closest-corner at 20% 10%, orange, red, crimson, FireBrick);}
+  2% {background-image: radial-gradient(closest-corner at 20% 20%, orange, red, crimson, FireBrick);}
+  3% {background-image: radial-gradient(closest-corner at 40% 30%, orange, red, crimson, FireBrick);}
+  4% {background-image: radial-gradient(closest-corner at 40% 40%, orange, red, crimson, FireBrick);}
+  5% {background-image: radial-gradient(closest-corner at 50% 50%, orange, red, crimson, fireBrick);}
+  6% {background-image: radial-gradient(closest-corner at 50% 60%, orange, red, crimson, FireBrick);}
+  7% {background-image: radial-gradient(closest-corner at 60% 70%, orange, red, crimson, FireBrick);}
+  8% {background-image: radial-gradient(closest-corner at 60% 80%, orange, red, crimson, FireBrick);}
+  9% {background-image: radial-gradient(closest-corner at 70% 90%, orange, red, crimson, FireBrick);}
+  10% {background-image: radial-gradient(closest-corner at 100% 100%, orange, red, crimson, FireBrick);}
+  100% {background-image: radial-gradient(closest-corner at 100% 100%, orange, red, crimson, FireBrick);}
+}
+
+.timerButtonClicked {
+  background-image: radial-gradient(closest-corner at 50% 50%, orange, red, crimson, FireBrick);
+  animation-name: buttonSelectedAnimation;
+  animation-duration: 6s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+#timerSelectBox {
+  position: absolute;
+  left: 3%;
+  top: 10%;
+  width: 46%;
+}
+
+#menuReturnButton {
+  position: absolute;
+  margin-left: -41%;
+  margin-top: 5.5%;
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
+  background-color: #999999;
+  border: 2px solid black;
+  border-radius: 5px;
+  z-index: 2;
+  transition: all 500ms;
+}
+
+#menuReturnButton:hover {
+  background-color: #bbbbbb;
+}
+
+#dungeonSelectImg {
+  position: relative;
+  height: 50%;
+  left: -21%;
+  bottom: 252px;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Mages' Guild - First Visit               /
+/------------------------------------------------------------*/
+
+#firstKey {
+  position: absolute;
+  bottom: 35px;
+  left: 188px;
+  transition: filter 500ms;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Mages' Guild - Spell Selection           /
+/------------------------------------------------------------*/
+
+#spellSelectMenu {
+  background-color: #777777;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+  font-size: 1.25em;
+  margin: 0 60px;
+  padding: 3px;
+  /*height: 57px;
+  overflow-y: scroll;*/
+  cursor: pointer;
+  filter: opacity(0%);
+  scrollbar-width: thin;
+  scrollbar-color: #444 #222221;
+  transition: all 500ms;
+  scroll-behavior: smooth;
+}
+
+.menuItem {
+  transition: all 500ms;
+  font-weight: bold;
+}
+
+.menuItem:hover, .menuItem:focus {
+  background-color: #999999;
+  border-radius: 3px;
+}
+
+.yesNoButtons {
+  margin-top: 5px;
+  color: white;
+  font-size: 1em;
+  font-family: monospace;
+  background-color: #777777;
+  border: 1px solid black;
+  border-radius: .2em .25em;
+  text-shadow: 0px 2px black,
+               0px -2px black,
+               2px 0px black,
+               -2px 0px black,
+               2px 3px black;
+  box-shadow: inset .05em .05em .1em white,
+              inset -.05em -.05em .1em black;
+  transition: all 200ms;
+}
+
+.yesNoButtons:hover, .yesNoButtons:focus {
+  background-color: #999;
+}
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus                       /
+/------------------------------------------------------------*/
+
+/*
+This controls the position of the button returns
+the player to the overworld menu*/
+#bookReturnButton {
+  display: table;
+  margin: 0 auto;
+  margin-top: 5px;
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
+  z-index: 0;
+  background-color: #999999;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+@keyframes bookReturnButtonBlink {
+  from {background-color: #999999;}
+  to {background-color: #bbbbbb;}
+}
+
+#bookReturnButton:hover, #bookReturnButton:focus {
+  animation-name: bookReturnButtonBlink;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+}
+/*
+Controls the style of the containing <div> of
+the monsterBook element*/
+#monsterBook {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  height: 400px;
+  width: 430px;
+  z-index: 0;
+}
+/*
+Controls the style of the individual book pages
+in the monster book*/
+.bookPage {
+  position: absolute;
+  height: 394px;
+  width: 424px;
+  z-index: 1;
+  background-color: #e6c790;
+  border: 3px solid black;
+  border-radius: 0px 15px 15px 0px;
+  transition: transform 750ms;
+  text-align: center;
+  color: black;
+  text-shadow: none;
+}
+/*
+The next three selectors control the positioning of
+the quick navigation buttons at the top of the
+monster book*/
+#quickButtonDiv {
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  margin-right: 10px;
+  margin-top: -1px;
+  text-align: center;
+}
+
+.quickButtons {
+  background-color: rgba(0,0,0,0.125);
+  border-radius: 0px 0px 5px 5px;
+  border: 1px solid black;
+  font-family: monospace;
+  transition: background-color 500ms;
+}
+
+.quickButtons:hover {
+  background-color: rgba(255,255,255,0.125);
+}
+
+/*
+These feve selectors control how the page turning
+buttons are displayed and styled in the monster book*/
+#pageTurnButtons {
+  position: absolute;
+  bottom: 30px;
+}
+
+#leftPageButton, #rightPageButton {
+  position: absolute;
+  background-color: rgba(255,255,255,0.25);
+  border-radius: 5px;
+  border: 1px solid black;
+  font-family: monospace;
+  transition: border 500ms, background-color 500ms;
+}
+
+#leftPageButton {
+  left: 10px;
+}
+
+#rightPageButton {
+  left: 385px;
+}
+
+#leftPageButton:hover, #rightPageButton:hover {
+  border: 1px solid white;
+  background-color: rgba(125,125,125,0.125);
+}
+
+#leftPageButton:focus, #rightPageButton:focus {
+  border: 1px solid white;
+  background-color: rgba(125,125,125,0.125);
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Title Page          /
+/------------------------------------------------------------*/
+
+/*
+Sets the background of the cover of the monster book*/
+#titlePage {
+  background-image: url(./book/bookCover.gif);
+}
+/*
+Styles the title of the monster book*/
+#titlePage p {
+  font-size: 3.5em;
+  font-weight: bold;
+  line-height: 60px;
+  letter-spacing: 3px;
+  color: #d2b30e;
+  text-shadow: 2px 0px black,
+               0px 2px black,
+               -2px 0px black,
+               0px -2px black;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Table of Contents   /
+/------------------------------------------------------------*/
+
+/*
+These three selectors handle the styling of
+the table of contents*/
+#tableOfContents p {
+  text-align: left;
+  margin-left: 10px;
+  margin-bottom: -5px;
+  font-size: 1.125em;
+}
+
+#tableOfContents span {
+  font-weight: bold;
+  text-decoration: underline;
+  line-height: 30px;
+  border-radius: 5px;
+  padding: 2px;
+  transition: background-color 500ms;
+}
+
+#tableOfContents span:hover {
+  background-color: rgba(255,255,255,0.25);
+  cursor: default;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Status Page         /
+/------------------------------------------------------------*/
+
+
+/*
+These two selectors control the positioning and
+size of the player cameo on the status page of
+the monster book*/
+#playerCameoDiv {
+  position: absolute;
+  padding: 5px;
+  height: 100px;
+  width: 85px;
+  left: 290px;
+  top: 80px;
+  background-color: #555555;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+#playerCameoImg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  margin: auto;
+  z-index: 1;
+  transform: scaleX(-1);
+}
+/*
+Controls the text on the status page of
+the monster book*/
+#statusPage p {
+  text-align: left;
+  font-size: 1.125em;
+  margin-left: 10px;
+}
+
+#statusPage span {
+  display: inline-block;
+  margin-left: 20px;
+  font-size: 1em;
+  font-weight: normal;
+}
+/*
+These two selectors control the positioning and
+look of the save game button*/
+#saveGame {
+  position: absolute;
+  left: 287px;
+  bottom: 160px;
+  background-color: rgba(0,0,0,0.125);
+  border-radius: 5px;
+  border: 1px solid black;
+  font-size: 1.25em;
+  font-family: monospace;
+  transition: border 500ms, background-color 500ms;
+}
+
+#saveGame:hover {
+  border: 1px solid white;
+  background-color: rgba(255,255,255,0.125);
+}
+
+#statusPageName {
+  margin-right: 35px;
+  margin-bottom: 10px;
+  font-size: 1.5em !important;
+  text-decoration: underline;
+  text-align: right !important;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Spells Page         /
+/------------------------------------------------------------*/
+
+/*
+These four selectors control the appearance and
+behavior of the elements on the spell page of
+the monster book*/
+#spellsPage {
+  text-align: center;
+}
+
+#spellsPage p {
+  font-size: 1.5em;
+}
+
+#spellsPage span {
+  font-size: 1.125em;
+  text-align: center;
+  transition: background-color 500ms;
+  border-radius: 5px;
+  padding: 2px;
+  line-height: 25px;
+}
+
+#spellsPage span:hover {
+  background-color: rgba(255,255,255,0.25);
+  cursor: default;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Monsters Page       /
+/------------------------------------------------------------*/
+
+/*
+The next four selectors control the style and display
+of the elements on the base monster page of the
+monster book*/
+#monsterPage {
+  text-align: left;
+  font-size: 1.3em;
+  line-height: 35px;
+}
+
+#monsterPage p {
+  text-align: center;
+  font-size: 1.5em
+}
+
+#monsterPage span {
+  border-radius: 5px;
+  padding: 2px;
+  margin-left: 10px;
+  font-weight: bold;
+  transition: background-color 500ms;
+}
+
+#monsterPage span:hover {
+  background-color: rgba(255,255,255,0.25);
+  cursor: default;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Monster List Page   /
+/------------------------------------------------------------*/
+
+/*
+These four selectors control the behavior and display of
+the table on the monster list pages of the monster book*/
+#monsterListTable {
+  margin-left: 10px;
+  width: 415px;
+}
+
+#monsterListTable tr {
+  line-height: 14px;
+}
+
+#monsterListTable td {
+  padding-left: 32px;
+  text-indent: -32px;
+  border: 1px solid grey;
+  width: 72px;
+  transition: background-color 500ms;
+}
+
+#monsterListTable td:hover {
+  background-color: rgba(255,255,255,0.25);
+  cursor: default;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Monster Detail Page /
+/------------------------------------------------------------*/
+
+/*
+These two elements control the appearance of the
+elements on the monster detail pages of the
+monster book*/
+#monsterDetailPage p {
+  margin-left: 10px;
+  text-align: left;
+  font-size: 1.25em;
+  line-height: 1.5em;
+}
+
+#monsterDetailDiv {
+  position: absolute;
+  background-color: grey;
+  margin: 11px;
+  padding: 5px;
+  height: 125px;
+  width: 125px;
+  left: 255px;
+  top: 72px;
+  border: 3px solid black;
+  border-radius: 5px;
+}
+
+/*-------------------------------------------------------------
+/ Overworld Styles - Liber Mathemagicus - Achievements Page   /
+/------------------------------------------------------------*/
+
+
+#achievementTable {
+  margin: auto;
+  margin-top: 10px;
+}
+
+.achievementImg {
+  height: 70px;
+  width: 70px;
+  border: 3px solid white;
+  border-radius: 5px;
+}
+
+/*-------------------------------------------------------------
+/ Underworld Styles                                           /
+/------------------------------------------------------------*/
+
+/*
+This styles the box that tells the player what level of the dungeon they're on*/
+#levelDiv {
+  margin: auto;
+  margin-top: 5px;
+  width: 80px;
+  height: 20px;
+  color: white;
+  background-color: #555555;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+  font-size: 1.25em;
+  font-weight: bold;
+  font-family: monospace;
+  text-align: center;
+  text-shadow: 2px 0px black,
+               0px 2px black,
+               -2px 0px black,
+               0px -2px black,
+               1px 3px black;
+  cursor: default;
+}
+
+#exitDiv {
+  position: relative;
+  top: -18px;
+  background-color: #555555;
+  border: 1px solid;
+  border-radius: 5px;
+  filter: opacity(0%);
+  transition: 500ms;
+}
+
+#levelDiv:hover #exitDiv {
+  filter: opacity(100%);
+}
+/*
+Styles the level progress bar*/
+#levelProgressDiv {
+  position: absolute;
+  width: 80px;
+  height: 20px;
+  background-color: red;
+  border-radius: 5px;
+  transition: width 1s;
+  z-index: 0;
+}
+/*
+Styles the text withing the levelDiv*/
+#levelDisplay {
+  position: absolute;
+  z-index: 1;
+  width: 80px;
+}
+/*
+This adjusts the width of these <div>s from the class to which the belong: .textBox
+I might get rid of this later, still not sure...*/
+#problemDiv, #hintDiv {
+  overflow-x: hidden;
+  width: 324px;
+}
+/*
+This styles the area where the spells are displayed*/
+#spellBar {
+  position: absolute;
+  top: 274px;
+  left: 53px;
+  width: 340px;
+  height: 30px;
+  background-color: grey;
+  margin-top: 5px;
+  border: 2px solid black;
+  border-radius: 5px;
+  cursor: default;
+}
+/*
+This styles the images for the spells*/
+#spellBar img {
+  border: 1px solid black;
+  border-radius: 5px;
+  margin: 2px;
+  padding: 2px;
+  width: 17px;
+}
+/*
+This controls the behavior of the <div>s inside of the spellBar*/
+#spellBar div {
+  display: inline-block;
+  vertical-align: top;
+  margin: auto;
+  width: 42px;
+  font-size: 1em;
+  font-family: monospace;
+}
+
+#spellBar div div {
+  width: 15px;
+}
+
+@keyframes newSpell {
+  from {border: 1px solid black; filter: invert(0%);}
+  to {border: 1px solid red; filter: invert(100%);}
+}
+
+.highlightNewSpell {
+  animation-name: newSpell;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+}
+
+/*------------------------------------------------------------/
+/ Underworld Styles = Magic                                   /
+/------------------------------------------------------------*/
+
+#euclidCanvas, #novaCanvas, #timeCanvas {
+  position: absolute;
+  z-index: 4;
+}
+
+@keyframes euclidFlash {
+  1% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(255,0,0,.1) 1%, rgba(255,255,255,0) 1%);}
+  10% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(255,0,0,.2) 10%, rgba(255,255,255,0) 10%);}
+  20% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(255,0,0,.3) 10%, rgba(255,255,255,0) 20%);}
+  30% {background: radial-gradient(circle, rgba(255,255,255,0) 2%, rgba(255,0,0,.4) 20%, rgba(255,255,255,0) 30%);}
+  40% {background: radial-gradient(circle, rgba(255,255,255,0) 5%, rgba(255,0,0,.5) 20%, rgba(255,255,255,0) 40%);}
+  50% {background: radial-gradient(circle, rgba(255,255,255,0) 10%, rgba(255,0,0,.6) 20%, rgba(255,255,255,0) 50%);}
+  60% {background: radial-gradient(circle, rgba(255,255,255,0) 20%, rgba(255,0,0,.7) 30%, rgba(255,255,255,0) 60%);}
+  70% {background: radial-gradient(circle, rgba(255,255,255,0) 30%, rgba(255,0,0,.8) 40%, rgba(255,255,255,0) 70%);}
+  80% {background: radial-gradient(circle, rgba(255,255,255,0) 40%, rgba(255,0,0,.9) 50%, rgba(255,255,255,0) 80%);}
+  90% {background: radial-gradient(circle, rgba(255,255,255,0) 50%, rgba(255,0,0,1) 60%, rgba(255,255,255,0) 90%);}
+  100% {background: radial-gradient(circle, rgba(255,255,255,0) 70%, rgba(255,0,0,1) 80%, rgba(255,255,255,0) 100%);}
+}
+
+.playAreaRedFlash::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  /*background: radial-gradient(circle, rgba(255,255,0,1) 1%, rgba(255,255,255,0) 1%);*/
+  animation-name: euclidFlash;
+  animation-duration: 150ms;
+  animation-iteration-count: 1;
+  transition: background-color 750ms;
+}
+
+.sparkCanvas {
+  position: absolute;
+  z-index: 5;
+}
+
+#handCanvas {
+  position: absolute;
+  z-index: 5;
+}
+
+#fibonacciMagic {
+  position: absolute;
+  z-index: 3;
+  font-size: 4em;
+  font-weight: 900;
+  letter-spacing: -5px;
+  top: 25px;
+  left: -225px;
+  height: 200px;
+  width: 900px;
+  filter: opacity(100%);
+  color: white;
+  text-align: center;
+  line-height: 200px;
+  text-shadow: 2px 0px red,
+               0px 2px red,
+               -2px 0px red,
+               0px -2px red;
+  transition: all 1000ms;
+}
+
+#squareSpellAnimation {
+  position: absolute;
+  z-index: 3;
+  bottom: 0;
+  color: lawnGreen;
+  font-size: 3em;
+  font-weight: bold;
+  font-family: monospace;
+  text-align: center;
+  text-shadow: 2px 0px black,
+               0px 2px black,
+               -2px 0px black,
+               0px -2px black;
+  transition: bottom 2000ms, filter 2000ms;
+}
+
+@keyframes timeFlash {
+  1% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(0,250,34,.1) 1%, rgba(255,255,255,0) 1%);}
+  10% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(0,250,34,.2) 10%, rgba(255,255,255,0) 10%);}
+  20% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(0,250,34,.3) 10%, rgba(255,255,255,0) 20%);}
+  30% {background: radial-gradient(circle, rgba(255,255,255,0) 2%, rgba(0,250,34,.4) 20%, rgba(255,255,255,0) 30%);}
+  40% {background: radial-gradient(circle, rgba(255,255,255,0) 5%, rgba(0,250,34,.5) 20%, rgba(255,255,255,0) 40%);}
+  50% {background: radial-gradient(circle, rgba(255,255,255,0) 10%, rgba(0,250,34,.6) 20%, rgba(255,255,255,0) 50%);}
+  60% {background: radial-gradient(circle, rgba(255,255,255,0) 20%, rgba(0,250,34,.7) 30%, rgba(255,255,255,0) 60%);}
+  70% {background: radial-gradient(circle, rgba(255,255,255,0) 30%, rgba(0,250,34,.8) 40%, rgba(255,255,255,0) 70%);}
+  80% {background: radial-gradient(circle, rgba(255,255,255,0) 40%, rgba(0,250,34,.9) 50%, rgba(255,255,255,0) 80%);}
+  90% {background: radial-gradient(circle, rgba(255,255,255,0) 50%, rgba(0,250,34,1) 60%, rgba(255,255,255,0) 90%);}
+  100% {background: radial-gradient(circle, rgba(255,255,255,0) 70%, rgba(0,250,34,1) 80%, rgba(255,255,255,0) 100%);}
+}
+
+.playAreaGreenFlash::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  /*background: radial-gradient(circle, rgba(255,255,0,1) 1%, rgba(255,255,255,0) 1%);*/
+  animation-name: timeFlash;
+  animation-duration: 150ms;
+  animation-iteration-count: 1;
+  transition: background-color 320ms;
+}
+
+@keyframes starFlash {
+  1% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(233,249,0,.1) 1%, rgba(255,255,255,0) 1%);}
+  10% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(233,249,0,.2) 10%, rgba(255,255,255,0) 10%);}
+  20% {background: radial-gradient(circle, rgba(255,255,255,0) 1%, rgba(233,249,0,.3) 10%, rgba(255,255,255,0) 20%);}
+  30% {background: radial-gradient(circle, rgba(255,255,255,0) 2%, rgba(233,249,0,.4) 20%, rgba(255,255,255,0) 30%);}
+  40% {background: radial-gradient(circle, rgba(255,255,255,0) 5%, rgba(233,249,0,.5) 20%, rgba(255,255,255,0) 40%);}
+  50% {background: radial-gradient(circle, rgba(255,255,255,0) 10%, rgba(233,249,0,.6) 20%, rgba(255,255,255,0) 50%);}
+  60% {background: radial-gradient(circle, rgba(255,255,255,0) 20%, rgba(233,249,0,.7) 30%, rgba(255,255,255,0) 60%);}
+  70% {background: radial-gradient(circle, rgba(255,255,255,0) 30%, rgba(233,249,0,.8) 40%, rgba(255,255,255,0) 70%);}
+  80% {background: radial-gradient(circle, rgba(255,255,255,0) 40%, rgba(233,249,0,.9) 50%, rgba(255,255,255,0) 80%);}
+  90% {background: radial-gradient(circle, rgba(255,255,255,0) 50%, rgba(233,249,0,1) 60%, rgba(255,255,255,0) 90%);}
+  100% {background: radial-gradient(circle, rgba(255,255,255,0) 70%, rgba(233,249,0,1) 80%, rgba(255,255,255,0) 100%);}
+}
+
+.playAreaYellowFlash::after {
+  position: absolute;
+  content: " ";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  /*background: radial-gradient(circle, rgba(255,255,0,1) 1%, rgba(255,255,255,0) 1%);*/
+  animation-name: starFlash;
+  animation-duration: 150ms;
+  animation-iteration-count: 1;
+  transition: background-color 750ms;
+}
+/*
+This is the grey bar behind my green countdown timer */
+#countdownBarBack {
+  position: absolute;
+  top: 235px;
+  left: 53px;
+  width: 340px;
+  height: 30px;
+  background-color: grey;
+  margin-top: 5px;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+/*
+This is the green countdown timer bar */
+#countdownBarFront {
+  position: absolute;
+  width: 340px;
+  height: 30px;
+  background-color: #66ff33;
+  border-radius: 5px;
+}
+/*
+This displays the time remaining for the countdown timer*/
+#countdownTimer {
+  position: absolute;
+  top: 3px;
+  width: 100%;
+  color: white;
+  text-align: center;
+  text-shadow: 2px 0px 2px black,
+               0px 2px 2px black,
+               -2px 0px 2px black,
+               0px -2px 2px black;
+  font-size: 20px;
+  font-family: monospace;
+}
+/*
+This formats the invisible <div> that holds the player and monster health
+and the player and monster images*/
+#combatDiv {
+  left: 55px;
+  position: absolute;
+  top: 312px;
+}
+/*
+The grey background container for the player and computer health bar */
+#healthBarBack, #monsterHealthBarBack {
+  display: inline-block;
+  width: 30px;
+  height: 110px;
+  margin-top: 11px;
+  background-color: grey;
+  vertical-align: top;
+  border: 2px solid black;
+  border-radius: 5px;
+  position: relative;
+}
+/*
+Styles the red health bar for the player and computer */
+#healthBarFront, #monsterHealthBarFront {
+  vertical-align: bottom;
+  width: 30px;
+  height: 110px;
+  background-color: red;
+  border-radius: 5px;
+  position: absolute;
+  bottom: 0;
+  transition: height 1s;
+}
+/*
+This styles the <div>s that contain the player and monster images*/
+#playerDiv, #monsterDiv {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  background-color: grey;
+  margin: 11px;
+  padding: 5px;
+  height: 100px;
+  width: 100px;
+  border: 3px solid black;
+  border-radius: 5px;
+  transition: height 500ms, width 500ms, transform 200ms;
+}
+/*
+This ensures that the player and monster images are centered
+and flush to the bottom of their containers*/
+#playerImg, #monsterImg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  margin: auto;
+  z-index: 1;
+  transition: all 200ms;
+}
+
+#playerImg {
+  z-index: 2;
+}
+/*
+This controls the look and position of the blast sprite
+that flashes when an enemy is hit*/
+#blast {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 15px;
+  margin: auto;
+  z-index: 2;
+}
+/*
+This controls the look and position of the slash sprite
+that flashes when the player is hit*/
+#slash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  margin: auto;
+  z-index: 2;
+}
+/*
+Styles the little box that displays how much
+damage the player or a monster receives*/
+#damageDiv {
+  position: absolute;
+  z-index: 5;
+  bottom: 30%;
+  left: 0;
+  right: 0;
+  color: red;
+  font-size: 1.5em;
+  font-weight: bold;
+  font-family: monospace;
+  text-align: center;
+  text-shadow: 2px 0px black,
+               0px 2px black,
+               -2px 0px black,
+               0px -2px black;
+  transition: bottom 2000ms, filter 2000ms;
+}
+/*
+This sets the size of the answerInput <input> box
+and makes sure the numbers are centered in the box*/
+#answerInput {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  width: 50px;
+  text-align: center;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: .85em;
+  border-radius: 5px;
+}
+
+#answerInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+/*
+This styles the scroll that pops up when a player
+learns a new spell*/
+#scrollDiv {
+  position: absolute;
+  top: 25px;
+  left: 66px;
+  z-index: 2;
+  transition: filter 1000ms;
+}
+/*
+This handles the positioning and style of
+the button that shows up on the scrolls.
+It borrows the animations from my other
+next buttons*/
+#scrollNextButton {
+  position: absolute;
+  left: 131px;
+  bottom: 50px;
+  background-color: rgba(0,0,0,0.125);
+  border-radius: 5px;
+  border: 1px solid black;
+  animation-name: nextButtonBlink;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+}
