@@ -20,6 +20,16 @@ Improve the division challenge
 
 Training Hall
 
+## 2020.03.09
+
+### Update
+
+I don't know why I've avoided string templates for so long. They're pretty cool and I've been replacing some of the clunkier strings I have w/ the templates. Since I've been playing w/ my strings a lot I've also been improving the descriptions of a lot of things. I've been getting a lot of milage out of my new showText() function and my (poorly named) parseMath() function which parses my custom shortcode into HTML so my strings don't get super ugly. I'm super happy with the results. 
+
+What I'm not happy with is how the player unlocks the last 5 spells. The first 3 are hint spells that I give the player unlimited uses of. The next two are based off of triangle numbers and square numbers and the player gets to cast one spell for each time an answer equals one of those numbers. I love geometrical numbers and those are really cool. In a previous version I used them a lot more but I decided I wanted the player to have more opportunities to use these spells. The problem is there aren't a lot of good integer sequences out there.
+
+Further, the challenges for these spells, as they stand now, are pretty weak: adding and subtracting by 2, 3, 5, and 10. The last one is powers of 2 which I kind of like actually... Maybe I could do something based on place value or rounding for the other ones...
+
 ## 2020.03.08
 
 ### Update
