@@ -6,9 +6,11 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Library
+### Up next: Library and Spell UI
 
 I've pixelated the portraits of the mathematicians for whom my spells are named, the next step is to implement the library functionality of the Mage Guild. I'm going to use it to display mini-bios of mathematicians and scientists, starting w/ the set I have now.
+
+I have been wanting to update the spell UI but I keep putting it off because it sounds like it will be hard to implement and debug. But I'll finish improving the challenges tomorrow so I'll be out of excuses to avoid it.
 
 ### Notes to self:
 
@@ -19,6 +21,24 @@ Work on the hints
 Improve the division challenge
 
 Training Hall
+
+Library
+
+Sprites
+
+Scrolls
+
+Spell icons
+
+## 2020.03.10
+
+### Update
+
+I'm almost done improving the challenges to earn the spells. Before I had the player count up and down by 2s, 3s, 5s, and 10s (important skills) but I'm happier w/ what I have now which is Decomposition, more Distributive Property, and Compensation. All that's left is the 10s. I also had the player earn the spells by getting numbers that ended in 2, 3, 5, and 10 respectively. Now these spells are earned after spending a set amount of total time answering questions (20 seconds presently), how much damage the player takes (currently 5), and answering 5 questions in under 2 seconds. I'll work on the 10s tomorrow. I'm thinking maybe mirror numbers...?
+
+Once that's all done, I need to do the spells differently. Currently there is an icon bar above the player's avatar w/ a bunch of symbols that are no longer relevant to the spells they are attached to. I'm thinking of maybe having the player push the space bar for a window to pop up w/ a list of available spells and a key to press (probably a number) to activate it. That way I don't have to worry about the icons at all.
+
+The other issue I have to resolve are the pages for the individual spells in the Liber Mathemagicus. Previously I had a scroll that would appear on screen when a player earned a spell. The book would have a facsimile of that scroll. The problem is that all of my spells were earned by having answers equal to geometric numbers. Since that's not the case anymore, I have to completely redesign them if I want to keep them, and I want to keep them. 
 
 ## 2020.03.09
 
