@@ -1339,6 +1339,7 @@ This controls the behavior of the <div>s inside of the spellBar*/
 #euclidCanvas, #novaCanvas, #timeCanvas {
   position: absolute;
   z-index: 4;
+  left: 0;
 }
 
 @keyframes euclidFlash {
@@ -1378,6 +1379,7 @@ This controls the behavior of the <div>s inside of the spellBar*/
 #handCanvas {
   position: absolute;
   z-index: 5;
+  left: 0;
 }
 
 #fibonacciMagic {

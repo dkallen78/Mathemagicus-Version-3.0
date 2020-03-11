@@ -212,7 +212,7 @@ function insertAnswerInput(target, answer, callback) {
   input.type = "number";
   input.id = "answerInput";
   if (callback) {
-    input.onkeypress = function() {
+    input.onkeyup = function() {
       callback(event, answer);
     }
   }
@@ -373,6 +373,7 @@ function showText(target, text, final, finalText = textData.next, index = 0) {
   } else {
     target.textContent = text[index];
   }
+  insertLineBreak(target, 2);
 
   const nextBlock = function() {
     showText(target, text, final, finalText, index + 1);
@@ -845,8 +846,10 @@ class Player {
       flash: 0,                     //Questions answered in less than 1 second
       primes: 0,                    //Questions answered equal to a prime
       monstersKilled: 0,            //Total number of monsters killed
+      lovelaceCounter: 0,
+      noetherCounter: 0,
+      huygensCounter: 0
     }
-
     //
     //Spell related stats
     this.spells = {
@@ -956,7 +959,8 @@ class Player {
 const test = function() {
   player = new Player();
   player.name = "Shady";
-  player.maxHealth = 10;
+  player.health = 100
+  player.maxHealth = 100;
   player.damage = 1;
   player.addition.level = 7;
   player.notification.fibonacciSpell = false;
@@ -1931,7 +1935,7 @@ function overworld(player) {
           answerInput.value = "";
         }
       }
-
+      //updated
       function learnAssociative() {
 
         function beginChallenge() {
@@ -1966,20 +1970,20 @@ function overworld(player) {
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
             "The Associative Property says that in an addition problem, " +
-                "it doesn't matter what order the numbers are in: ",
-            "We can take apart and rearrange numbers to find easier sums: ",
+                "it doesn't matter what order the numbers are in:",
+            "We can take apart and rearrange numbers to find easier sums:",
             parseMath("_r8r_ + 5 = 5 + _r8r_<br /> ↓ <br />" +
                       "(_r5r_ + _r3r_) + 5<br /> ↓ <br />" +
                       "_o(o_5 + _r5r__o)o_ + _r3r_<br /> ↓ <br />" +
                       "_o10o_ + 3<br /> ↓ <br />" +
-                      "13<br />"),
-            "We can also take apart numbers to add together the place values: ",
+                      "13"),
+            "We can also take apart numbers to add together the place values:",
             parseMath("_r22r_ + 16<br /> ↓ <br />" +
                       "_o(o__r20r_ + 10_o)o_ + _g(g__r2r_ + 6_g)g_<br /> ↓ <br />" +
                       " ↓ <br />_o30o_ + _g8g_<br /> ↓ <br />" +
-                      "38<br />"),
+                      "38"),
             "To earn this spell you must answer 10 problems using " +
-                "the Associative Property. "
+                "the Associative Property."
           ];
 
           fadeTransition(challengeDiv, playArea);
@@ -1989,7 +1993,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-
+      //updated
       function learnLeftDistribution() {
 
         function beginChallenge() {
@@ -2018,29 +2022,29 @@ function overworld(player) {
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
             "/HTML/The only way to survive the deeper levels of the catacombs is by mastering " +
-                "the Distributive Property:<br /><br />a × (b + c)<br /> ↓ <br />(a × b) + (a × c)<br /><br />",
+                "the Distributive Property:<br /><br />a × (b + c)<br /> ↓ <br />(a × b) + (a × c)",
             parseMath("At the simplest level it looks like this: <br /><br />" +
                       "6 × _r2r_<br /> ↓ <br />" +
                       "6 × (_r1r_ + _r1r_)<br /> ↓ <br />" +
                       "_b(b_6 × _r1r__b)b_ + _g(g_6 × _r1r__g)g_<br /> ↓ <br />" +
                       "_b6b_ + _g6g_<br /> ↓ <br />" +
-                      "12<br /><br />"),
-            "/HTML/By breaking up one of the terms in our problem, we can create smaller, " +
-                "easier problems to solve.<br /><br />",
+                      "12"),
+            "By breaking up one of the terms in our problem, we can create smaller, " +
+                "easier problems to solve.",
             parseMath("It works just as well with larger numbers: <br /><br />" +
                       "8 × _r7r_<br /> ↓ <br />" +
                       "8 × (_r5r_ + _r2r_)<br /> ↓ <br />" +
                       "_b(b_8 × _r5r__b)b_ + _o(o_8 × _r2r__o)o_<br /> ↓ <br />" +
                       "_b40b_ + _o16o_<br /> ↓ <br />" +
-                      "56<br /><br />"),
+                      "56"),
             parseMath("This is especially useful for numbers larger than 10: <br /><br />" +
                       "_r13r_ × 6<br /> ↓ <br />" +
                       "(_r10r_ + _r3r_) × 6<br /> ↓ <br />" +
                       "_b(b__r10r_ × 6_b)b_ + _o(o__r3r_ × 6_o)o_<br /> ↓ <br />" +
                       "_b60b_ + _o18o_<br /> ↓ <br />" +
-                      "78<br /><br />"),
-            "/HTML/To earn this spell you must answer 10 problems using " +
-                "the Distributive Property.<br /><br />"
+                      "78"),
+            "To earn this spell you must answer 10 problems using " +
+                "the Distributive Property."
           ];
 
           showText(challengeDiv, challengeText, challenge, "Begin");
@@ -2050,7 +2054,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-
+      //updated
       function learnRightDistribution() {
 
         function beginChallenge() {
@@ -2080,21 +2084,21 @@ function overworld(player) {
           let challengeText = [
             "/HTML/To master the Division Catacombs, you must also master this arcane " +
                 "spell that lets you break down division problems:<br /><br />" +
-                "(a + b) ÷ c<br /> ↓ <br />(a ÷ c) + (b ÷ c)<br /><br />",
+                "(a + b) ÷ c<br /> ↓ <br />(a ÷ c) + (b ÷ c)",
             parseMath("At its simplest level it looks like this:<br /><br />" +
                       "_b10b_ ÷ 5<br /> ↓ <br />" +
                       "(_b5b_ + _b5b_) ÷ 5<br /> ↓ <br />" +
                       "_o(o__b5b_ ÷ 5_o)o_ + _r(r__b5b_ ÷ 5_r)r_<br /> ↓ <br />" +
                       "_o1o_ + _r1r_<br /> ↓ <br />" +
-                      "2<br /><br />"),
+                      "2"),
             parseMath("It works just as well for larger numbers:<br /><br />" +
                       "_r36r_ ÷ 4<br /> ↓ <br />" +
                       "(_r20r_ + _r16r_) ÷ 4<br /> ↓ <br />" +
                       "_g(g__r20r_ ÷ 4_g)g_ + _b(b__r16r_ ÷ 4_b)b_<br /> ↓ <br />" +
                       "_g5g_ + _b4b_<br /> ↓ <br />" +
-                      "9<br /><br />"),
-            "/HTML/To earn this spell you must answer 10 problems using " +
-                "Right Distribution.<br /><br />"
+                      "9"),
+            "To earn this spell you must answer 10 problems using " +
+                "Right Distribution."
           ];
 
           showText(challengeDiv, challengeText, challenge, "Begin");
@@ -2104,7 +2108,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-
+      //updated
       function learnFireball() {
 
         function beginChallenge() {
@@ -2137,8 +2141,8 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
-            "/HTML/Euclid's Fireball is powered by Triangle Numbers, numbers that " +
-                "can be arranged to form an equilateral triangle.<br /><br />",
+            "Euclid's Fireball is powered by Triangle Numbers, numbers that " +
+                "can be arranged to form an equilateral triangle.",
             parseMath("<pre>" +
             "    Δ      ← _r1r_          <br />" +
             "   Δ Δ     ← 2 + _r1r_ = _g3g_  <br />" +
@@ -2146,7 +2150,7 @@ function overworld(player) {
             " Δ Δ Δ Δ   ← 4 + _b6b_ = _o10o_ <br />" +
             "Δ Δ Δ Δ Δ  ← 5 + _o10o_ = 15<br />" +
             "</pre><br /><br />"),
-            "/HTML/To earn this spell you must answer 10 problems using summation.<br /><br />"
+            "To earn this spell you must answer 10 problems using summation."
           ];
 
           showText(challengeDiv, challengeText, challenge, "Begin");
@@ -2156,7 +2160,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-
+      //updated
       function learnHeal() {
 
         function beginChallenge() {
@@ -2181,7 +2185,7 @@ function overworld(player) {
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
             "Hypatia's Healing Spell is powered by Square Numbers, numbers that " +
-                "are the product of a number times itself. ",
+                "are the product of a number times itself.",
             parseMath("<pre>" +
                 "  ←_b2b_→          <br />" +
                 "↑ ▫ ▫          <br />" +
@@ -2198,7 +2202,134 @@ function overworld(player) {
                 "_r4r_ ▫▫▫▫ _r4r_ × _b4b_ = 16<br />" +
                 "  ▫▫▫▫           <br />" +
                 "↓ ▫▫▫▫           <br /></pre>"),
-            "To earn this spell you must find 10 Square Numbers. "
+            "To earn this spell you must find 10 Square Numbers."
+          ];
+
+          showText(challengeDiv, challengeText, challenge, "Begin");
+
+          fadeTransition(challengeDiv, playArea);
+        }
+
+        yesNoBox(beginChallenge);
+      }
+      //updated
+      function learnReduce() {
+
+        function beginChallenge() {
+
+          function challenge(count = 0) {
+
+            count++;
+
+            clearElement(challengeDiv);
+
+            let bigTermTen = getRandomNumber(2, 9) * 10;
+            let bigTermOne = getRandomNumber(1, 5);
+            let smallTerm = getRandomNumber(bigTermOne + 1, 9);
+            let bigTerm = (bigTermTen) + bigTermOne;
+            let part1 = smallTerm - bigTermOne;
+            let answer = bigTerm - smallTerm;
+
+            let problem = `${bigTerm} - _o${smallTerm}o_ = ?
+                      <br /><br />
+                      ${bigTerm} - _o${bigTermOne}o_ - _o${part1}o_ = ?
+                      <br /><br />
+                      (_b${bigTerm}b_ - _b${bigTermOne}b_) - ${part1} = ?
+                      <br /><br />
+                      _b${bigTermTen}b_ - ${part1} = ?
+                      <br /><br />
+                      ${bigTerm} - ${smallTerm} = ${ansInput}`;
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.lovelace, count, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.innerHTML = parseMath(problem).slice(6);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+          let challengeText = [
+            "Lovelace's Reduction Spell is powered by how much time you spend answering questions.",
+            "To earn the Reduction Spell, you must improve your mastery of reducing numbers using decomposition.",
+            "Decomposition is when you break a number into smaller parts to make them easier to use.",
+            "/HTML/For example: 51 - 6<br /><br />" +
+                "We can decompose the 6 into two numbers (1 and 5) and use that to simplify our problem:",
+            parseMath("51 - _o6o_<br /> ↓ <br />" +
+            "51 - _o1o_ - _o5o_<br /> ↓ <br />" +
+            "(_b51b_ - _b1b_) - 5<br /> ↓ <br />" +
+            "_b50b_ - 5<br /> ↓ <br />" +
+            "45"),
+            "Use decomposition to solve this series of subtraction problems."
+          ];
+
+          showText(challengeDiv, challengeText, challenge, "Begin");
+
+          fadeTransition(challengeDiv, playArea);
+          let questions = -10;
+          let answers = [];
+        }
+
+        yesNoBox(beginChallenge);
+      }
+      //updated
+      function learnStrength() {
+
+        function beginChallenge() {
+
+          function challenge(count = 0) {
+
+            count++;
+            clearElement(challengeDiv);
+
+            let term1 = getRandomNumber(2, 9);
+            let term2 = getRandomNumber(7, 9);
+            let part1 = 10 - term2;
+            let answer = term1 * term2;
+
+            let problem = `${term1} × _b${term2}b_ = ?
+                          <br /><br />
+                          ${term1} × (_b10b_ - _b${part1}b_) = ?
+                          <br /><br />
+                          (${term1} × _b10b_) - (${term1} × _b${part1}b_) = ?
+                          <br /><br />
+                          ${term1} × ${term2} = ${ansInput}`;
+
+            setTimeout(function() {
+              document.onkeyup = function(e) {
+                e = e || window.event;
+                if (e.keyCode === 13) {
+                  checkAnswer(answer, player.spells.noether, count, challenge);
+                }
+              }
+            }, 200);
+
+            challengeDiv.innerHTML = parseMath(problem).slice(6);
+            document.getElementById("answerInput").focus();
+          }
+
+          let challengeDiv = makeDiv("challengeDiv", "textBox");
+          let challengeText = [
+            "Noether's Strength Spell is powered by how much damage you take.",
+            "To earn it, you need to strengthen your knowledge of the Distributive Property.",
+            "/HTML/Hopefully you remember this:<br /><br />" +
+                "a × (b + c)<br /> ↓ <br />" +
+                "(a × b) + (a × c)",
+            "/HTML/The Distributive Property also works with subtraction:<br /><br />" +
+                "a × (b - c)<br /> ↓ <br />" +
+                "(a × b) - (a × c)",
+            parseMath("To put it simply:<br /><br />" +
+                      "2 × _b9b_<br /> ↓ <br />" +
+                      "2 × (_b10b_ - _b1b_)<br /> ↓ <br />" +
+                      "_g(g_2 × _b10b__g)g_ - _o(o_2 × _b1b__o)o_<br /> ↓ <br />" +
+                      "_g20g_ - _o2o_<br /> ↓ <br />" +
+                      "18"),
+            "Answer 10 questions using the Distributive Property to earn this spell."
           ];
 
           showText(challengeDiv, challengeText, challenge, "Begin");
@@ -2209,229 +2340,66 @@ function overworld(player) {
         yesNoBox(beginChallenge);
       }
 
-      function learnReduce() {
-
-        function beginChallenge() {
-
-          function challenge() {
-
-            function showProblem(text, increment) {
-              insertTextNode(fragment, answers[answers.length - 1]);
-              for (let i = 0; i < answers.length; i++) {
-                insertTextNode(fragment, text);
-              }
-              insertTextNode(fragment, "= ?");
-              insertLineBreak(fragment, 2);
-              insertTextNode(fragment, answers[0] + text + "= ");
-              answer = answers[0] + increment
-              answers.unshift(answer);
-            }
-
-            questions++;
-            clearElement(challengeDiv);
-
-            if (answers.length === 0) {
-              answers[0] = getRandomNumber(11, 50);
-            } else if (answers.length > 5) {
-              answers = [];
-              answers[0] = getRandomNumber(15, 50);
-            }
-            let answer = null;
-            let fragment = document.createDocumentFragment();
-
-            if (questions < 1) showProblem(" + 2 ", 2);
-            if (questions > 0) showProblem(" - 2 ", -2);
-
-            insertAnswerInput(fragment, answer);
-
-            setTimeout(function() {
-              document.onkeyup = function(e) {
-                e = e || window.event;
-                if (e.keyCode === 13) {
-                  checkAnswer(answer, player.spells.hypatia, questions, challenge);
-                }
-              }
-            }, 200);
-
-            challengeDiv.appendChild(fragment);
-            document.getElementById("answerInput").focus();
-          }
-
-          let challengeDiv = makeDiv("challengeDiv", "textBox");
-
-          let textOne = "Lovelace's Reduction Spell is powered by numbers that end " +
-                        "with the number 2.";
-          insertTextNode(challengeDiv, textOne);
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, "2, 4, 6, 8, 10...");
-
-          insertLineBreak(challengeDiv, 2);
-
-          insertTextNode(challengeDiv, "19, 17, 15, 13, 11...");
-
-          let textTwo = "Earn this spell by adding and subtracting by 2. ";
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, textTwo);
-          insertLineBreak(challengeDiv, 2);
-
-          fadeTransition(challengeDiv, playArea);
-          setTimeout(function() {
-            insertButton(challengeDiv, "Begin", challenge);
-          }, 501);
-          let questions = -10;
-          let answers = [];
-        }
-
-        yesNoBox(beginChallenge);
-      }
-
-      function learnStrength() {
-
-        function beginChallenge() {
-
-          function challenge() {
-
-            function showProblem(text, increment) {
-              insertTextNode(fragment, answers[answers.length - 1]);
-              for (let i = 0; i < answers.length; i++) {
-                insertTextNode(fragment, text);
-              }
-              insertTextNode(fragment, "= ?");
-              insertLineBreak(fragment, 2);
-              insertTextNode(fragment, answers[0] + text + "= ");
-              answer = answers[0] + increment
-              answers.unshift(answer);
-            }
-
-            questions++;
-            clearElement(challengeDiv);
-
-            if (answers.length === 0) {
-              answers[0] = getRandomNumber(11, 50);
-            } else if (answers.length > 5) {
-              answers = [];
-              answers[0] = getRandomNumber(20, 50);
-            }
-            let answer = null;
-            let fragment = document.createDocumentFragment();
-
-            if (questions < 1) showProblem(" + 3 ", 3);
-            if (questions > 0) showProblem(" - 3 ", -3);
-
-            insertAnswerInput(fragment, answer);
-
-            setTimeout(function() {
-              document.onkeyup = function(e) {
-                e = e || window.event;
-                if (e.keyCode === 13) {
-                  checkAnswer(answer, player.spells.noether, questions, challenge);
-                }
-              }
-            }, 200);
-
-            challengeDiv.appendChild(fragment);
-            document.getElementById("answerInput").focus();
-          }
-
-          let challengeDiv = makeDiv("challengeDiv", "textBox");
-
-          let textOne = "Noether's Strength Spell is powered by numbers that end " +
-                        "with the number 3.";
-          insertTextNode(challengeDiv, textOne);
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, "3, 6, 9, 12, 15...");
-
-          insertLineBreak(challengeDiv, 2);
-
-          insertTextNode(challengeDiv, "25, 22, 19, 16, 13...");
-
-          let textTwo = "Earn this spell by adding and subtracting by 3. ";
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, textTwo);
-          insertLineBreak(challengeDiv, 2);
-
-          fadeTransition(challengeDiv, playArea);
-          setTimeout(function() {
-            insertButton(challengeDiv, "Begin", challenge);
-          }, 501);
-          let questions = -10;
-          let answers = [];
-        }
-
-        yesNoBox(beginChallenge);
-      }
-
       function learnStopTime() {
 
         function beginChallenge() {
 
-          function challenge() {
+          function challenge(count = 0) {
 
-            function showProblem(text, increment) {
-              insertTextNode(fragment, answers[answers.length - 1]);
-              for (let i = 0; i < answers.length; i++) {
-                insertTextNode(fragment, text);
-              }
-              insertTextNode(fragment, "= ?");
-              insertLineBreak(fragment, 2);
-              insertTextNode(fragment, answers[0] + text + "= ");
-              answer = answers[0] + increment
-              answers.unshift(answer);
-            }
-
-            questions++;
+            count++;
             clearElement(challengeDiv);
 
-            if (answers.length === 0) {
-              answers[0] = getRandomNumber(3, 70);
-            } else if (answers.length > 5) {
-              answers = [];
-              answers[0] = getRandomNumber(25, 80);
-            }
-            let answer = null;
-            let fragment = document.createDocumentFragment();
+            let bigTermTen = getRandomNumber(3, 6);
+            let bigTermOne = getRandomNumber(6, 9);
+            let smallTermTen = getRandomNumber(1, bigTermTen - 1);
+            let smallTermOne = getRandomNumber(1, bigTermOne);
+            let bigTerm = (bigTermTen * 10) + bigTermOne;
+            let smallTerm = (smallTermTen * 10) + smallTermOne;
+            let part = 10 - bigTermOne;
+            let answer = bigTerm + smallTerm;
 
-            if (questions < 1) showProblem(" + 5 ", 5);
-            if (questions > 0) showProblem(" - 5 ", -5);
-
-            insertAnswerInput(fragment, answer);
+            let problem = `${bigTerm} + ${smallTerm} = ?
+                          <br /><br />
+                          (${bigTerm} + _b${part}b_) + ${smallTerm} - _b${part}b_ = ?
+                          <br /><br />
+                          ${bigTerm + part} + ${smallTerm} - _b${part}b_ = ?
+                          <br /><br />
+                          ${bigTerm} + ${smallTerm} = ${ansInput}`;
 
             setTimeout(function() {
               document.onkeyup = function(e) {
                 e = e || window.event;
                 if (e.keyCode === 13) {
-                  checkAnswer(answer, player.spells.huygens, questions, challenge);
+                  checkAnswer(answer, player.spells.huygens, count, challenge);
                 }
               }
             }, 200);
 
-            challengeDiv.appendChild(fragment);
+            challengeDiv.innerHTML = parseMath(problem).slice(6);
             document.getElementById("answerInput").focus();
           }
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
+          let challengeText = [
+            "Huygens' Stop Time Spell is powered by answering questions quickly.",
+            "To earn this spell you must improve your mastery of Compensation.",
+            "Compensation works by adding a number into your equation to make it easier to solve, " +
+                "then taking it out at the end.",
+            parseMath("For example:<br /><br />" +
+                      "36 + 14<br /> ↓ <br />" +
+                      "(36 + _b4b_) + 14 - _b4b_<br /> ↓ <br />" +
+                      "40 + 14 - 4<br /> ↓ <br />" +
+                      "54 - 4<br /> ↓ <br />" +
+                      "50"),
+            "/HTML/This works because by adding 4 and subtracting 4 from our equation, we are adding " +
+                "0 to our problem:<br /><br />" +
+                "4 - 4 = 0.",
+            "Solve 10 problems using Compensation to earn the Stop Time Spell."
+          ];
 
-          let textOne = "Huygens' Stop Time Spell is powered by numbers that end " +
-                        "with the number 5.";
-          insertTextNode(challengeDiv, textOne);
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, "5, 10, 15, 20, 25...");
-
-          insertLineBreak(challengeDiv, 2);
-
-          insertTextNode(challengeDiv, "52, 47, 42, 37, 32...");
-
-          let textTwo = "Earn this spell by adding and subtracting by 5. ";
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, textTwo);
-          insertLineBreak(challengeDiv, 2);
+          showText(challengeDiv, challengeText, challenge, "Begin");
 
           fadeTransition(challengeDiv, playArea);
-          setTimeout(function() {
-            insertButton(challengeDiv, "Begin", challenge);
-          }, 501);
-          let questions = -10;
-          let answers = [];
         }
 
         yesNoBox(beginChallenge);
@@ -2512,85 +2480,53 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-
+      //updated
       function learnNova() {
 
         function beginChallenge() {
 
-          function challenge() {
+          function challenge(count = 0) {
 
-            function showProblem(text, increment) {
-              insertTextNode(fragment, answers[answers.length - 1]);
-              for (let i = 0; i < answers.length; i++) {
-                insertTextNode(fragment, text);
-              }
-              insertTextNode(fragment, "= ?");
-              insertLineBreak(fragment, 2);
-              insertTextNode(fragment, answers[0] + text + "= ");
-              answer = answers[0] + increment
-              answers.unshift(answer);
-            }
-
-            questions++;
+            count++;
+            console.log(count);
             clearElement(challengeDiv);
+            answer = Math.pow(2, count + 1);
+            problem = ``;
 
-            insertTextNode(challengeDiv, "2");
-            let sup = document.createElement("sup");
-            insertTextNode(sup, questions);
-            challengeDiv.appendChild(sup);
-
-            insertLineBreak(challengeDiv, 2);
-
-            for (let i = 0; i < questions; i++) {
-              insertTextNode(challengeDiv, "2");
-              if (i < questions - 1) {
-                insertTextNode(challengeDiv, " × ");
-              }
+            for (let i = 0; i < count; i++) {
+              problem += `2 × `;
             }
-            insertTextNode(challengeDiv, " = ");
+            problem += `2 = ?`
 
-            let answer = Math.pow(2, questions);
-
-            insertAnswerInput(challengeDiv, answer);
+            problem += `<br /><br />
+                       2<sup>${count + 1}</sup> = ${ansInput}`;
 
             setTimeout(function() {
               document.onkeyup = function(e) {
                 e = e || window.event;
                 if (e.keyCode === 13) {
-                  checkAnswer(answer, player.spells.brahe, questions, challenge);
+                  checkAnswer(answer, player.spells.brahe, count, challenge);
                 }
               }
             }, 200);
 
+            challengeDiv.innerHTML = problem;
             challengeDiv.appendChild(fragment);
             document.getElementById("answerInput").focus();
           }
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
-
-          let textOne = "Brahe's Nova Spell is powered by powers of 2";
-          insertTextNode(challengeDiv, textOne);
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, "2 × 2 = 2² ");
-
-          insertLineBreak(challengeDiv, 2);
-
-          insertTextNode(challengeDiv, "2 × 2 × 2 = 2³");
-
-          insertLineBreak(challengeDiv, 2);
-
-          insertTextNode(challengeDiv, "2 × 2 × 2 × 2 =  2⁴");
-
-          let textTwo = "Earn this spell by finding powers of 2. ";
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, textTwo);
-          insertLineBreak(challengeDiv, 2);
+          let challengeText = [
+            "Brahe's Nova Spell is powered by powers of 2",
+            "2² = 2 × 2 = 4",
+            "2³ = 2 × 2 × 2 = 8",
+            "2⁴ = 2 × 2 × 2 × 2 = 16",
+            "Earn this spell by finding powers of 2."
+          ]
 
           fadeTransition(challengeDiv, playArea);
-          setTimeout(function() {
-            insertButton(challengeDiv, "Begin", challenge);
-          }, 501);
-          let questions = 1;
+
+          showText(challengeDiv, challengeText, challenge, "Begin");
         }
 
         yesNoBox(beginChallenge);
@@ -2835,10 +2771,10 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
-            "Subtraction magic is like addition but turned around: ",
+            "Subtraction magic is like addition but turned around:",
             parseMath("1 + 2 = 3<br />• + •• = •••<br /><br />" +
-                      "3 - 2 = 1 or 3 - 1 = 2<br />_o•o_•• - •• = _o•o_ or _o••o_• - • = _o••o_<br />"),
-            "To earn this key you must answer 10 subtraction problems. "
+                      "3 - 2 = 1 or 3 - 1 = 2<br />_o•o_•• - •• = _o•o_ or _o••o_• - • = _o••o_"),
+            "To earn this key you must answer 10 subtraction problems."
           ];
 
           showText(challengeDiv, challengeText, challenge, "Begin");
@@ -2895,10 +2831,10 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
-            "Multiplication magic is like addition but repeated: ",
-            "/HTML/4 × 3 is the same as<br />4 + 4 + 4<br />",
-            "/HTML/7 × 4 is the same as<br />7 + 7 + 7 + 7<br />",
-            "To earn this key you must answer 10 multiplication problems. "
+            "Multiplication magic is like addition but repeated:",
+            "/HTML/4 × 3 is the same as<br />4 + 4 + 4",
+            "/HTML/7 × 4 is the same as<br />7 + 7 + 7 + 7",
+            "To earn this key you must answer 10 multiplication problems."
           ];
 
           showText(challengeDiv, challengeText, challenge, "Begin");
@@ -2944,9 +2880,9 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
-            "Division magic is like multiplication but turned around: ",
-            "/HTML/3 × 5 = 15<br />15 ÷ 5 = 3 or 15 ÷ 3 = 5<br />",
-            "To earn this key you must answer 10 division problems. "
+            "Division magic is like multiplication but turned around:",
+            "/HTML/3 × 5 = 15<br />15 ÷ 5 = 3 or 15 ÷ 3 = 5",
+            "To earn this key you must answer 10 division problems."
           ];
 
           showText(challengeDiv, challengeText, challenge, "Begin");
@@ -5159,7 +5095,19 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (isPrime(answer)) player.stats.primes++;
       if (isTriangle(answer) && player.spells.euclid.learned) player.spells.euclid.number++;
       if (isSquare(answer) && player.spells.hypatia.learned) player.spells.hypatia.number++;
-      if (answer % 10 === 2 && player.spells.lovelace.learned) player.spells.lovelace.number++;
+      if (player.spells.lovelace.learned) {
+        if (player.totalTime - player.stats.lovelaceCounter > 20) {
+          player.spells.lovelace.number++;
+          player.stats.lovelaceCounter = 0;
+        }
+      }
+      if (player.spells.huygens.learned) {
+        if (timer.answerTime <= 2) {player.stats.huygensCounter++}
+        if (player.stats.huygensCounter > 9) {
+          player.spells.huygens.number++;
+          player.stats.huygensCounter = 0;
+        }
+      }
       if (player.addition.totalAverage[1] >= 66 && player.spells.euclid.learned === false) {
         player.notification.euclidSpell = "Fireball Spell Available";
         player.spells.euclid.available = true;
@@ -5329,6 +5277,16 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       buttonsOff = true;
+      if (player.spells.noether.learned) {
+        if (player.stats.noetherCounter >= 5) {
+          player.spells.noether.number++;
+          player.stats.noetherCounter = 0;
+          let target = document.getElementById("hexagonImg");
+          target.parentNode.lastChild.textContent = player.spells.noether.number;
+        }
+        player.stats.noetherCounter += monster.damage;
+      }
+
       player.stats.damage.received += monster.damage;
       player.health = (monster.damage > player.health) ? 0:(player.health - monster.damage);
 
@@ -5364,6 +5322,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         let img = document.getElementById(id);
         img.style.filter = "opacity(100%)";
         img.onclick = callback;
+
       }
 
       if (player.spells.fibonacci.learned) {      //Hint Spell
@@ -5379,16 +5338,24 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         player.spells.hypatia.ongoing = false;
       }
       if (player.spells.lovelace.learned) {       //Reduction Spells
+        if (player.stats.lovelaceCounter === 0) {
+          player.stats.lovelaceCounter = player.totalTime;
+        }
         turnOnSpell("pentagonImg", castLovelace);
         player.spells.lovelace.ongoing = false;
+        let target = document.getElementById("pentagonImg");
+        target.parentNode.lastChild.textContent = player.spells.lovelace.number;
       }
       if (player.spells.noether.learned) {        //Strength Spells
         turnOnSpell("hexagonImg", castNoether);
         player.spells.noether.ongoing = false;
+
       }
       if (player.spells.huygens.learned) {        //Stop Time Spells
         turnOnSpell("pyramidImg", castHuygens);
         player.spells.huygens.ongoing = false;
+        let target = document.getElementById("pyramidImg");
+        target.parentNode.lastChild.textContent = player.spells.lovelace.number;
       }
       if (player.spells.fermat.learned) {         //Polymorph Spells
         turnOnSpell("cubeImg", castFermat);
