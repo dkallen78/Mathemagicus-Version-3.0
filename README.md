@@ -10,7 +10,9 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 I've pixelated the portraits of the mathematicians for whom my spells are named, the next step is to implement the library functionality of the Mage Guild. I'm going to use it to display mini-bios of mathematicians and scientists, starting w/ the set I have now.
 
-I have been wanting to update the spell UI but I keep putting it off because it sounds like it will be hard to implement and debug. But I'll finish improving the challenges tomorrow so I'll be out of excuses to avoid it.
+I have been wanting to update the spell UI but I keep putting it off because it sounds like it will be hard to implement and debug. But I'll finish improving the challenges tomorrow so I'll be out of excuses to avoid it. (<--This is a lie, I will always be able to find an excuse to avoid it)
+
+My best idea so far is to have the player press the space bar to bring up a numbered list of available spells along w/ the number available. The the player will press the number they want to activate the spell. I was going to have the player hold the space bar to keep the menu open but managing two key inputs at once is something I'll tackle another day.
 
 ### Notes to self:
 
@@ -29,6 +31,16 @@ Sprites
 Scrolls
 
 Spell icons
+
+## 2020.03.11
+
+### Update
+
+I didn't have a lot of time today but I finished up the last challenge. I went with mirror numbers to increment the spells and the challenge was about a different form of of compensation.
+
+I didn't start on the spell UI today... I did work on other UI things instead. The game can now be navigated exclusively with keyboard. It's not a perfect solution. The options menu for instance will need an overhaul if I add any more options to it. the element.focus() method isn't working like I want it to either so I'll have to figure out what's going on there as well. 
+
+I'll just be doing minor updates until I go to bed but hopefully tomorrow I'll start breaking gound on the spell UI.
 
 ## 2020.03.10
 
