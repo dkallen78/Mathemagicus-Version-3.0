@@ -65,6 +65,16 @@ const isSquare = function(number) {
   return squareNumbers.includes(number);
 }
 
+const isMirror = function(number) {
+  let numString = number.toString();
+
+  if (numString.endsWith(numString[0]) && number > 10) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 const findMonster = function(array, index) {
   //----------------------------------------------------//
   //Similar to array.indexOf(), only customized         //
@@ -100,6 +110,27 @@ const monsterSearch = function(array, index) {
 //-------------------------------------------------------------------//
 //Display helper functions                                           //
 //-------------------------------------------------------------------//
+
+const parseMath = function(string) {
+  let htmlString = string;
+  if (htmlString.includes("_r")) {
+    htmlString = htmlString.replace(/_r/g, "<span style=\"color:#ff7878;\">");
+    htmlString = htmlString.replace(/r_/g, "</span>");
+  }
+  if (htmlString.includes("_g")) {
+    htmlString = htmlString.replace(/_g/g, "<span style=\"color:#78ff78;\">");
+    htmlString = htmlString.replace(/g_/g, "</span>");
+  }
+  if (htmlString.includes("_b")) {
+    htmlString = htmlString.replace(/_b/g, "<span style=\"color:#babaff;\">");
+    htmlString = htmlString.replace(/b_/g, "</span>");
+  }
+  if (htmlString.includes("_o")) {
+    htmlString = htmlString.replace(/_o/g, "<span style=\"color:orange;\">");
+    htmlString = htmlString.replace(/o_/g, "</span>");
+  }
+  return "/HTML/" + htmlString;
+}
 
 function clearElement() {
   //----------------------------------------------------//
@@ -199,6 +230,7 @@ function insertButton(element, text, click, id = "nextButton", bClass = "none") 
 }
 
 function insertAnswerInput(target, answer, callback) {
+  console.log("Delete Me!");
   //----------------------------------------------------//
   //Makes and inserts the number input box              //
   //element-> target: where to insert the number        //
@@ -213,7 +245,9 @@ function insertAnswerInput(target, answer, callback) {
   input.id = "answerInput";
   if (callback) {
     input.onkeyup = function() {
-      callback(event, answer);
+      setTimeout(function() {
+        callback(event, answer);
+      }, 200);
     }
   }
   target.appendChild(input);
@@ -261,7 +295,7 @@ function makeButton(callback, text, id = "") {
   //----------------------------------------------------//
 
   const button = document.createElement("button");
-  button.textContent = text;
+  button.innerHTML = text;
   button.type = "button";
   button.onclick = function() {
     callback();
@@ -1218,7 +1252,31 @@ function gameStart() {
           let fragment = makeFragment(left, option, right);
         menuBox.appendChild(fragment);
         target.appendChild(menuBox);
+
+        setTimeout(function() {
+          document.onkeyup = function(e) {
+            if (e.keyCode === 13) {
+              document.onkeyup = null;
+              fetch(languageFiles[languageBox.index])
+                .then(function(response) {
+                  return response.json();
+                })
+                .then(function(myJson) {
+                  textData = myJson;
+                  player.language = languageBox.language;
+                  playArea.removeChild(optionBox);
+                  clearElement(playArea);
+                  titleScreen();
+                });
+            }else if (e.keyCode === 37) {
+              optionLeft(obj, option);
+            } else if (e.keyCode === 39) {
+              optionRight(obj, option);
+            }
+          }
+        }, 200);
       }
+
     }
 
     //
@@ -1325,6 +1383,30 @@ function gameStart() {
 
     let fragment = makeFragment(titleDiv, newGame, cont, options);
     playArea.appendChild(fragment);
+    newGame.focus();
+
+    let startIndex = new ArrayIndex(0, 3);
+    let startOptions = {
+      0: newGame,
+      1: cont,
+      2: options
+    }
+
+    setTimeout(function() {
+      document.onkeyup = function(e) {
+        if (e.keyCode === 13) {
+          document.onkeyup = null;
+          clearInterval(options);
+          startOptions[startIndex.now].onclick();
+        } else if (e.keyCode === 38) {         //up
+          startOptions[startIndex.sub(1)].focus();
+        } else if (e.keyCode === 40) {  //down
+          startOptions[startIndex.add(1)].focus();
+        }
+
+      }
+    }, 200);
+
 
     document.body.style.filter = "opacity(100%)";
   }
@@ -1754,7 +1836,7 @@ function overworld(player) {
             enterCatacombs();
           }
         }
-        if (e.keyCode === 32) {     //Space Button
+        if (e.keyCode === 27) {     //ESC Button
           document.onkeyup = null;
           returnToDungeonMenu()
         }
@@ -1812,27 +1894,6 @@ function overworld(player) {
           returnToDungeonMenu();
           break;
       }
-    }
-
-    const parseMath = function(string) {
-      htmlString = string;
-      if (htmlString.includes("_r")) {
-        htmlString = htmlString.replace(/_r/g, "<span style=\"color:#ff7878;\">");
-        htmlString = htmlString.replace(/r_/g, "</span>");
-      }
-      if (htmlString.includes("_g")) {
-        htmlString = htmlString.replace(/_g/g, "<span style=\"color:#78ff78;\">");
-        htmlString = htmlString.replace(/g_/g, "</span>");
-      }
-      if (htmlString.includes("_b")) {
-        htmlString = htmlString.replace(/_b/g, "<span style=\"color:#babaff;\">");
-        htmlString = htmlString.replace(/b_/g, "</span>");
-      }
-      if (htmlString.includes("_o")) {
-        htmlString = htmlString.replace(/_o/g, "<span style=\"color:orange;\">");
-        htmlString = htmlString.replace(/o_/g, "</span>");
-      }
-      return "/HTML/" + htmlString;
     }
 
     function learnSpells() {
@@ -1935,7 +1996,7 @@ function overworld(player) {
           answerInput.value = "";
         }
       }
-      //updated
+
       function learnAssociative() {
 
         function beginChallenge() {
@@ -1993,7 +2054,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-      //updated
+
       function learnLeftDistribution() {
 
         function beginChallenge() {
@@ -2054,7 +2115,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-      //updated
+
       function learnRightDistribution() {
 
         function beginChallenge() {
@@ -2108,7 +2169,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-      //updated
+
       function learnFireball() {
 
         function beginChallenge() {
@@ -2160,7 +2221,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-      //updated
+
       function learnHeal() {
 
         function beginChallenge() {
@@ -2212,7 +2273,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-      //updated
+
       function learnReduce() {
 
         function beginChallenge() {
@@ -2277,7 +2338,7 @@ function overworld(player) {
 
         yesNoBox(beginChallenge);
       }
-      //updated
+
       function learnStrength() {
 
         function beginChallenge() {
@@ -2409,78 +2470,66 @@ function overworld(player) {
 
         function beginChallenge() {
 
-          function challenge() {
+          function challenge(count = 0) {
 
-            function showProblem(text, increment) {
-              insertTextNode(fragment, answers[answers.length - 1]);
-              for (let i = 0; i < answers.length; i++) {
-                insertTextNode(fragment, text);
-              }
-              insertTextNode(fragment, "= ?");
-              insertLineBreak(fragment, 2);
-              insertTextNode(fragment, answers[0] + text + "= ");
-              answer = answers[0] + increment
-              answers.unshift(answer);
-            }
-
-            questions++;
+            count++;
             clearElement(challengeDiv);
 
-            if (answers.length === 0) {
-              answers[0] = getRandomNumber(3, 70);
-            } else if (answers.length > 5) {
-              answers = [];
-              answers[0] = getRandomNumber(51, 150);
-            }
-            let answer = null;
-            let fragment = document.createDocumentFragment();
+            let bigTermTen = getRandomNumber(2, 5);
+            let bigTermOne = getRandomNumber(1, 4);
+            let smallTermTen = getRandomNumber(1, bigTermTen);
+            let smallTermOne = getRandomNumber(bigTermOne, 9);
+            let bigTerm = (bigTermTen * 10) + bigTermOne;
+            let smallTerm = (smallTermTen * 10) + smallTermOne;
+            let answer = bigTerm + smallTerm;
 
-            if (questions < 1) showProblem(" + 10 ", 10);
-            if (questions > 0) showProblem(" - 10 ", -10);
-
-            insertAnswerInput(fragment, answer);
+            let problem = `${bigTerm} + ${smallTerm} = ?
+                          ${dblBreak}
+                          ${bigTerm} - _b${bigTermOne}b_ + ${smallTerm} + _b${bigTermOne}b_ = ?
+                          ${dblBreak}
+                          ${bigTermTen * 10} + ${smallTerm} + _b${bigTermOne}b_ = ${ansInput}`
 
             setTimeout(function() {
               document.onkeyup = function(e) {
                 e = e || window.event;
                 if (e.keyCode === 13) {
-                  checkAnswer(answer, player.spells.fermat, questions, challenge);
+                  checkAnswer(answer, player.spells.fermat, count, challenge);
                 }
               }
             }, 200);
 
-            challengeDiv.appendChild(fragment);
+            challengeDiv.innerHTML = parseMath(problem).slice(6);
             document.getElementById("answerInput").focus();
           }
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
+          let challengeText = [
+            "Fermat's Polymorph Monster spell is powered by mirror numbers: numbers that are the same " +
+                "forwards and backwards like 55 or 121.",
+            "To earn Fermat's Polymorph Monster spell, you must improve your mastery of Compensation.",
+            "Compensation is the idea that we can change a number by a little bit now, to make " +
+                "our math easier, but we have to change it back when we're done.",
+            "For example:" +
+                "32 + 15" +
+                "We can take away 2 from 32 (32 - 2) to make our problem easier," +
+                "but we have to add it back in when we're done with the problem.",
+            parseMath("32 + 15<br /> ↓ <br />" +
+                      "32 - _o2o_ + 15 + _o2o_<br /> ↓ <br />" +
+                      "_b(b_32 - _o2o__b)b_ + 15 + _o2o_<br /> ↓ <br />" +
+                      "_b30b_ + 15 + _o2o_<br /> ↓ <br />" +
+                      "45 + _o2o_<br /> ↓ <br />" +
+                      "47"),
+            "To earn this spell, you must answer 10 questions using Compensation."
+          ];
 
-          let textOne = "Fermat's Polymorph Monsters Spell is powered by numbers that are " +
-                        "factors of 10.";
-          insertTextNode(challengeDiv, textOne);
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, "10, 20, 30, 40, 50...");
-
-          insertLineBreak(challengeDiv, 2);
-
-          insertTextNode(challengeDiv, "83, 73, 63, 53, 43...");
-
-          let textTwo = "Earn this spell by adding and subtracting by 10. ";
-          insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, textTwo);
-          insertLineBreak(challengeDiv, 2);
+          showText(challengeDiv, challengeText, challenge, "Begin");
 
           fadeTransition(challengeDiv, playArea);
-          setTimeout(function() {
-            insertButton(challengeDiv, "Begin", challenge);
-          }, 501);
-          let questions = -10;
-          let answers = [];
         }
 
         yesNoBox(beginChallenge);
       }
-      //updated
+
       function learnNova() {
 
         function beginChallenge() {
@@ -3006,6 +3055,7 @@ function overworld(player) {
     let guildMenuSelectors = new MenuSelector(1, "Welcome to the Mages' Guild")
     let introText = `It's good to see you again ${player.name}, what can I do for you?`;
     let ansInput = `<input type="number" id="answerInput"></input>`;
+    let dblBreak = `<br /><br />`;
 
     fadeTransition(fragment, playArea, 500, function() {
       if (player.triggers.newGame) {
@@ -3065,7 +3115,7 @@ function overworld(player) {
       target.appendChild(p);
     }
 
-    function checkKeys(key) {
+    function checkKeys(key, source, index) {
       //----------------------------------------------------//
       //Checks to see if a left or right arrow key          //
       //was pressed                                         //
@@ -3073,14 +3123,64 @@ function overworld(player) {
       //37 = left key, 39 = right key                       //
       //----------------------------------------------------//
 
+      index += 48;
+
       switch (key) {
+        case 27:    //ESC
+          document.onkeyup = null;
+          returnToDungeonMenu();
+          break;
         case 37:
-          document.onkeyup = "";
+          document.onkeyup = null;
           pageRight();
           break;
         case 39:
-          document.onkeyup = "";
+        if (index !== 53) {
+          document.onkeyup = null;
           pageLeft();
+        }
+          break;
+        case 49:    //1 ToC
+          if (index !== 49) {
+            document.onkeyup = null;
+            turnPageRight(source, contentsPage);
+          }
+          break;
+        case 50:    //2 Status
+          if (index !== 50) {
+            document.onkeyup = null;
+            if (index < 50) {
+              turnPageLeft(source, statusPage);
+            } else {
+              turnPageRight(source, statusPage);
+            }
+          }
+          break;
+        case 51:    //3 Spells
+          if (index !== 51) {
+            document.onkeyup = null;
+            if (index < 51) {
+              turnPageLeft(source, spellsPage);
+            } else {
+              turnPageRight(source, spellsPage);
+            }
+          }
+          break;
+        case 52:    //4 Monsters
+          if (index !== 52) {
+            document.onkeyup = null;
+            if (index < 52) {
+              turnPageLeft(source, monstersPage);
+            } else {
+              turnPageRight(source, monstersPage);
+            }
+          }
+          break;
+        case 53:    //5 Achievements
+          if (index !== 53) {
+            document.onkeyup = null;
+            turnPageLeft(source, achievementsPage);
+          }
           break;
       }
     }
@@ -3180,19 +3280,19 @@ function overworld(player) {
 
       let quickButtonDiv = makeDiv("quickButtonDiv");
 
-      let button = makeButton(null, "ToC", "", "quickButtons");
+      let button = makeButton(null, "ToC 1", "", "quickButtons");
       quickButtonDiv.appendChild(button);
 
-      button = makeButton(null, "Status", "", "quickButtons");
+      button = makeButton(null, "Status 2", "", "quickButtons");
       quickButtonDiv.appendChild(button);
 
-      button = makeButton(null, "Spells", "", "quickButtons");
+      button = makeButton(null, "Spells 3", "", "quickButtons");
       quickButtonDiv.appendChild(button);
 
-      button = makeButton(null, "Monsters", "", "quickButtons");
+      button = makeButton(null, "Monsters 4", "", "quickButtons");
       quickButtonDiv.appendChild(button);
 
-      button = makeButton(null, "Achievements", "", "quickButtons");
+      button = makeButton(null, "Achievements 5", "", "quickButtons");
       quickButtonDiv.appendChild(button);
 
       targetElement.appendChild(quickButtonDiv);
@@ -3219,8 +3319,11 @@ function overworld(player) {
       document.onkeyup = function(e) {
         e = e || window.event;
         if (e.keyCode === 39) {
-          document.onkeyup = "";
+          document.onkeyup = null;
           turnPageLeft(titlePage, contentsPage);
+        } else if (e.keyCode === 27) {
+          document.onkeyup = null;
+          returnToDungeonMenu();
         }
       }
       //
@@ -3265,7 +3368,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode);
+        checkKeys(e.keyCode, tableOfContents, 1);
       }
 
       makePageTitle("Table of Contents", tableOfContents);
@@ -3292,7 +3395,7 @@ function overworld(player) {
         return p;
       }
 
-      let p = chapterEntry(statusPage, "Status", "A list of " + player.possessive + " progress.");
+      let p = chapterEntry(statusPage, "Status", `A list of ${player.possessive} progress.`);
       tableOfContents.appendChild(p);
 
       p = chapterEntry(spellsPage, "Spells", "A list of the spells " + player.name + " has learned.");
@@ -3367,7 +3470,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode);
+        checkKeys(e.keyCode, status, 2);
       }
       //
       //This block makes and places the <div> and <image>
@@ -3494,7 +3597,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode);
+        checkKeys(e.keyCode, spells, 3);
       }
       //
       //Inserts the title of the Spell Page
@@ -3578,7 +3681,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode);
+        checkKeys(e.keyCode, spell, 3.5);
       }
 
       let spellDiv = makeDiv("spellDetailDiv");
@@ -3657,7 +3760,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode);
+        checkKeys(e.keyCode, monsters, 4);
       }
       makePageTitle("Capitulum Prodigium", monsters, 1.5);
       //
@@ -3776,7 +3879,7 @@ function overworld(player) {
 
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode);
+        checkKeys(e.keyCode, monsterList, 4.5);
       }
       //
       //Makes the table that displays the names of the
@@ -3929,7 +4032,7 @@ function overworld(player) {
       //with the arrow keys
       document.onkeyup = function(e) {
         e = e || window.event;
-        checkKeys(e.keyCode);
+        checkKeys(e.keyCode, monsterDetail, 4.5);
       }
 
       makePageTitle((currentMonster[1] + 1) + ". " + monsterNames[currentMonster[1]], monsterDetail);
@@ -4139,11 +4242,16 @@ function overworld(player) {
 
       document.onkeyup = function(e) {
         e = e || window.event;
-        if (e.keyCode === 37) {
+        checkKeys(e.keyCode, achievementPage, 5);
+      }
+
+      /*document.onkeyup = function(e) {
+        e = e || window.event;
+        if (e.keyCode === 37, achievementPage, 5) {
           document.onkeyup = "";
           pageRight();
         }
-      }
+      }*/
 
       makePageTitle(player.possessive + " Achievements", achievementPage);
 
@@ -4697,6 +4805,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let playerDiv = makeCombatDiv("playerDiv", player.sprites.path + player.sprites.files[0], "playerImg", "slash.gif", "slash");
     combatDiv.appendChild(playerDiv);
 
+
     //
     //The monster's image
     //
@@ -4814,9 +4923,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         target.appendChild(span);
       }
 
-      const showProblem = function() {
+      const showProblem = function(problem, answer) {
 
         clearElement(problemDiv);
+        problemDiv.innerHTML = parseMath(problem).slice(6);
         problemDiv.appendChild(fragment);
         timer = new Timer(timerValue);
         if (timerValue > 0) {
@@ -4827,8 +4937,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         timer.startTimer();
 
         spellsOn();
+        setTimeout(function() {
+          document.onkeypress = function() {
+            checkKeyPress(event, answer);
+          }
+        }, 200);
 
-        let answerInput = document.getElementById("answerInput");
         answerInput.focus();
       }
 
@@ -4837,50 +4951,45 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       let fragment = document.createDocumentFragment();
       let flash = new ScreenFlash("playAreaWhite");
       let checkFlash = null;
+      let problem = ``;
+      let ansInput = `<input type="number" id="answerInput"></input>`;
+      let dblBreak = `<br /><br />`;
 
       switch (findProblemType()) {
         case "normal":
           terms = getTerms(operation, monster.level);
-          insertTextNode(fragment, terms[0] + " " + current[operation].sign);
-          insertProblemSpan(fragment, terms[1]);
-          insertTextNode(fragment, "= ");
-          insertAnswerInput(fragment, terms[2], checkKeyPress);
-          showProblem();
+          problem = `${terms[0]} ${current[operation].sign} _r${terms[1]}r_ = ${ansInput}`;
+          showProblem(problem, terms[2]);
           break;
         case "algebra":
-          problemDiv.innerHTML = "The " + monster.name + " used Algebra!";
+          problemDiv.textContent = `The ${monster.name} used Algebra!`;
           flash.flash = setInterval(function() {
             flash.screenFlash();
           }, 100);
 
           terms = getTerms(operation, monster.level);
-          insertTextNode(fragment, terms[0] + " " + current[operation].sign + " ");
-          insertAnswerInput(fragment, terms[1], checkKeyPress);
-          insertTextNode(fragment, " = " + terms[2]);
+          problem = `${terms[0]} ${current[operation].sign} ${ansInput} = ${terms[2]}`
 
           checkFlash = setInterval(function() {
             if (flash.count === 0) {
               clearInterval(checkFlash);
-              showProblem();
+              showProblem(problem, terms[1]);
             }
           }, 250);
           break;
         case "sequence":
-          problemDiv.innerHTML = "The " + monster.name + " used Sequence!";
+          problemDiv.textContent = `The ${monster.name} used Sequence!`;
           flash.flash = setInterval(function() {
             flash.screenFlash();
           }, 100);
 
           terms = getTerms("sequence", monster.level, operation);
-          insertTextNode(fragment, terms[0] + ", " + terms[1] + ", ");
-          insertTextNode(fragment, terms[2] + ", " + terms[3] + ", ");
-          insertAnswerInput(fragment, terms[4], checkKeyPress);
-          insertTextNode(fragment, ",...");
+          problem = `${terms[0]}, ${terms[1]}, ${terms[2]}, ${terms[3]}, ${ansInput},...`
 
           checkFlash = setInterval(function() {
             if (flash.count === 0) {
               clearInterval(checkFlash);
-              showProblem();
+              showProblem(problem, terms[4]);
             }
           }, 250);
 
@@ -4969,6 +5078,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //Gets the next monster and sends the player
     //back to the getProblem() function
     const nextMonster = function() {
+      document.onkeyup = null;
       monster = new Monster(catacombLevel);
       monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
       monsterImg.style.filter = "brightness(100%)";
@@ -4992,6 +5102,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
 
     const intermission = function() {
+
       let problemDiv = document.getElementById("problemDiv");
       problemDiv.innerHTML = "You're doing great! You've defeated " + monsterInterval + " monsters!";
       insertLineBreak(problemDiv, 2);
@@ -4999,7 +5110,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         overworld(player);
       }, "return", "yesNoButtons");
       insertTextNode(problemDiv, " ");
-      insertButton(problemDiv, "Continue", nextMonster, "continue", "yesNoButtons");
+      insertButton(problemDiv, "Continue", function() {
+        document.onkneyup = null;
+        nextMonster()
+      }, "continue", "yesNoButtons");
 
       setTimeout(function() {
         let rtrn = document.getElementById("return");
@@ -5107,6 +5221,9 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           player.spells.huygens.number++;
           player.stats.huygensCounter = 0;
         }
+      }
+      if (player.spells.fermat.learned && isMirror(answer)) {
+        player.spells.fermat.number++;
       }
       if (player.addition.totalAverage[1] >= 66 && player.spells.euclid.learned === false) {
         player.notification.euclidSpell = "Fireball Spell Available";
@@ -5332,10 +5449,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.euclid.learned) {         //Fireball Spells
         turnOnSpell("triangleImg", castEuclid);
         player.spells.euclid.ongoing = false;
+        let target = document.getElementById("triangleImg");
+        target.parentNode.lastChild.textContent = player.spells.euclid.number;
       }
       if (player.spells.hypatia.learned) {        //Heal Spells
         turnOnSpell("squareImg", castHypatia);
         player.spells.hypatia.ongoing = false;
+        let target = document.getElementById("squareImg");
+        target.parentNode.lastChild.textContent = player.spells.hypatia.number;
       }
       if (player.spells.lovelace.learned) {       //Reduction Spells
         if (player.stats.lovelaceCounter === 0) {
@@ -5355,15 +5476,19 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         turnOnSpell("pyramidImg", castHuygens);
         player.spells.huygens.ongoing = false;
         let target = document.getElementById("pyramidImg");
-        target.parentNode.lastChild.textContent = player.spells.lovelace.number;
+        target.parentNode.lastChild.textContent = player.spells.huygens.number;
       }
       if (player.spells.fermat.learned) {         //Polymorph Spells
         turnOnSpell("cubeImg", castFermat);
         player.spells.fermat.ongoing = false;
+        let target = document.getElementById("cubeImg");
+        target.parentNode.lastChild.textContent = player.spells.fermat.number;
       }
       if (player.spells.brahe.learned) {            //Star Spells
         turnOnSpell("starImg", castBrahe);
         player.spells.brahe.ongoing = false;
+        let target = document.getElementById("starImg");
+        target.parentNode.lastChild.textContent = player.spells.brahe.number;
       }
     }
     //
@@ -6839,6 +6964,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let monsterInterval = 0;
     let terms = null;
     let buttonsOff = false;
+    let playerImg = document.getElementById("playerImg");
+    playerImg.title = player.name;
     getProblem();
   }
 

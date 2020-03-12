@@ -249,7 +249,7 @@ Styles my two start buttons: "New Game" and "Continue"*/
 }
 /*
 Changes the background color of the buttons when hovered*/
-.startButtons:hover {
+.startButtons:hover, .startButtons:focus {
   border-bottom: 3px solid red;
   border-top: 3px solid black;
   color: red;
@@ -914,6 +914,7 @@ monster book*/
   background-color: rgba(0,0,0,0.125);
   border-radius: 0px 0px 5px 5px;
   border: 1px solid black;
+  font-size: .9em;
   font-family: monospace;
   transition: background-color 500ms;
 }
