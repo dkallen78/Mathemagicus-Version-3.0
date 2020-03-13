@@ -6,13 +6,9 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Library and Spell UI
+### Up next: Library
 
 I've pixelated the portraits of the mathematicians for whom my spells are named, the next step is to implement the library functionality of the Mage Guild. I'm going to use it to display mini-bios of mathematicians and scientists, starting w/ the set I have now.
-
-I have been wanting to update the spell UI but I keep putting it off because it sounds like it will be hard to implement and debug. But I'll finish improving the challenges tomorrow so I'll be out of excuses to avoid it. (<--This is a lie, I will always be able to find an excuse to avoid it)
-
-My best idea so far is to have the player press the space bar to bring up a numbered list of available spells along w/ the number available. The the player will press the number they want to activate the spell. I was going to have the player hold the space bar to keep the menu open but managing two key inputs at once is something I'll tackle another day.
 
 ### Notes to self:
 
@@ -30,7 +26,15 @@ Sprites
 
 Scrolls
 
-Spell icons
+## 2020.03.12
+
+### Update
+
+Even though I got it started last night, I think I have finished the spell UI I intended to make. Changing the way spells were called and displayed caused a lot of bugs I had to chase out of my code but I feel confident that it's mostly under control. 
+
+I also tackled an issue I had with how the time bar would decrease. I had to re-understand something I wrote months ago that I didn't comment very well but after figuring it out I'm very happy with the results. I need to stress test the time features more but I'm happy enough to work on something else for a while. 
+
+Tomorrow (or maybe tonight) I'm going to break ground on the Library interface of the Mage Guild. That's going to be a big chunk of code but I want it so I'm going to do it. The problem is I know what I want it to do, but I don't know how I want it to look or how I want it to be done... If it's like the other parts of this I've worked on I'll get something that works, decide I want to change it, break it, then fix it again.
 
 ## 2020.03.11
 
