@@ -129,6 +129,14 @@ const parseMath = function(string) {
     htmlString = htmlString.replace(/_o/g, "<span style=\"color:orange;\">");
     htmlString = htmlString.replace(/o_/g, "</span>");
   }
+  if (htmlString.includes("_fl")) {
+    htmlString = htmlString.replace(/_fl/g, "<span style=\"float:left;\">");
+    htmlString = htmlString.replace(/fl_/g, "</span>");
+  }
+  if (htmlString.includes("_fr")) {
+    htmlString = htmlString.replace(/_fr/g, "<span style=\"float:right;\">");
+    htmlString = htmlString.replace(/fr_/g, "</span>");
+  }
   return "/HTML/" + htmlString;
 }
 
@@ -808,7 +816,7 @@ class ScreenFlash {
 }
 
 class Spell {
-  constructor(name, index) {
+  constructor(name, index, number = 0) {
     this.name = name;
     this.available = false;
     this.learned = false;
@@ -882,18 +890,19 @@ class Player {
       monstersKilled: 0,            //Total number of monsters killed
       lovelaceCounter: 0,
       noetherCounter: 0,
-      huygensCounter: 0
+      huygensCounter: 0,
+      spellActive: false
     }
     //
     //Spell related stats
     this.spells = {
-      fibonacci: new Spell("Fibonacci's Associative Spell", 3),
+      fibonacci: new Spell("Fibonacci's Associative Spell", 3, "ꚙ"),
       euler1: new Spell("Euler's Left Distributive Spell", 4),
       euler2: new Spell("Euler's Right Distributive Spell", 5),
       euclid: new Spell("Euclid's Fireball Spell", 6),
       hypatia: new Spell("Hypatia's Healing Spell", 7),
       lovelace: new Spell("Lovelace's Reduction Spell", 8),
-      huygens: new Spell("Huygen's Stop-time Spell", 9),
+      huygens: new Spell("Huygens' Stop-time Spell", 9),
       fermat: new Spell("Fermat's Polymorph Monster Spell", 10),
       noether: new Spell("Noether's Strength Spell", 11),
       brahe: new Spell("Brahe's Nova Spell", 12)
@@ -1039,7 +1048,7 @@ const test = function() {
     })
     .then(function(myJson) {
       monsterData = myJson;
-      catacombs(player, "addition", 0, 2, monsterData);
+      catacombs(player, "addition", 1, 2, monsterData);
     });*/
 }
 
@@ -1361,6 +1370,7 @@ function gameStart() {
       enterName();
     });
     let cont = titleScreenButton("continue", textData.continue, "2", function() {
+      document.onkeyup = null;     1
       clearInterval(options);
       test();
     });
@@ -2641,7 +2651,6 @@ function overworld(player) {
 
       let number = 0;
       for (let i = 0; i < Object.keys(player.spells).length; i++) {
-
         if (Object.values(player.spells)[i].available === true) {
           let menuItem = makeDiv(i, "menuItem");
           menuItem.tabIndex = number;
@@ -3135,19 +3144,19 @@ function overworld(player) {
           pageRight();
           break;
         case 39:
-        if (index !== 53) {
+        if (index != 53) {
           document.onkeyup = null;
           pageLeft();
         }
           break;
         case 49:    //1 ToC
-          if (index !== 49) {
+          if (index != 49) {
             document.onkeyup = null;
             turnPageRight(source, contentsPage);
           }
           break;
         case 50:    //2 Status
-          if (index !== 50) {
+          if (index != 50) {
             document.onkeyup = null;
             if (index < 50) {
               turnPageLeft(source, statusPage);
@@ -3157,7 +3166,7 @@ function overworld(player) {
           }
           break;
         case 51:    //3 Spells
-          if (index !== 51) {
+          if (index != 51) {
             document.onkeyup = null;
             if (index < 51) {
               turnPageLeft(source, spellsPage);
@@ -3167,7 +3176,7 @@ function overworld(player) {
           }
           break;
         case 52:    //4 Monsters
-          if (index !== 52) {
+          if (index != 52) {
             document.onkeyup = null;
             if (index < 52) {
               turnPageLeft(source, monstersPage);
@@ -3177,7 +3186,7 @@ function overworld(player) {
           }
           break;
         case 53:    //5 Achievements
-          if (index !== 53) {
+          if (index != 53) {
             document.onkeyup = null;
             turnPageLeft(source, achievementsPage);
           }
@@ -3398,13 +3407,13 @@ function overworld(player) {
       let p = chapterEntry(statusPage, "Status", `A list of ${player.possessive} progress.`);
       tableOfContents.appendChild(p);
 
-      p = chapterEntry(spellsPage, "Spells", "A list of the spells " + player.name + " has learned.");
+      p = chapterEntry(spellsPage, "Spells", `A list of the spells ${player.name} has learned`);
       tableOfContents.appendChild(p);
 
-      p = chapterEntry(monstersPage, "Monsters", "A list of the monsters " + player.name + " has encountered.");
+      p = chapterEntry(monstersPage, "Monsters", `A list of the monsters ${player.name} has encountered.`);
       tableOfContents.appendChild(p);
 
-      p = chapterEntry(achievementsPage, "Achievements", "A list of the achievements " + player.name + " has earned.");
+      p = chapterEntry(achievementsPage, "Achievements", `A list of the achievements ${player.name} has earned.`);
       tableOfContents.appendChild(p);
 
       return tableOfContents;
@@ -4245,14 +4254,6 @@ function overworld(player) {
         checkKeys(e.keyCode, achievementPage, 5);
       }
 
-      /*document.onkeyup = function(e) {
-        e = e || window.event;
-        if (e.keyCode === 37, achievementPage, 5) {
-          document.onkeyup = "";
-          pageRight();
-        }
-      }*/
-
       makePageTitle(player.possessive + " Achievements", achievementPage);
 
       let table = document.createElement("table");
@@ -4618,60 +4619,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
   }
 
-  class Timer {
-
-    constructor(timerValue) {
-      this.width = 340;
-      this.decrement = (timerValue > 2) ? .068 : (.017 * timerValue);
-      this.time = null;
-      this.timeLeft = 0;
-      this.timeIndex = timerValue;
-      this.timeStart = null;
-      this.timeStop = null;
-      this.timer = 0;
-    }
-
-    get answerTime() {
-      return this.timer / 1000;
-    }
-
-    timeDown() {
-      if (this.width <= 0) {
-        this.stopTimer();
-        this.startTimer();
-        this.width = 340;
-        damagePlayer();
-      } else {
-        this.width = 340 - (this.checkTimer * this.decrement);
-        countdownBarFront.style.width = this.width + "px";
-        this.timeLeft = (this.width / (this.decrement * 1000)).toFixed(2);
-        countdownTimer.innerHTML = this.timeLeft;
-      }
-    }
-
-    startTimer() {
-      this.timeStart = new Date();
-    }
-
-    get checkTimer() {
-      let checkTime = new Date();
-      return checkTime - this.timeStart;
-    }
-
-    stopTimer() {
-      this.timeStop = new Date();
-      this.timer += (this.timeStop - this.timeStart);
-    }
-
-    stopTime() {
-      if (this.timeIndex) {
-        clearInterval(this.time);
-      }
-      this.stopTimer();
-    }
-
-  }
-
   const current = {
     //----------------------------------------------------//
     //Object w/ links to the correct imgData              //
@@ -4688,24 +4635,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //Puts all of the elements that make up the catacomb  //
     //onto the screen                                     //
     //----------------------------------------------------//
-
-    function makeSpellIcon(spell, count) {
-      //----------------------------------------------------//
-      //Makes the spell icons                               //
-      //string-> spell: name of the spell, used for setting //
-      //the id of elements associated w/ that spell         //
-      //integer-> count: number of spells available to cast //
-      //----------------------------------------------------//
-
-      let div = makeDiv();
-      let img = makeImg(imgSrc + spell + ".gif", spell + "Img");
-      img.style.filter = "opacity(10%)";
-      div.appendChild(img);
-      let counter = makeDiv(spell + "Count");
-      counter.innerHTML = count;
-      div.appendChild(counter);
-      spellBar.appendChild(div);
-    }
 
     function makeCombatDiv(divId, file, imgId, damageImg, damageId) {
       //----------------------------------------------------//
@@ -4728,20 +4657,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
 
     let fragment = document.createDocumentFragment();
-
-    //
-    //Creates the level display
-    //
-    let levelDiv = makeDiv("levelDiv");
-      insertTextNode(levelDiv, "Level " + catacombLevel);
-      let exitDiv = makeDiv("exitDiv");
-        insertTextNode(exitDiv, "Exit")
-        exitDiv.onclick = function() {
-          clearInterval(timer.time);
-          overworld(player);
-        }
-      levelDiv.appendChild(exitDiv);
-    fragment.appendChild(levelDiv);
 
     //
     //Creates the box to display the problem
@@ -4769,21 +4684,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     fragment.appendChild(countdownBarBack);
 
     //
-    //Creates the spell icons for the combat div
-    //
-    let spellBar = makeDiv("spellBar");
-    let imgSrc = "./spellIcons/";
-    makeSpellIcon("fibonacci", "ꚙ");
-    makeSpellIcon("triangle", player.spells.euclid.number);
-    makeSpellIcon("square", player.spells.hypatia.number);
-    makeSpellIcon("pentagon", player.spells.lovelace.number);
-    makeSpellIcon("hexagon", player.spells.noether.number);
-    makeSpellIcon("pyramid", player.spells.huygens.number);
-    makeSpellIcon("cube", player.spells.fermat.number);
-    makeSpellIcon("star", player.spells.brahe.number);
-    fragment.appendChild(spellBar);
-
-    //
     //The combatDiv holds the player and monster
     //health bars as well as the images for the
     //player and monster
@@ -4804,7 +4704,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //
     let playerDiv = makeCombatDiv("playerDiv", player.sprites.path + player.sprites.files[0], "playerImg", "slash.gif", "slash");
     combatDiv.appendChild(playerDiv);
-
 
     //
     //The monster's image
@@ -4886,11 +4785,102 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           }
           this.count--;
         } else {
+          let playerDiv = document.getElementById("playerDiv");
           setTimeout(function() {playerDiv.removeChild(damageDiv);}, 1400);
           playerImg.style.filter = "brightness(100%)";
           clearInterval(this.flash);
         }
       }
+    }
+
+    class Timer {
+
+      constructor(timerValue) {
+        this.width = 340;
+        this.decrement = (timerValue > 2) ? .068 : (.017 * timerValue);
+        this.pauseMod = (timerValue > 2) ? 5000 : (10000 * timerValue);
+        this.time = null;
+        this.timeLeft = 0;
+        this.timeIndex = timerValue;
+        this.timeStart = null;
+        this.timeStop = null;
+        this.timer = 0;
+      }
+
+      timeDown() {
+        //----------------------------------------------------//
+        //Decreases the timer, damaging the player if it      //
+        //reaches 0                                           //
+        //----------------------------------------------------//
+
+        if (this.width <= 0) {
+          this.stopTimer();
+          this.startTimer();
+          this.width = 340;
+          damagePlayer();
+        } else {
+          this.width = 340 - (this.checkTimer * this.decrement);
+          countdownBarFront.style.width = this.width + "px";
+          this.timeLeft = (this.width / (this.decrement * 1000)).toFixed(2);
+          countdownTimer.innerHTML = this.timeLeft;
+        }
+      }
+
+      get now() {
+        return new Date();
+      }
+
+      get checkTimer() {
+        //----------------------------------------------------//
+        //Returns the time elapsed since the current          //
+        //timer started                                       //
+        //----------------------------------------------------//
+
+        return (this.now - this.timeStart) + (this.timer % this.pauseMod);
+      }
+
+      get answerTime() {
+        //----------------------------------------------------//
+        //Returns the time on the timer in seconds            //
+        //----------------------------------------------------//
+
+        return this.timer / 1000;
+      }
+
+      startTimer() {
+        //----------------------------------------------------//
+        //Begins a new timer                                  //
+        //----------------------------------------------------//
+
+        this.timeStart = this.now;
+      }
+
+      stopTimer() {
+        //----------------------------------------------------//
+        //Stops the internal timer from counting down and     //
+        //adds the elapsed time to the overall counter        //
+        //----------------------------------------------------//
+
+        this.timeStop = this.now;
+        this.timer += (this.timeStop - this.timeStart);
+      }
+
+      stopTime() {
+        //----------------------------------------------------//
+        //Stops both the visual and internal timer            //
+        //from counting down                                  //
+        //----------------------------------------------------//
+
+        if (this.timeIndex) {
+          clearInterval(this.time);
+        }
+        this.stopTimer();
+      }
+    }
+
+    const focusAnswer = function() {
+      let answerInput = document.getElementById("answerInput");
+      answerInput.focus();
     }
     //
     //Makes and displays the math problems
@@ -4936,7 +4926,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
         timer.startTimer();
 
-        spellsOn();
         setTimeout(function() {
           document.onkeypress = function() {
             checkKeyPress(event, answer);
@@ -4946,14 +4935,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         answerInput.focus();
       }
 
+      player.spells.huygens.ongoing = false;
+      player.stats.spellActive = false;
       let problemDiv = document.getElementById("problemDiv");
       clearElement(problemDiv);
       let fragment = document.createDocumentFragment();
       let flash = new ScreenFlash("playAreaWhite");
       let checkFlash = null;
       let problem = ``;
-      let ansInput = `<input type="number" id="answerInput"></input>`;
-      let dblBreak = `<br /><br />`;
 
       switch (findProblemType()) {
         case "normal":
@@ -4995,6 +4984,95 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
           break;
       }
+    }
+
+    const showSpellMenu = function() {
+
+      const closeSpellMenu = function() {
+        document.onkeyup = null;
+        removeElement("useSpellMenu");
+        spellMenuActive = false;
+      }
+
+      const launch = function(spell) {
+        player.stats.spellActive = true;
+        closeSpellMenu();
+        spell();
+      }
+
+      let spellMenu = makeDiv("useSpellMenu");
+      let answerInput = document.getElementById("answerInput");
+
+      let number = 0;
+      if (Object.keys(player.spells).length === 0) {
+
+      } else {
+        for (let i = 0; i < Object.keys(player.spells).length; i++) {
+          if (Object.values(player.spells)[i].learned === true) {
+            let menuItem = makeDiv(i);
+            let spell = Object.values(player.spells)[i];
+            menuItem.tabIndex = i;
+            menuItem.onclick = function() {
+              //selectSpell(i);
+            }
+            let line = `_fl${(i + 1) % 10}fl_ ${spell.name} _fr${spell.number}fr_`;
+            menuItem.innerHTML = parseMath(line).slice(6);
+            spellMenu.appendChild(menuItem);
+          }
+        }
+      }
+
+      playArea.appendChild(spellMenu);
+      answerInput.blur();
+
+      setTimeout(function() {
+        document.onkeyup = function(e) {
+          if (e.keyCode === 32) {     //space Exit
+            answerInput.focus();
+            closeSpellMenu();
+          }
+          if (e.keyCode === 49) {     //1 Fibonacci
+            if (!player.spells.fibonacci.ongoing && player.spells.fibonacci.learned) {
+              launch(castFibonacci);
+            }
+          }
+          if (e.keyCode === 52) {     //4 Euclid
+            if (!player.spells.euclid.ongoing && player.spells.euclid.learned) {
+              launch(castEuclid);
+            }
+          }
+          if (e.keyCode === 53) {     //5 Hypatia
+            if (!player.spells.hypatia.ongoing && player.spells.hypatia.learned) {
+              launch(castHypatia);
+            }
+          }
+          if (e.keyCode === 54) {     //6 Lovelace
+            if (!player.spells.lovelace.ongoing && player.spells.lovelace.learned) {
+              launch(castLovelace);
+            }
+          }
+          if (e.keyCode === 55) {     //7 Huygens
+            if (!player.spells.huygens.ongoing && player.spells.huygens.learned) {
+              launch(castHuygens);
+            }
+          }
+          if (e.keyCode === 56) {     //8 Fermat
+            if (!player.spells.fermat.ongoing && player.spells.fermat.learned) {
+              launch(castFermat);
+            }
+          }
+          if (e.keyCode === 57) {     //9 Noether
+            if (!player.spells.noether.ongoing && player.spells.noether.learned) {
+              launch(castNoether);
+            }
+          }
+          if (e.keyCode === 48) {     //0 Brahe
+            if (!player.spells.brahe.ongoing && player.spells.brahe.learned) {
+              launch(castBrahe);
+            }
+          }
+        }
+      }, 200);
     }
 
     const showHintDiv = function() {
@@ -5137,54 +5215,26 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //checkAnswer() function if enter is pressed
     const checkKeyPress = function(event, answer) {
       var key = event.which;
-      if (buttonsOff) {
-        event.preventDefault();
-        return;
-      }
       switch(key) {
         case 13: //Enter key, check answer
           checkAnswer(answer);
           break;
-        case 97: //"a" key, Fibonacci Spell
-          event.preventDefault();
-          if (player.spells.fibonacci.ongoing || !player.spells.fibonacci.learned) break;
-          castFibonacci();
+        case 27:  //ESC, leave dungeon
+          clearInterval(timer.time);
+          document.onkeypress = null;
+          overworld(player);
           break;
-        case 115: //"s" key, Fireball Spell
+        case 32:  //Space, spell menu
           event.preventDefault();
-          if (player.spells.euclid.ongoing || !player.spells.euclid.learned) break;
-          castEuclid();
+          if (!spellMenuActive && !player.stats.spellActive) {
+            spellMenuActive = true;
+            showSpellMenu();
+          }
           break;
-        case 100: //"d" key, Heal Spell
+        case 97:
           event.preventDefault();
-          if (player.spells.hypatia.ongoing || !player.spells.hypatia.learned) break;
-          castHypatia();
-          break;
-        case 101: //"e" key, Reduction Spell
-          event.preventDefault();
-          if (player.spells.lovelace.ongoing || !player.spells.lovelace.learned) break;
-          castLovelace();
-          break;
-        case 102: //"f" key, Stop Time Spell
-          event.preventDefault();
-          if (player.spells.huygens.ongoing || !player.spells.huygens.learned) break;
-          castHuygens();
-          break;
-        case 113: //"q" key, Cube Spell
-          event.preventDefault();
-          if (player.spells.fermat.ongoing || !player.spells.fermat.learned) break;
-          castFermat();
-          break;
-        case 114: //"r" key, Strength Spell
-          event.preventDefault();
-          if (player.spells.noether.ongoing || !player.spells.noether.learned) break;
-          castNoether();
-          break;
-        case 119: //"w" key, Nova Spell
-          event.preventDefault();
-          if (player.spells.brahe.ongoing || !player.spells.brahe.learned) break;
-          castBrahe();
-          break;
+          //save for testing
+
       }
     }
 
@@ -5198,10 +5248,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       saveAverage();
-      /*console.clear();
-      console.log("Average total time:");
-      console.log(player.totalTime);
-      console.log(timer.answerTime);*/
+      console.clear();
+      console.log(`Average total time: ${player.totalTime}`);
+      console.log(`Time to answer the question: ${timer.answerTime}`);
+      console.log(`Current average: ${current[operation].totalAverage[0]}`);
+      console.log(`Number of questions answered ${current[operation].totalAverage[1]}`);
 
       if (timer.answerTime <= 1) player.stats.flash++;
       if (timer.timeLeft <= 1 && timer.decrement) player.stats.lastSecond++;
@@ -5297,7 +5348,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         player.stats.monstersKilled++;
         player.damageBoost = 0;
         monsterInterval++
-        spellsOff();
         processMonster();
         problemDiv.innerHTML = "Great job, you defeated the " + monster.name + "!<br /><br />";
 
@@ -5316,6 +5366,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
       }
 
+      player.stats.spellActive = true;
       player.stats.damage.dealt += player.totalDamage;
       monster.hp = (player.totalDamage > monster.hp) ? 0:(monster.hp - player.totalDamage);
 
@@ -5393,13 +5444,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }, 3000)
       }
 
-      buttonsOff = true;
+      timer.stopTime();
       if (player.spells.noether.learned) {
         if (player.stats.noetherCounter >= 5) {
           player.spells.noether.number++;
           player.stats.noetherCounter = 0;
-          let target = document.getElementById("hexagonImg");
-          target.parentNode.lastChild.textContent = player.spells.noether.number;
         }
         player.stats.noetherCounter += monster.damage;
       }
@@ -5422,7 +5471,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           clearInterval(checkFlash);
           if (player.health) {
             playerImg.src = player.sprites.path + player.sprites.files[0];
-            buttonsOff = false;
+            if (timerValue && !player.spells.huygens.ongoing) {
+              timer.time = setInterval(function() {
+                timer.timeDown();
+              }, 10);
+            }
+            timer.startTimer();
           } else {
             timer.stopTime();
             killPlayer();
@@ -5433,7 +5487,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     }
     //
     //This function turns my spells "on" at the beginning of the battle
-    const spellsOn = function() {
+    /*const spellsOn = function() {
 
       const turnOnSpell = function(id, callback) {
         let img = document.getElementById(id);
@@ -5510,7 +5564,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       turnOffSpell("pyramidImg", player.spells.noether);
       turnOffSpell("cubeImg", player.spells.fermat);
       turnOffSpell("starImg", player.spells.brahe);
-    }
+    }*/
     //
     //Hint Spell
     const castFibonacci = function() {
@@ -5750,8 +5804,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             let hintDiv = document.getElementById("hintDiv");
             hintDiv.style.visibility = "visible";
             hintDiv.innerHTML = hintString;
-            let answerInput = document.getElementById("answerInput");
-            answerInput.focus();
+            focusAnswer();
             clearInterval(spellCast);
             if (timerValue && !player.spells.huygens.ongoing) {
               timer.time = setInterval(function() {
@@ -5759,11 +5812,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
               }, 10);
             }
             timer.startTimer();
-            buttonsOff = false;
-            player.spells.fibonacci.ongoing = true;
-            let fibonacciImg = document.getElementById("fibonacciImg");
-            fibonacciImg.style.filter = "opacity(30%)";
-            fibonacciImg.onclick = "";
+            player.stats.spellActive = false;
           } else {
             span1 = 0;
             span2 = 0;
@@ -5798,8 +5847,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
       }
 
-      buttonsOff = true;
-      player.spells.fibonacci.ongoing = true;
       timer.stopTime();
       //
       //This holds the string that will become the hint
@@ -6096,12 +6143,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.euclid.number === 0) {
         hintDiv.innerHTML = "You don't have any Euclid Magic!";
         hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
+
       timer.stopTime();
-      player.spells.euclid.ongoing = true;
-      buttonsOff = true;
 
       let animationDone = false;
       let spellCast;
@@ -6133,20 +6180,18 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           clearInterval(checkFlash);
           let canvas = document.getElementById("euclidCanvas");
           playArea.removeChild(canvas);
-          if (timerValue && !player.spells.huygens.ongoing) {
+          /*if (timerValue && !player.spells.huygens.ongoing) {
             timer.time = setInterval(function() {
               timer.timeDown();
             }, 10);
           }
-          timer.startTimer();
-          buttonsOff = false;
+          timer.startTimer();*/
           damageMonster();
         }
       }, 250);
 
       player.spells.euclid.cast++;
       player.spells.euclid.number--;
-      document.getElementById("triangleCount").innerHTML = player.spells.euclid.number;
     }
     //
     //Healing spell
@@ -6157,6 +6202,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.hypatia.number === 0) {
         hintDiv.innerHTML = "You don't have any Healing Magic!";
         hintDiv.style.visibility = "visible";
+        focusAnswer();
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
@@ -6164,12 +6211,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.health === player.maxHealth) {
         hintDiv.innerHTML = "You already have full health!";
         hintDiv.style.visibility = "visible";
+        focusAnswer();
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
 
-      player.spells.hypatia.ongoing = true;
-      buttonsOff = true;
       timer.stopTime();
 
       let heal = 2;
@@ -6212,16 +6259,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         if (flash.count === 0) {
           clearInterval(checkFlash);
 
-          let answerInput = document.getElementById("answerInput");
-          answerInput.focus();
-
           player.health += heal;
           if (player.health > player.maxHealth) player.health = player.maxHealth;
 
           let healthBarFront = document.getElementById("healthBarFront");
           healthBarFront.style.height = ((player.health / player.maxHealth) * 110) + "px";
-
-          player.spells.hypatia.ongoing = false;
 
           if (timerValue && !player.spells.huygens.ongoing) {
             timer.time = setInterval(function() {
@@ -6229,14 +6271,15 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }, 10);
           }
           timer.startTimer();
-          buttonsOff = false;
+
+          focusAnswer();
+          player.stats.spellActive = false;
         }
       }, 250);
 
       player.stats.damage.healed += heal;
       player.spells.hypatia.cast++;
       player.spells.hypatia.number--;
-      document.getElementById("squareCount").innerHTML = player.spells.hypatia.number;
     }
     //
     //Reduce terms spell
@@ -6247,23 +6290,16 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.lovelace.number === 0) {
         hintDiv.innerHTML = "You don't have any Reduction Magic!";
         hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
 
-      player.spells.lovelace.ongoing = true;
-      if (player.spells.fibonacci.ongoing) {
-        let fibonacciImg = document.getElementById("fibonacciImg");
-        fibonacciImg.style.filter = "opacity(100%)";
-        fibonacciImg.onclick = castFibonacci;
-        player.spells.fibonacci.ongoing = false;
-      }
-      buttonsOff = true;
       timer.stopTime();
 
       hintDiv.innerHTML = "You cast Lovelace's Reduction!";
       hintDiv.style.visibility = "visible";
-      hideElement(hintDiv, 1500);
+      hideElement(hintDiv, 1000);
 
       let flash = new ScreenFlash("playAreaOrange", 10);
 
@@ -6290,16 +6326,17 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           }
 
           clearElement(problemDiv);
-          insertTextNode(problemDiv, terms[0] + " " + current[operation].sign + " ");
-            let span = document.createElement("span");
-            span.style.color = "#ffbaba";
-              insertTextNode(span, terms[1]);
-            problemDiv.appendChild(span);
-            insertTextNode(problemDiv, " = ");
-          insertAnswerInput(problemDiv, terms[2], checkKeyPress);
+          let problem = `${terms[0]} ${current[operation].sign} _r${terms[1]}r_ = ${ansInput}`
+          problemDiv.innerHTML = parseMath(problem).slice(6);
 
-          var answerInput = document.getElementById("answerInput");
-          answerInput.focus();
+          setTimeout(function() {
+            document.onkeypress = function() {
+              checkKeyPress(event, terms[2]);
+            }
+          }, 200);
+
+          focusAnswer();
+          player.stats.spellActive = false;
 
           if (timerValue && !player.spells.huygens.ongoing) {
             timer.time = setInterval(function() {
@@ -6307,18 +6344,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }, 10);
           }
           timer.startTimer();
-
-          buttonsOff = false;
-          player.spells.lovelace.ongoing = true;
-          let pentagonImg = document.getElementById("pentagonImg");
-          pentagonImg.style.filter = "opacity(30%)";
-          pentagonImg.onclick = "";
         }
       }, 300);
 
       player.spells.lovelace.cast++;
       player.spells.lovelace.number--;
-      document.getElementById("pentagonCount").innerHTML = player.spells.lovelace.number;
     }
     //
     //Strength spell
@@ -6328,6 +6358,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.noether.number === 0) {
         hintDiv.innerHTML = "You don't have any Strength Magic!";
         hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
@@ -6363,7 +6394,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }, 10);
           }
           timer.startTimer();
-          buttonsOff = false;
 
           setTimeout(function() {
             playerImg.style.height = 100;
@@ -6375,7 +6405,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       player.spells.noether.cast++;
       player.spells.noether.number--;
       player.damageBoost++;
-      document.getElementById("hexagonCount").innerHTML = player.spells.noether.number;
+      focusAnswer();
     }
     //
     //Stop time spell
@@ -6524,6 +6554,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.huygens.number === 0) {
         hintDiv.innerHTML = "You don't have any Stop Time Magic!";
         hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
@@ -6557,9 +6588,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           playArea.removeChild(canvas);
           let handCanvas = document.getElementById("handCanvas");
           playArea.removeChild(handCanvas);
-          let answerInput = document.getElementById("answerInput");
-          answerInput.focus();
-          buttonsOff = false;
+          focusAnswer();
+          player.stats.spellActive = false;
           player.spells.huygens.ongoing = true;
           timer.startTimer();
         }
@@ -6567,11 +6597,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       player.spells.huygens.cast++;
       player.spells.huygens.number--;
-      document.getElementById("pyramidCount").innerHTML = player.spells.huygens.number;
-
-      pyramidImg = document.getElementById("pyramidImg");
-      pyramidImg.style.filter = "opacity(30%)";
-      pyramidImg.onclick = "";
     }
     //
     //Polymorph monster spell
@@ -6582,6 +6607,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.fermat.number === 0) {
         hintDiv.innerHTML = "You don't have any Cube Magic!";
         hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
@@ -6629,17 +6655,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }, 10);
           }
           timer.startTimer();
-          buttonsOff = false;
-          player.spells.fermat.ongoing = true;
-          cubeImg = document.getElementById("cubeImg");
-          cubeImg.style.filter = "opacity(30%)";
-          cubeImg.onclick = "";
+
+          focusAnswer();
+          player.stats.spellActive = false;
         }
       }, 250);
 
       player.spells.fermat.cast++;
       player.spells.fermat.number--;
-      document.getElementById("cubeCount").innerHTML = player.spells.fermat.number;
     }
     //
     //This function handles my star/nova spell
@@ -6909,6 +6932,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (player.spells.brahe.number === 0) {
         hintDiv.innerHTML = "You don't have any Star Magic!";
         hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
         hideElement(hintDiv, 1500);
         return;
       }
@@ -6948,29 +6972,44 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             }, 10);
           }
           timer.startTimer();
-          buttonsOff = false;
           damageMonster();
         }
       }, 250);
 
       player.spells.brahe.cast++;
       player.spells.brahe.number--;
-      document.getElementById("starCount").innerHTML = player.spells.brahe.number;
-
-
     }
+
+    //
+    //Creates the level display
+    //
+    let levelDiv = makeDiv("levelDiv");
+      insertTextNode(levelDiv, "Level " + catacombLevel);
+      let exitDiv = makeDiv("exitDiv");
+        insertTextNode(exitDiv, "Exit")
+        exitDiv.onclick = function() {
+          clearInterval(timer.time);
+          overworld(player);
+        }
+      levelDiv.appendChild(exitDiv);
+    let problemDiv = document.getElementById("problemDiv");
+    playArea.insertBefore(levelDiv, problemDiv);
 
     let monster = new Monster(catacombLevel, current[operation]);
     let monsterInterval = 0;
     let terms = null;
-    let buttonsOff = false;
     let playerImg = document.getElementById("playerImg");
     playerImg.title = player.name;
+    let spellMenuActive = false;
+    let ansInput = `<input type="number" id="answerInput"></input>`;
+    let dblBreak = `<br /><br />`;
+    let timer = new Timer(timerValue);
+
     getProblem();
+
   }
 
   let playArea = document.getElementById("playArea");
-  let timer = new Timer(timerValue);
 
   catacombIntro();
 }

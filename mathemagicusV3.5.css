@@ -1284,6 +1284,10 @@ I might get rid of this later, still not sure...*/
   overflow-x: hidden;
   width: 324px;
 }
+
+/*#problemDiv {
+  margin-top: 170px;
+}*/
 /*
 This styles the area where the spells are displayed*/
 #spellBar {
@@ -1320,6 +1324,21 @@ This controls the behavior of the <div>s inside of the spellBar*/
 
 #spellBar div div {
   width: 15px;
+}
+
+#useSpellMenu {
+  position: absolute;
+  top: 150px;
+  left: 38px;
+  width: 365px;
+  padding: 3px;
+  background-color: #777777;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+  font-size: 1.25em;
+  transition: all 150ms;
+  z-index: 5;
 }
 
 @keyframes newSpell {
@@ -1481,7 +1500,8 @@ This controls the behavior of the <div>s inside of the spellBar*/
 This is the grey bar behind my green countdown timer */
 #countdownBarBack {
   position: absolute;
-  top: 235px;
+  /*top: 155px;*/
+  top: 405px;
   left: 53px;
   width: 340px;
   height: 30px;
@@ -1520,7 +1540,8 @@ and the player and monster images*/
 #combatDiv {
   left: 55px;
   position: absolute;
-  top: 312px;
+  top: 280px;
+  /*top: 30px;*/
 }
 /*
 The grey background container for the player and computer health bar */
