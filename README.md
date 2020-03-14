@@ -26,6 +26,16 @@ Sprites
 
 Scrolls
 
+## 2020.03.13
+
+### Update
+
+I think I'm done putting new features into the game until I've finished what I have. I have so many little bugs and weird things to address that I've been doing that today. I started playing through the game and made a to do list as I went. One of those was adding a new trigger to the game that activates when the player learns their first spell to tell them how to use the spell menu. 
+
+My big issue today was an errant onkeypress that got left in with all my onkeyup events. Even though I was setting my onkeyup events to null to "turn them off," this one onkeypress just stayed active and wreaked havoc w/ gameplay. But I got it, and I don't think there are any more onkeypress events to worry about. 
+
+The end point for this process (before I put any more functionality in the game) is to make a final boss for the player to beat so they can say they beat the game. Then I can say it's in beta and start looking for an artist maybe... We'll see, tomorrow I'm going to keep polishing.
+
 ## 2020.03.12
 
 ### Update
