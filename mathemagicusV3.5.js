@@ -867,7 +867,8 @@ class Player {
     };
 
     this.triggers = {
-      newGame: true
+      newGame: true,
+      firstSpell: null
     }
     //
     //Avatar sprites for the player
@@ -1005,37 +1006,37 @@ const test = function() {
   player.health = 100
   player.maxHealth = 100;
   player.damage = 1;
-  player.addition.level = 7;
+  player.addition.level = 3;
   player.notification.fibonacciSpell = false;
-  player.subtraction.level = 7;
+  player.subtraction.level = 0;
   player.multiplication.level = 0;
   player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
   player.spells.fibonacci.learned = true;
-  player.spells.fibonacci.available = true;
-  player.spells.euler1.available = true;
-  player.spells.euler2.available = true;
-  player.spells.euclid.available = true;
-  player.spells.euclid.learned = true;
+  player.spells.fibonacci.available = false;
+  player.spells.euler1.available = false;
+  player.spells.euler2.available = false;
+  player.spells.euclid.available = false;
+  player.spells.euclid.learned = false;
   player.spells.euclid.number = 50;
-  player.spells.lovelace.available = true;
+  player.spells.lovelace.available = false;
   player.spells.lovelace.learned = true;
   player.spells.lovelace.number = 50;
-  player.spells.hypatia.available = true;
-  player.spells.hypatia.learned = true;
+  player.spells.hypatia.available = false;
+  player.spells.hypatia.learned = false;
   player.spells.hypatia.number = 50;
-  player.spells.noether.available = true;
-  player.spells.noether.learned = true;
+  player.spells.noether.available = false;
+  player.spells.noether.learned = false;
   player.spells.noether.number = 50;
-  player.spells.huygens.available = true;
-  player.spells.huygens.learned = true;
+  player.spells.huygens.available = false;
+  player.spells.huygens.learned = false;
   player.spells.huygens.number = 50;
-  player.spells.fermat.available = true;
-  player.spells.fermat.learned = true;
+  player.spells.fermat.available = false;
+  player.spells.fermat.learned = false;
   player.spells.fermat.number = 50;
-  player.spells.brahe.available = true;
-  player.spells.brahe.learned = true;
+  player.spells.brahe.available = false;
+  player.spells.brahe.learned = false;
   player.spells.brahe.number = 50;
   player.triggers.newGame = false;
 
@@ -1958,6 +1959,7 @@ function overworld(player) {
           challengeDiv.textContent = victoryText;
           insertLineBreak(challengeDiv, 2);
           insertButton(challengeDiv, "Return to Guild", function() {
+
             mageGuild();
           });
         }
@@ -1981,9 +1983,11 @@ function overworld(player) {
 
         let praise = [
           "Nice!",
-          "Good Job!",
-          "Awesome!"
-        ]
+          "Good job!",
+          "Awesome!",
+          "Well done!",
+          "Good work!"
+        ];
 
         let answerInput = document.getElementById("answerInput");
         if (parseInt(answerInput.value) === answer) {
@@ -1994,8 +1998,14 @@ function overworld(player) {
               challenge(count);
             }, 700);
           } else {
+
             spell.available = false;
             spell.learned = victory(spell.name);
+            console.log(`checking first spell... it is ${player.triggers.firstSpell}`);
+            if (player.triggers.firstSpell === null) {
+              player.triggers.firstSpell = true;
+              console.log(`first spell was null, new value is ${player.triggers.firstSpell}`);
+            }
             removeNotification(spell.notificationIndex);
           }
         } else {
@@ -2750,11 +2760,23 @@ function overworld(player) {
       }
 
       function checkAnswer(answer, count, challenge, complete) {
+
+        let praise = [
+          "Nice!",
+          "Good job!",
+          "Awesome!",
+          "Well done!",
+          "Good work!"
+        ];
+
         let answerInput = document.getElementById("answerInput");
         if (parseInt(answerInput.value) === answer) {
           if (count < 10) {
             document.onkeyup = "";
-            challenge(count);
+            challengeDiv.textContent = praise[getRandomNumber(0, praise.length - 1)];
+            setTimeout(function() {
+              challenge(count);
+            }, 700);
           } else {
             complete();
           }
@@ -2823,7 +2845,7 @@ function overworld(player) {
               }
             }, 200);
 
-            chalengeDiv.innerHTML = problem;
+            challengeDiv.innerHTML = problem;
             document.getElementById("answerInput").focus();
           }
 
@@ -3045,6 +3067,39 @@ function overworld(player) {
       player.triggers.newGame = false;
     }
 
+    const firstSpell = function() {
+
+      const launchGuild = function() {
+        removeElement("nextButton");
+        player.triggers.firstSpell = false;
+        guildMenuSelectors.lowClass = "menuItemsLow";
+        menuSwitch(null, function() {
+          menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection, 2);
+        });
+        guildTextDiv.textContent = "Welcome to the Mages' Guild";
+      }
+
+      let firstSpellText = [
+        `Congratulations, ${player.name}! `,
+        "Now that you've learned your first helper spell, you probably want to " +
+            "know how to use it.",
+        "When you're in battle with a monster, you can access a list of your spells " +
+            "by pressing the space bar.",
+        "Then just type the number to the left of the spell you want to cast.",
+        `Good luck, ${player.name}! Hopefully we'll see you soon.`
+      ];
+
+      showText(guildTextDiv, firstSpellText, launchGuild);
+
+      let skipButton = makeSkipButton(function() {
+        removeElement("skipButton");
+        launchGuild();
+        guildTextDiv.textContent = "Welcome to the Mages' Guild";
+      });
+
+      playArea.appendChild(skipButton);
+    }
+
     document.onkeyup = null;
 
     let tellahDiv = makeCameoDiv("Tellah.gif");
@@ -3069,6 +3124,8 @@ function overworld(player) {
     fadeTransition(fragment, playArea, 500, function() {
       if (player.triggers.newGame) {
         firstVisit();
+      } else if (player.triggers.firstSpell) {
+        firstSpell();
       } else {
         guildTextDiv.textContent = introText;
         menuMaker(guildMenuSelectors, guildMenuData, guildMenuSelection, menuIndex);
@@ -4927,7 +4984,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         timer.startTimer();
 
         setTimeout(function() {
-          document.onkeypress = function() {
+          document.onkeyup = function() {
             checkKeyPress(event, answer);
           }
         }, 200);
@@ -5248,11 +5305,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
 
       saveAverage();
-      console.clear();
+      /*console.clear();
       console.log(`Average total time: ${player.totalTime}`);
       console.log(`Time to answer the question: ${timer.answerTime}`);
       console.log(`Current average: ${current[operation].totalAverage[0]}`);
-      console.log(`Number of questions answered ${current[operation].totalAverage[1]}`);
+      console.log(`Number of questions answered ${current[operation].totalAverage[1]}`);*/
 
       if (timer.answerTime <= 1) player.stats.flash++;
       if (timer.timeLeft <= 1 && timer.decrement) player.stats.lastSecond++;
@@ -5332,9 +5389,16 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       //
       //What do do when a monster is killed
       const killMonster = function() {
-        //
-        //Process the monster for record keeping
+        //----------------------------------------------------//
+        //What happens when a monster is killed.
+        //----------------------------------------------------//
+
         const processMonster = function() {
+          //----------------------------------------------------//
+          //Checks to see if the player has beaten this monster //
+          //before. If not, it adds it to an array. If so, it   //
+          //adds it to the number defeated                      //
+          //----------------------------------------------------//
 
           if (monsterSearch(current[operation].monsters, monster.index)) {
             let monsterIndex = findMonster(current[operation].monsters, monster.index);
@@ -6330,7 +6394,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           problemDiv.innerHTML = parseMath(problem).slice(6);
 
           setTimeout(function() {
-            document.onkeypress = function() {
+            document.onkeyup = function() {
               checkKeyPress(event, terms[2]);
             }
           }, 200);
