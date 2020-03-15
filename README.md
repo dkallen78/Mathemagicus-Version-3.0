@@ -26,6 +26,12 @@ Sprites
 
 Scrolls
 
+## 2020.03.14
+
+### Update
+
+I wasn't going to do any work on this today since I made a video instead but I decided to set up www.mathemagicus.com and when I was getting that to work right I found a big bug. Who would have thought that input.value = "" and input.value = null would do different things. It's starting to feel like duct tape and bubble gum but as long as it's working I'm on the right path. Tomorrow I'll do more work on my to do list. For now, enjoy being able to use the spell menu properly!
+
 ## 2020.03.13
 
 ### Update
