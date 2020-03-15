@@ -5043,10 +5043,15 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       }
     }
 
-    const showSpellMenu = function() {
+    const showSpellMenu = function(answer) {
 
       const closeSpellMenu = function() {
-        document.onkeyup = null;
+        setTimeout(function() {
+          document.onkeyup = function() {
+            checkKeyPress(event, answer);
+          }
+        }, 200);
+        answerInput.value = null;
         removeElement("useSpellMenu");
         spellMenuActive = false;
       }
@@ -5085,6 +5090,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       setTimeout(function() {
         document.onkeyup = function(e) {
           if (e.keyCode === 32) {     //space Exit
+            answerInput.value = null;
             answerInput.focus();
             closeSpellMenu();
           }
@@ -5285,7 +5291,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           event.preventDefault();
           if (!spellMenuActive && !player.stats.spellActive) {
             spellMenuActive = true;
-            showSpellMenu();
+            showSpellMenu(answer);
           }
           break;
         case 97:
