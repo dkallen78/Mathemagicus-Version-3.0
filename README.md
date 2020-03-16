@@ -6,25 +6,48 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Library
+### Up next: Make a final boss
 
-I've pixelated the portraits of the mathematicians for whom my spells are named, the next step is to implement the library functionality of the Mage Guild. I'm going to use it to display mini-bios of mathematicians and scientists, starting w/ the set I have now.
+I need to make a final boss so the player can have a sense of "beating" the game. It's going to be a big fight with every kind of problem coming at the player. Maybe I'll give it 3 forms?
+
+![](https://impossiblehq.com/wp-content/uploads/2013/04/Final-Form.jpg)
 
 ### Notes to self:
 
+#### Short term
+
 Find a good principle for subraction hints
 
-Work on the hints
+Work on the hints, especially the Euler stuff
+
+Adjust numbers in subtraction and multiplication challenges
 
 Improve the division challenge
+Scrolls
 
-Training Hall
+#### Long term
+
+Training Hall/Challenges
+
+Awards/Titles
 
 Library
 
 Sprites
 
-Scrolls
+Make damage numbers sway
+
+## 2020.03.15
+
+### Update
+
+My brain is a little fried. I've been making small fixes and hunting down bugs for most of the day. After an extended battle with DOM event listeners I'm ready to take a break for the night. 
+
+Maybe.
+
+A big struggle was making the notifications available to keyboard interaction. The problem was I already had a keyup event listener working for my menu so I had to figure out how to put another one on top of the one I had w/out screwing it up. I did it and it actually works a lot better. I relearned/remembered about document.addEventListener() and had a lot of success w/ stopping propagation. Just like any change I seem to make, it exposed another bug that took an hour to eradicate. 
+
+I added a notification so the player knows to go to the Mage Guild to get their first key; I gave the monsters different HP; I took out a function that slowed down gameplay; and I made the combat spell menu mouse clickable (I have to remember to make a button to make it appear as well...).
 
 ## 2020.03.14
 
