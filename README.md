@@ -18,12 +18,9 @@ I need to make a final boss so the player can have a sense of "beating" the game
 
 Find a good principle for subraction hints
 
-Work on the hints, especially the Euler stuff
+Put in a final boss
 
-Adjust numbers in subtraction and multiplication challenges
-
-Improve the division challenge
-Scrolls
+Put in the save/continue functionality
 
 #### Long term
 
@@ -36,6 +33,12 @@ Library
 Sprites
 
 Make damage numbers sway
+
+## 2020.03.16
+
+### Update
+
+I updated the subtraction, multiplication, and division introductions (the ones that come before the key challenges); I added the scrolls back in w/ the updated spell information, though this time they don't show up on screen when earned, rather they occupy a page of the Liber Mathemagicus; I fixed the numbers in the subtraction and multiplication challenges; and I did a minor spell rework so that the Euler spell was an upgrade to the Fibonacci spell, and I renamed the Euler2 spell to Kovalevskaya because I wanted another woman mathematician in the game. I'm pretty happy w/ the day's work. 
 
 ## 2020.03.15
 
