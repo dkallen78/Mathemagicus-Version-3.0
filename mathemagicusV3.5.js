@@ -429,7 +429,7 @@ function showText(target, text, final, finalText = textData.next, index = 0) {
   }
 
   let checkKeys = function(event) {
-    if (event.code === "Enter") {
+    if (event.key === "Enter") {
 
       nextBlock();
     }
@@ -442,8 +442,6 @@ function showText(target, text, final, finalText = textData.next, index = 0) {
   }
 
   clearElement(target);
-  console.clear();
-  console.log(text);
 
   if (text[index].includes("/HTML/")) {
     target.innerHTML = text[index].slice(6)
@@ -882,15 +880,15 @@ class Player {
       multiplicationKey: false,
       divisionKey: false,
       fibonacciSpell: "Fibonacci Spell Available",
-      eulerSpell1: false,
-      eulerSpell2: false,
       euclidSpell: false,
       hypatiaSpell: false,
       lovelaceSpell: false,
       huygensSpell: false,
       fermatSpell: false,
       noetherSpell: false,
-      braheSpell: false
+      braheSpell: false,
+      eulerSpell: false,
+      kovalevskayaSpell: false,
     };
 
     this.triggers = {
@@ -924,16 +922,16 @@ class Player {
     //
     //Spell related stats
     this.spells = {
-      fibonacci: new Spell("Fibonacci's Associative Spell", 3, "ꚙ"),
-      euler1: new Spell("Euler's Left Distributive Spell", 4),
-      euler2: new Spell("Euler's Right Distributive Spell", 5),
-      euclid: new Spell("Euclid's Fireball Spell", 6),
-      hypatia: new Spell("Hypatia's Healing Spell", 7),
-      lovelace: new Spell("Lovelace's Reduction Spell", 8),
-      huygens: new Spell("Huygens' Stop-time Spell", 9),
-      fermat: new Spell("Fermat's Polymorph Monster Spell", 10),
-      noether: new Spell("Noether's Strength Spell", 11),
-      brahe: new Spell("Brahe's Nova Spell", 12)
+      fibonacci: new Spell("Fibonacci's Decomposition Spell", 4, "ꚙ"),
+      euclid: new Spell("Euclid's Fireball Spell", 5),
+      hypatia: new Spell("Hypatia's Healing Spell", 6),
+      lovelace: new Spell("Lovelace's Reduction Spell", 7),
+      huygens: new Spell("Huygens' Stop-time Spell", 8),
+      fermat: new Spell("Fermat's Polymorph Monster Spell", 9),
+      noether: new Spell("Noether's Strength Spell", 10),
+      brahe: new Spell("Brahe's Nova Spell", 11),
+      euler: new Spell("Euler's Left Distribution Spell", 12),
+      kovalevskaya: new Spell("Kovalevskaya's Right Distribution Spell", 13),
     }
 
     this.addition = new Operation("+");
@@ -1002,7 +1000,7 @@ class Player {
 
   get hintSpells() {
     let object = this.spells;
-    return (object.fibonacci.cast + object.euler1.cast + object.euler2.cast);
+    return (object.fibonacci.cast + object.euler.cast + object.kovalevskaya.cast);
   }
 
   get attackSpells() {
@@ -1033,38 +1031,41 @@ const test = function() {
   player.health = 100
   player.maxHealth = 100;
   player.damage = 1;
-  player.addition.level = 2;
-  player.notification.fibonacciSpell = "Get your fresh Fib!";
+  player.addition.level = 6;
+  player.notification.fibonacciSpell = false;
   player.notification.additionKey = false;
-  player.subtraction.level = 0;
-  player.multiplication.level = 0;
+  player.subtraction.level = 6;
+  player.multiplication.level = 1;
   player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
   player.spells.fibonacci.learned = true;
   player.spells.fibonacci.available = true;
-  player.spells.euler1.available = false;
-  player.spells.euler2.available = false;
+  player.spells.euler.available = true;
+  player.spells.euler.learned = true;
+  player.spells.kovalevskaya.available = true;
+  player.spells.kovalevskaya.learned = true;
+  player.notification.kovalevskayaSpell = false
   player.spells.euclid.available = false;
-  player.spells.euclid.learned = false;
+  player.spells.euclid.learned = true;
   player.spells.euclid.number = 50;
   player.spells.lovelace.available = false;
   player.spells.lovelace.learned = true;
   player.spells.lovelace.number = 50;
   player.spells.hypatia.available = false;
-  player.spells.hypatia.learned = false;
+  player.spells.hypatia.learned = true;
   player.spells.hypatia.number = 50;
   player.spells.noether.available = false;
-  player.spells.noether.learned = false;
+  player.spells.noether.learned = true;
   player.spells.noether.number = 50;
   player.spells.huygens.available = false;
-  player.spells.huygens.learned = false;
+  player.spells.huygens.learned = true;
   player.spells.huygens.number = 50;
   player.spells.fermat.available = false;
-  player.spells.fermat.learned = false;
+  player.spells.fermat.learned = true;
   player.spells.fermat.number = 50;
   player.spells.brahe.available = false;
-  player.spells.brahe.learned = false;
+  player.spells.brahe.learned = true;
   player.spells.brahe.number = 50;
   player.triggers.newGame = false;
 
@@ -1164,6 +1165,11 @@ const test = function() {
 }*/
 
 function gameStart() {
+  //----------------------------------------------------//
+  //Handles everything before the "game" like giving    //
+  //yourself a name, an avatar, and introducing the     //
+  //game world                                          //
+  //----------------------------------------------------//
 
   function shadycrzy() {
     //----------------------------------------------------//
@@ -1616,6 +1622,11 @@ function gameStart() {
 }
 
 function overworld(player) {
+  //----------------------------------------------------//
+  //Handles the stuff that's not fighting monsters like //
+  //choosing a catacomb, the mage guild, and the liber  //
+  //Mathemagicus book                                   //
+  //----------------------------------------------------//
 
   function launchOverworldMenu(selectors, imgData, callback, index = 0) {
     //----------------------------------------------------//
@@ -1927,6 +1938,10 @@ function overworld(player) {
   }
 
   function mageGuild(menuIndex = 0) {
+    //----------------------------------------------------//
+    //Where the player can learn new spells and get keys  //
+    //to new levels of the catacombs                      //
+    //----------------------------------------------------//
 
     function removeNotification(index) {
       //----------------------------------------------------//
@@ -2067,13 +2082,12 @@ function overworld(player) {
         let answerInput = document.getElementById("answerInput");
         if (parseInt(answerInput.value) === answer) {
           if (count < 10) {
-            document.onkeyup = "";
+            document.onkeyup = null;
             challengeDiv.textContent = praise[getRandomNumber(0, praise.length - 1)];
             setTimeout(function() {
               challenge(count);
             }, 700);
           } else {
-
             spell.available = false;
             spell.learned = victory(spell.name);
             if (player.triggers.firstSpell === null) {
@@ -2085,12 +2099,13 @@ function overworld(player) {
           let text = challengeDiv.innerHTML;
           if (text.charAt(text.length - 1) === "!") {removeLastChild(challengeDiv, 3);}
           insertLineBreak(challengeDiv, 2);
-          insertTextNode(challengeDiv, "Oh no! " + answerInput.value + " didn't work!");
-          answerInput.value = "";
+
+          insertTextNode(challengeDiv, `Oh no! ${answerInput.value} didn't work!`);
+          answerInput.value = null;
         }
       }
 
-      function learnAssociative() {
+      function learnDecomposition() {
         //----------------------------------------------------//
         //Fibonacci Spell                                     //
         //----------------------------------------------------//
@@ -2112,23 +2127,22 @@ function overworld(player) {
 
             let ansInput = `<input type="number" id="answerInput"></input>`;
 
-            let problem = parseMath(`_o${addend1}o_ + _g${addend2}g_ = ?
+            let problem = `_o${addend1}o_ + _g${addend2}g_ = ?
                           <br /><br />
                           _o${ex1part1}o_ + (_o${ex1part2}o_ + _g${addend2}g_) = ?
                           <br /><br />
-                          (_o${addend1}o_ + _g${ex2part1}g_) + _g${ex2part2}g_ = ${ansInput}`).slice(6);
+                          (_o${addend1}o_ + _g${ex2part1}g_) + _g${ex2part2}g_ = ${ansInput}`;
 
             checkKey(sum, player.spells.fibonacci, count, challenge);
 
-            challengeDiv.innerHTML = problem;
+            challengeDiv.innerHTML = parseMath(problem).slice(6);
             document.getElementById("answerInput").focus();
           }
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
-            "The Associative Property says that in an addition problem, " +
-                "it doesn't matter what order the numbers are in:",
-            "We can take apart and rearrange numbers to find easier sums:",
+            "In an addition problem, it doesn't matter what order the numbers are in.",
+            "We can use Decomposition to take apart and rearrange numbers to find easier sums.",
             parseMath("_r8r_ + 5 = 5 + _r8r_<br /> ↓ <br />" +
                       "(_r5r_ + _r3r_) + 5<br /> ↓ <br />" +
                       "_o(o_5 + _r5r__o)o_ + _r3r_<br /> ↓ <br />" +
@@ -2170,7 +2184,7 @@ function overworld(player) {
                           <br /><br />
                           (${mult1} × _r${part1}r_) + (${mult1} × _r${part2}r_) = ${ansInput}`).slice(6);
 
-            checkKey(product, player.spells.euler1, count, challenge);
+            checkKey(product, player.spells.euler, count, challenge);
 
             challengeDiv.innerHTML = problem;
             document.getElementById("answerInput").focus();
@@ -2178,6 +2192,7 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
+            "This spell will upgrade your Fibonacci Spell to work in the Multiplication Catacombs.",
             "/HTML/The only way to survive the deeper levels of the catacombs is by mastering " +
                 "the Distributive Property:<br /><br />a × (b + c)<br /> ↓ <br />(a × b) + (a × c)",
             parseMath("At the simplest level it looks like this: <br /><br />" +
@@ -2231,7 +2246,7 @@ function overworld(player) {
                           <br /><br />
                           (_r${part1}r_ ÷ ${divisor}) + (_r${part2}r_ ÷ ${divisor}) = ${ansInput}`).slice(6);
 
-            checkKey(quotient, player.spells.euler2, count, challenge);
+            checkKey(quotient, player.spells.kovalevskaya, count, challenge);
 
             challengeDiv.innerHTML = problem;
             document.getElementById("answerInput").focus();
@@ -2239,6 +2254,7 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
+            "This spell will allow you to use the Fibonacci Spell in the Divison Catacombs.",
             "/HTML/To master the Division Catacombs, you must also master this arcane " +
                 "spell that lets you break down division problems:<br /><br />" +
                 "(a + b) ÷ c<br /> ↓ <br />(a ÷ c) + (b ÷ c)",
@@ -2696,34 +2712,34 @@ function overworld(player) {
       function selectSpell(selection) {
         switch(parseInt(selection)) {
           case 0:     //Fibonacci's Associative Spell
-            learnAssociative();
+            learnDecomposition();
             break;
-          case 1:     //Euler's Left Distributive Spell
-            learnLeftDistribution();
-            break;
-          case 2:     //Euler's Right Distributive Spell
-            learnRightDistribution();
-            break;
-          case 3:     //Euclid's Fireball Spell
+          case 1:     //Euclid's Fireball Spell
             learnFireball();
             break;
-          case 4:     //Hypatia's Healing Spell
+          case 2:     //Hypatia's Healing Spell
             learnHeal();
             break;
-          case 5:     //Lovelace's Reduction Spell
+          case 3:     //Lovelace's Reduction Spell
             learnReduce();
             break;
-          case 6:     //Huygen's Stop-time Spell
+          case 4:     //Huygen's Stop-time Spell
             learnStopTime();
             break;
-          case 7:     //Fermat's Polymorph Monster Spell
+          case 5:     //Fermat's Polymorph Monster Spell
             learnPolymorph();
             break;
-          case 8:     //Noether's Strength Spell
+          case 6:     //Noether's Strength Spell
             learnStrength();
             break;
-          case 9:     //Brahe's Nova Spell
+          case 7:     //Brahe's Nova Spell
             learnNova();
+            break;
+          case 8:     //Euler's Left Distributive Spell
+            learnLeftDistribution();
+            break;
+          case 9:     //Euler's Right Distributive Spell
+            learnRightDistribution();
             break;
           case 10:
             mageGuild();
@@ -2792,6 +2808,10 @@ function overworld(player) {
     }
 
     function catacombKeys() {
+      //----------------------------------------------------//
+      //Makes the menu for the player to select the key     //
+      //they want to earn                                   //
+      //----------------------------------------------------//
 
       let subtractionClick = function() {}
       let multiplicationClick = function() {}
@@ -2872,11 +2892,6 @@ function overworld(player) {
           challengeDiv.textContent = victoryText;
           insertLineBreak(challengeDiv, 2);
           insertButton(challengeDiv, "Return to Guild", mageGuild);
-
-          /*typer(victoryText, challengeDiv, function() {
-            insertLineBreak(challengeDiv, 2);
-            insertButton(challengeDiv, "Return to Guild", mageGuild);
-          })*/
         }
 
         let flash = new ScreenFlash("playAreaWhite");
@@ -2901,18 +2916,19 @@ function overworld(player) {
           function challenge(count = 0) {
             count++;
             clearElement(challengeDiv);
-            let terms = getTerms("addition", 1);
+            let term1 = getRandomNumber(1, 10);
+            let term2 = getRandomNumber(1, term1);
+            let answer = term1 - term2;
 
-            let problem = `${terms[0]} + ? = ${terms[2]}
+            let problem = `${term2} + ? = ${term1}
                           <br /><br />
-                          ${terms[2]} - ${terms[0]} = ${ansInput}
+                          ${term1} - ${term2} = ${ansInput}
                           <br />`;
 
             setTimeout(function() {
-              document.onkeyup = function(e) {
-                e = e || window.event;
-                if (e.keyCode === 13) {
-                  checkAnswer(terms[1], count, challenge, function() {
+              document.onkeyup = function(event) {
+                if (event.key === "Enter") {
+                  checkAnswer(answer, count, challenge, function() {
                     player.subtraction.level = victory(operation);
                     player.notification.subtractionKey = false;
                   });
@@ -2926,9 +2942,33 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
-            "Subtraction magic is like addition but turned around:",
-            parseMath("1 + 2 = 3<br />• + •• = •••<br /><br />" +
-                      "3 - 2 = 1 or 3 - 1 = 2<br />_o•o_•• - •• = _o•o_ or _o••o_• - • = _o••o_"),
+            "Subtraction is the process of taking away from a number, or making it smaller",
+            "We can think of it like counting backwards:",
+            parseMath("<pre>_r6r_ - 2 = ?<br /><br />" +
+                      "_r6r_   5   4   3   2   1   0<br />" +
+                      "|---|---|---|---|---|---|<br /><br /></pre>" +
+                      "First we start at six<br /><br />"),
+            parseMath("<pre>6 - _r2r_ = ?<br /><br />" +
+                      "6   5   4   3   2   1   0<br />" +
+                      "|---|---|---|---|---|---|<br />" +
+                      "└---_r2r_---┘                <br /><br /></pre>" +
+                      "Then we count backwards two places"),
+            parseMath("<pre>6 - 2 = _r4r_<br /><br />" +
+                      "6   5   _r4r_   3   2   1   0<br />" +
+                      "|---|---|---|---|---|---|<br />" +
+                      "        ⇑                <br /><br /></pre>" +
+                      "Which brings us to four"),
+            parseMath("<pre>_b6b_ - _o2o_ = _g4g_<br /><br />" +
+                      "_b6b_   5   4   3   _o2o_   1   0<br />" +
+                      "|---|---|---|---|---|---|<br />" +
+                      "└-------_g4g_-------┘        <br /><br /></pre>" +
+                      "We can also think about it as the space between the two terms of our problem."),
+            "Subtraction is also like turning around an addition problem:",
+            parseMath("1 + 2 = 3<br /><br />" +
+                      "3 - 2 = 1 or 3 - 1 = 2<br /><br />" +
+                      "or<br /><br />" +
+                      "12 - 5 = 7<br /><br />" +
+                      "5 + 7 = 12"),
             "To earn this key you must answer 10 subtraction problems."
           ];
 
@@ -2937,9 +2977,7 @@ function overworld(player) {
           fadeTransition(challengeDiv, playArea);
         }
 
-        let operation = "Subtraction";
-
-        keyMenuYesNo(operation, beginChallenge);
+        keyMenuYesNo("Subtraction", beginChallenge);
       }
 
       function multiplicationChallenge() {
@@ -2949,30 +2987,29 @@ function overworld(player) {
           function challenge(count = 0) {
             count++;
             clearElement(challengeDiv);
-            let terms = getTerms("multiplication", 1);
-            terms[1]++;
-            terms[2] += terms[0];
+            let term1 = getRandomNumber(2, 5);
+            let term2 = getRandomNumber(2, 5);
+            let answer = term1 * term2;
 
             let problem = ``;
-
-            for (let i = 0; i < terms[0]; i++) {
+            for (let i = 0; i < term2; i++) {
               if (i) {
-                problem += ` + ${terms[1]}`;
+                problem += ` + ${term1}`;
               } else {
-                problem += `${terms[1]}`;
+                problem += `${term1}`;
               }
             }
             problem += ` = ?
                        <br /><br />
-                       ${terms[1]} × ${terms[0]} = ${ansInput}
+                       ${term1} × ${term2} = ${ansInput}
                        <br /><br />`;
 
             setTimeout(function() {
-              document.onkeyup = function(e) {
-                e = e || window.event;
-                if (e.keyCode === 13) {
-                  checkAnswer(terms[2], count, challenge, function() {
-                    player.spells.euler1.available = true;
+              document.onkeyup = function(event) {
+                if (event.key === "Enter") {
+                  checkAnswer(answer, count, challenge, function() {
+                    player.spells.euler.available = true;
+                    player.notification.eulerSpell = "Spell Upgrade Available";
                     player.multiplication.level = victory(operation);
                     player.notification.multiplicationKey = false;
                   });
@@ -2989,6 +3026,16 @@ function overworld(player) {
             "Multiplication magic is like addition but repeated:",
             "/HTML/4 × 3 is the same as<br />4 + 4 + 4",
             "/HTML/7 × 4 is the same as<br />7 + 7 + 7 + 7",
+            "We can also think about it as groups of equal number:",
+            "/HTML/3 × 4 is the same as saying 4 groups of 3 items each:<br /><pre>" +
+            "         4           <br />" +
+            "  ┌-┐ ┌-┐ ┌-┐ ┌-┐    <br />" +
+            "  │■│ │■│ │■│ │■│    <br />" +
+            "3 │■│ │■│ │■│ │■│    <br />" +
+            "  │■│ │■│ │■│ │■│    <br />" +
+            "  └-┘ └-┘ └-┘ └-┘    <br />" +
+            "   ⇓   ⇓   ⇓   ⇓     <br />" +
+            "   3 + 3 + 3 + 3 = 12</pre>",
             "To earn this key you must answer 10 multiplication problems."
           ];
 
@@ -2997,9 +3044,7 @@ function overworld(player) {
           fadeTransition(challengeDiv, playArea);
         }
 
-        let operation = "Multiplication";
-
-        keyMenuYesNo(operation, beginChallenge);
+        keyMenuYesNo("Multiplication", beginChallenge);
       }
 
       function divisionChallenge() {
@@ -3017,11 +3062,11 @@ function overworld(player) {
                           <br />`;
 
             setTimeout(function() {
-              document.onkeyup = function(e) {
-                e = e || window.event;
-                if (e.keyCode === 13) {
+              document.onkeyup = function(event) {
+                if (event.key === "Enter") {
                   checkAnswer(terms[1], count, challenge, function() {
-                    player.spells.euler2.available = true;
+                    player.spells.kovalevskaya.available = true;
+                    player.notification.kovalevskaySpell = "Spell Upgrade Available";
                     player.division.level = victory(operation);
                     player.notification.divisionKey = false;
                   });
@@ -3035,7 +3080,28 @@ function overworld(player) {
 
           let challengeDiv = makeDiv("challengeDiv", "textBox");
           let challengeText = [
-            "Division magic is like multiplication but turned around:",
+            "Division magic is taking a number and breaking it into groups of equal size.",
+            "If we ask what the solution is to 6 ÷ 3, it's the same as asking " +
+                "how many groups would we have if we split 6 into groups of 3 items each?",
+            "/HTML/Start with 6 units:<br /><pre>" +
+                "┌-----┐<br />" +
+                "│■ ■ ■│<br />" +
+                "│     │<br />" +
+                "│■ ■ ■│<br />" +
+                "└-----┘</pre>",
+            "/HTML/Now split those 6 units into groups with 3 units each:<br /><pre>" +
+                "┌-----┐<br />" +
+                "│■ ■ ■│<br />" +
+                "├-----┤<br />" +
+                "│■ ■ ■│<br />" +
+                "└-----┘</pre>",
+            "/HTML/We now have 2 equal sized groups. 6 ÷ 3 = 2<br /><pre>" +
+                "┌-----┐<br />" +
+                "│■ ■ ■│<br />" +
+                "├-----┤<br />" +
+                "│■ ■ ■│<br />" +
+                "└-----┘</pre>",
+            "It's also helpful to think of division like multiplication but turned around:",
             "/HTML/3 × 5 = 15<br />15 ÷ 5 = 3 or 15 ÷ 3 = 5",
             "To earn this key you must answer 10 division problems."
           ];
@@ -3045,9 +3111,7 @@ function overworld(player) {
           fadeTransition(challengeDiv, playArea);
         }
 
-        let operation = "Division";
-
-        keyMenuYesNo(operation, beginChallenge);
+        keyMenuYesNo("Division", beginChallenge);
       }
 
       let keyData = {
@@ -3223,16 +3287,16 @@ function overworld(player) {
       //The data needed to properly display the spell info  //
       //----------------------------------------------------//
 
-      ["Fibonacci's Associative Spell", "fibonacciSpellBook1.gif"],
-      ["Euler's Left Distributive Spell", "fibonacciSpellBook2.gif"],
-      ["Euler's Right Distributive Spell", "fibonacciSpellBook3.gif"],
-      ["Euclid's Fireball Spell", "triangleSpellBook.gif"],
-      ["Hypatia's Healiing Spell", "squareSpellBook.gif"],
-      ["Huygen's Stop Time Spell", "pyramidSpellBook.gif"],
-      ["Lovelace's Reduction Spell", "pentagonSpellBook.gif"],
-      ["Noether's Strength Spell", "hexagonSpellBook.gif"],
-      ["Fermet's Polymorph Monster Spell", "cubeSpellBook.gif"],
-      ["Brahe's Nova Spell", "starSpellBook.gif"]
+      ["Fibonacci's Decomposition Spell", "fibonacci.png"],
+      ["Euclid's Fireball Spell", "euclid.png"],
+      ["Hypatia's Healiing Spell", "hypatia.png"],
+      ["Huygens' Stop Time Spell", "huygens.png"],
+      ["Lovelace's Reduction Spell", "lovelace.png"],
+      ["Noether's Strength Spell", "noether.png"],
+      ["Fermet's Polymorph Monster Spell", "fermat.png"],
+      ["Brahe's Nova Spell", "brahe.png"],
+      ["Euler's Left Distribution Spell", "euler.png"],
+      ["Kovalevskaya's Right Distribution Spell", "kovalevskaya.png"],
     ];
     //
     //These two functions are left empty so they
@@ -3822,9 +3886,8 @@ function overworld(player) {
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        checkKeys(e.keyCode, spell, 3.5);
+      document.onkeyup = function(event) {
+        checkKeys(event.keyCode, spell, 3.5);
       }
 
       let spellDiv = makeDiv("spellDetailDiv");
@@ -4545,9 +4608,12 @@ function overworld(player) {
   }
 
   let playArea = document.getElementById("playArea");
-  //
-  //The image data for the overworld menu
+
   let menuData = {
+    //----------------------------------------------------//
+    //Object w/ the data for the overworld menu           //
+    //----------------------------------------------------//
+
     sprites: [
       ["additionDoorClosed.gif", "Addition Catacombs"],
       ["subtractionDoorClosed.gif", "Subtraction Catacombs"],
@@ -5239,13 +5305,12 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       if (Object.keys(player.spells).length === 0) {
 
       } else {
-        for (let i = 0; i < Object.keys(player.spells).length; i++) {
+        for (let i = 0; i < 8; i++) {
           if (Object.values(player.spells)[i].learned === true) {
             let menuItem = makeDiv(i, "menuItem");
             let spell = Object.values(player.spells)[i];
             menuItem.onclick = function() {
               spellObj[(i + 1) % 10]();
-              //clickSpell((i + 1) % 10);
             }
             let line = `_fl${(i + 1) % 10}fl_ ${spell.name} _fr${spell.number}fr_`;
             menuItem.innerHTML = parseMath(line).slice(6);
@@ -6006,6 +6071,20 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
       }
 
+      if (operation === "multiplication" && !player.spells.euler.learned) {
+        hintDiv.innerHTML = "Your magic isn't working!";
+        hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
+        hideElement(hintDiv, 1500);
+        return;
+      } else if (operation === "division" && !player.spells.kovalevskaya.learned) {
+        hintDiv.innerHTML = "Your magic isn't working!";
+        hintDiv.style.visibility = "visible";
+        player.stats.spellActive = false;
+        hideElement(hintDiv, 1500);
+        return;
+      }
+
       timer.stopTime();
       //
       //This holds the string that will become the hint
@@ -6073,14 +6152,13 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           break;
         case "multiplication":
           multiplicationHint(terms[0], terms[1]);
-          player.spells.euler1.cast++;
+          player.spells.euler.cast++;
           break;
         case "division":
           divisionHint(terms[0], terms[1]);
-          player.spells.euler2.cast[2]++;
+          player.spells.kovalevskaya.cast++;
           break;
        }
-
       fibonacciAnimation();
 
     }
