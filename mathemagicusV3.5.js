@@ -111,7 +111,58 @@ const monsterSearch = function(array, index) {
 //Display helper functions                                           //
 //-------------------------------------------------------------------//
 
+let imageBin = [];
+
+const preloadImages = function(images, path = false) {
+  //----------------------------------------------------//
+  //Preloads images before they are needed              //
+  //array-> images[]: an array containing strings that  //
+  //are the paths to the images to be loaded            //
+  //----------------------------------------------------//
+
+  if (images[0] != "") {
+    imageBin = [];
+  } else {
+    images.shift();
+  }
+
+  let imgLength = images.length;
+  let img = null;
+
+  for (let i = 0; i < imgLength; i++) {
+    imageBin.push(new Image());// = new Image();
+    if (path) {
+      img = path + images[i];
+    } else {
+      img = images[i];
+    }
+    imageBin[imageBin.length - 1].src = img;
+  }
+  console.clear();
+  console.log(imageBin);
+}
+
+const preloadMenu = function(menuData) {
+  //----------------------------------------------------//
+  //Preloads menu images before they are needed         //
+  //object-> menuData: an object that holds the info    //
+  //about the sprites used in a menu                    //
+  //----------------------------------------------------//
+
+  let imgs = [];
+  for (let i = 0; i < menuData.sprites.length; i++) {
+    imgs.push(menuData.path + menuData.sprites[i][0]);
+  }
+  preloadImages(imgs);
+}
+
 const parseMath = function(string) {
+  //----------------------------------------------------//
+  //Poorly named function that parses my custom         //
+  //shortcode for more colorful display                 //
+  //string-> string: text to be parsed                  //
+  //----------------------------------------------------//
+
   let htmlString = string;
   if (htmlString.includes("_r")) {
     htmlString = htmlString.replace(/_r/g, "<span style=\"color:#ff7878;\">");
@@ -398,6 +449,15 @@ const makeSkipButton = function(callback) {
 }
 
 function showImage(src, target, duration = 1500) {
+  //----------------------------------------------------//
+  //Makes an image appear on screen for a set duration  //
+  //of time                                             //
+  //string-> src: path to the image                     //
+  //element-> target: where to append the image         //
+  //integer-> duration: how long the image is to appear //
+  //on screen                                           //
+  //----------------------------------------------------//
+
   let img = makeImg(src, "firstKey", "quickImg");
   img.style.filter = "opacity(0%)";
   target.appendChild(img);
@@ -1488,6 +1548,8 @@ function gameStart() {
 
     let fragment = makeFragment(enterNameDiv, next);
 
+    preloadImages(["Tellah.gif", "./mages/mage0.gif"]);
+
     //
     //This puts it all into the playArea and puts the focus on the nameTextBox
     //
@@ -1501,10 +1563,9 @@ function gameStart() {
     //Listens for the enter key
     //
     setTimeout(function() {
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        if (e.keyCode === 13) {
-          document.onkeyup = "";
+      document.onkeyup = function(event) {
+        if (event.key === "Enter") {
+          document.onkeyup = null;
           chooseCharacter();
         };
       }
@@ -1531,7 +1592,7 @@ function gameStart() {
       //Removes elements used for character selection before
       //moving to the townIntro screen
       clearMenu(avatarMenuSelectors);
-      document.onkeyup = "";
+      document.onkeyup = null;
 
       storyIntro();
     }
@@ -1569,6 +1630,8 @@ function gameStart() {
       index: 0
     };
 
+    preloadMenu(mageData);
+
     let introText = textData.chooseCharacter1 + player.name + textData.chooseCharacter2;
     introTextDiv.textContent = introText;
 
@@ -1598,6 +1661,7 @@ function gameStart() {
       textData.introPart5
     ];
     showText(introTextDiv, introText, function() {
+      preloadImages(["./doors/additionDoorClosed.gif"]);
       overworld(player);
     });
   }
@@ -2151,7 +2215,7 @@ function overworld(player) {
             "We can also take apart numbers to add together the place values:",
             parseMath("_r22r_ + 16<br /> ↓ <br />" +
                       "_o(o__r20r_ + 10_o)o_ + _g(g__r2r_ + 6_g)g_<br /> ↓ <br />" +
-                      " ↓ <br />_o30o_ + _g8g_<br /> ↓ <br />" +
+                      "_o30o_ + _g8g_<br /> ↓ <br />" +
                       "38"),
             "To earn this spell you must answer 10 problems using " +
                 "the Associative Property."
@@ -3257,6 +3321,7 @@ function overworld(player) {
       path: "./mageGuild/",
       index: 0
     }
+    preloadMenu(guildMenuData);
     let guildMenuSelectors = new MenuSelector(1, "Welcome to the Mages' Guild")
     let introText = `It's good to see you again ${player.name}, what can I do for you?`;
     let ansInput = `<input type="number" id="answerInput"></input>`;
@@ -3282,22 +3347,7 @@ function overworld(player) {
     //monsters so the book can display thier sprites      //
     //----------------------------------------------------//
 
-    const spellBookContent = [
-      //----------------------------------------------------//
-      //The data needed to properly display the spell info  //
-      //----------------------------------------------------//
 
-      ["Fibonacci's Decomposition Spell", "fibonacci.png"],
-      ["Euclid's Fireball Spell", "euclid.png"],
-      ["Hypatia's Healiing Spell", "hypatia.png"],
-      ["Huygens' Stop Time Spell", "huygens.png"],
-      ["Lovelace's Reduction Spell", "lovelace.png"],
-      ["Noether's Strength Spell", "noether.png"],
-      ["Fermet's Polymorph Monster Spell", "fermat.png"],
-      ["Brahe's Nova Spell", "brahe.png"],
-      ["Euler's Left Distribution Spell", "euler.png"],
-      ["Kovalevskaya's Right Distribution Spell", "kovalevskaya.png"],
-    ];
     //
     //These two functions are left empty so they
     //can save a few lines in the book page functions
@@ -3523,12 +3573,11 @@ function overworld(player) {
       //
       //This is an event listener to use the arrows to
       //turn the pages
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        if (e.keyCode === 39) {
+      document.onkeyup = function(event) {
+        if (event.keyCode === 39) {
           document.onkeyup = null;
           turnPageLeft(titlePage, contentsPage);
-        } else if (e.keyCode === 27) {
+        } else if (event.keyCode === 27) {
           document.onkeyup = null;
           returnToDungeonMenu();
         }
@@ -3573,9 +3622,8 @@ function overworld(player) {
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        checkKeys(e.keyCode, tableOfContents, 1);
+      document.onkeyup = function(event) {
+        checkKeys(event.keyCode, tableOfContents, 1);
       }
 
       makePageTitle("Table of Contents", tableOfContents);
@@ -3934,8 +3982,13 @@ function overworld(player) {
       //
       //Determines the function of the page turning butttons
       pageRight = function() {
-        turnPageRight(monsters, spellDetailPage, findPreviousSpell(10, player.spells));
+        if (!findPreviousSpell(10, player.spells)) {
+          turnPageRight(monsters, spellsPage);
+        } else {
+          turnPageRight(monsters, spellDetailPage, findPreviousSpell(10, player.spells));
+        }
       }
+
       if (typeof(player.addition.monsters[0]) === "object") {
         pageLeft = function() {
           turnPageLeft(monsters, monsterBasePage, "+");
@@ -3979,12 +4032,16 @@ function overworld(player) {
 
       return monsters;
     }
-    //
-    //This function makes the base page for each
-    //type of monster
-    //monsterClass is a string that determines which
-    //base page to create (+, -, *, /)
+
     function monsterBasePage(monsterClass) {
+      //----------------------------------------------------//
+      //Makes the page for all the monsters found in a      //
+      //particular catacomb, listing the ones the player    //
+      //has defeated                                        //
+      //string-> monsterClass: tells the function which     //
+      //group of monsters to display                        //
+      //----------------------------------------------------//
+
       //
       //Sets the values to be usesd to display the monster names
       //and to be passed to the Monster Detail Page
@@ -4031,7 +4088,10 @@ function overworld(player) {
       switch (monsterClass) {
         case "+":
           setArrayValues(player.addition.monsters, monsterData.addition);
-          makePageTitle("Addition Monsters", monsterList)
+          makePageTitle("Addition Monsters", monsterList);
+
+          preloadImages([monsterData.addition.path + monsterData.addition.files[player.addition.monsters[0][0]]]);
+
           pageRight = function() {turnPageRight(monsterList, monstersPage);}
           pageLeft = function() {
             turnPageLeft(monsterList, monsterDetailPage, ["+", player.addition.monsters[0][0]]);
@@ -4043,10 +4103,15 @@ function overworld(player) {
           setArrayValues(player.subtraction.monsters, monsterData.subtraction);
           makePageTitle("Subtraction Monsters", monsterList)
           last = (player.addition.monsters.length - 1);
+
+          preloadImages([monsterData.addition.path + monsterData.addition.files[player.addition.monsters[last][0]]]);
+          preloadImages(["", monsterData.subtraction.path + monsterData.subtraction.files[player.subtraction.monsters[0][0]]]);
+
           pageRight = function() {
             turnPageRight(monsterList, monsterDetailPage, ["+", player.addition.monsters[last][0]]);
           }
           pageLeft = function() {
+
             turnPageLeft(monsterList, monsterDetailPage, ["-", player.subtraction.monsters[0][0]]);
           }
           turnButton[0].onclick = pageRight;
@@ -4056,7 +4121,12 @@ function overworld(player) {
         case "*":
           setArrayValues(player.multiplication.monsters, monsterData.multiplication);
           makePageTitle("Multiplication Monsters", monsterList)
+
           last = (player.subtraction.monsters.length - 1);
+
+          preloadImages([monsterData.subtraction.path + monsterData.subtraction.files[player.subtraction.monsters[last][0]]]);
+          preloadImages(["", monsterData.multiplication.path + monsterData.multiplication.files[player.multiplication.monsters[0][0]]]);
+
           pageRight = function() {
             turnPageRight(monsterList, monsterDetailPage, ["-", player.subtraction.monsters[last][0]]);
           }
@@ -4071,6 +4141,10 @@ function overworld(player) {
           setArrayValues(player.division.monsters, monsterData.division);
           makePageTitle("Division Monsters", monsterList)
           last = (player.multiplication.monsters.length - 1);
+
+          preloadImages([monsterData.multiplication.path + monsterData.multiplication.files[player.multiplication.monsters[last][0]]]);
+          preloadImages(["", monsterData.division.path + monsterData.division.files[player.division.monsters[0][0]]]);
+
           pageRight = function() {
             turnPageRight(monsterList, monsterDetailPage, ["*", player.multiplication.monsters[last][0]]);
           }
@@ -4083,9 +4157,8 @@ function overworld(player) {
           break;
       }
 
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        checkKeys(e.keyCode, monsterList, 4.5);
+      document.onkeyup = function(event) {
+        checkKeys(event.keyCode, monsterList, 4.5);
       }
       //
       //Makes the table that displays the names of the
@@ -4108,15 +4181,17 @@ function overworld(player) {
 
       return monsterList;
     }
-    //
-    //This function makes the individual monster pages
-    //in the monster book
-    //currentMonster is an array.
-    //currentMonster[0] is a string that tells the function
-    //which class the monster is (+, -, *, /)
-    //currentMonster[1] is the index of the monster in the
-    //...Monsters/...MonsterNames arrays
+
     function monsterDetailPage(currentMonster) {
+      //----------------------------------------------------//
+      //Makes the page for the individual monsters.         //
+      //array-> currentMonster:                             //
+      //string-> [0]: indicates which catacomb the monster  //
+      //is found in.                                        //
+      //integer-> [1]: index of the monster in the          //
+      //monsterNames array                                  //
+      //----------------------------------------------------//
+
       //
       //Sets the values to be usesd to display the monster names
       //and to be passed to the Monster Detail Page
@@ -4597,6 +4672,14 @@ function overworld(player) {
     fragment.appendChild(monsterBook);
 
     fadeTransition(fragment, playArea);
+
+    let mnstr = {
+      "+": monsterData.addition,
+      "-": monsterData.subtraction,
+      "×": monsterData.multiplication,
+      "÷": monsterData.division,
+    }
+
     //
     //The background images for the pages of the book
     let pageBackgrounds = [
@@ -4605,6 +4688,50 @@ function overworld(player) {
       "page3.gif",
       "page4.gif"
     ];
+    preloadImages(pageBackgrounds, "./book/");
+
+    let achvmnt = [
+      "",
+      "./icons/graveyard.png",
+      "./icons/sprint.png",
+      "./icons/stopwatch.png",
+      "./icons/dolphin.png",
+      "./icons/prime.png",
+      "./icons/bleeding-wound.png",
+      "./icons/heart-minus.png",
+      "./icons/medical-pack.png",
+      "./icons/fire-ray.png",
+      "./icons/help.png",
+      "./icons/spell-book.png",
+      "./icons/laurels-plus.png",
+      "./icons/laurels-minus.png",
+      "./icons/laurels-times.png",
+      "./icons/laurels-divide.png"
+    ];
+    preloadImages(achvmnt);
+
+    const spellBookContent = [
+      //----------------------------------------------------//
+      //The data needed to properly display the spell info  //
+      //----------------------------------------------------//
+
+      ["Fibonacci's Decomposition Spell", "fibonacci.png"],
+      ["Euclid's Fireball Spell", "euclid.png"],
+      ["Hypatia's Healiing Spell", "hypatia.png"],
+      ["Huygens' Stop Time Spell", "huygens.png"],
+      ["Lovelace's Reduction Spell", "lovelace.png"],
+      ["Noether's Strength Spell", "noether.png"],
+      ["Fermet's Polymorph Monster Spell", "fermat.png"],
+      ["Brahe's Nova Spell", "brahe.png"],
+      ["Euler's Left Distribution Spell", "euler.png"],
+      ["Kovalevskaya's Right Distribution Spell", "kovalevskaya.png"],
+    ];
+
+    let scrolls = spellBookContent.map(function(element) {
+      return element[1];
+    });
+    scrolls.unshift("");
+    preloadImages(scrolls, "./scrolls/");
   }
 
   let playArea = document.getElementById("playArea");
@@ -4625,6 +4752,10 @@ function overworld(player) {
     path: "./doors/",
     index: 0
   }
+
+  preloadMenu(menuData);
+  preloadImages(["", "./mageGuild/library.gif", "./book/bookCover.gif"])
+
   //
   //The selector data to make sure the overworld menu
   //is styled properly
@@ -5257,37 +5388,37 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             launch(castFibonacci);
           }
         },
-        4: function() {
+        2: function() {
           if (!player.spells.euclid.ongoing && player.spells.euclid.learned) {
             launch(castEuclid);
           }
         },
-        5: function() {
+        3: function() {
           if (!player.spells.hypatia.ongoing && player.spells.hypatia.learned) {
             launch(castHypatia);
           }
         },
-        6: function() {
+        4: function() {
           if (!player.spells.lovelace.ongoing && player.spells.lovelace.learned) {
             launch(castLovelace);
           }
         },
-        7: function() {
+        5: function() {
           if (!player.spells.huygens.ongoing && player.spells.huygens.learned) {
             launch(castHuygens);
           }
         },
-        8: function() {
+        6: function() {
           if (!player.spells.fermat.ongoing && player.spells.fermat.learned) {
             launch(castFermat);
           }
         },
-        9: function() {
+        7: function() {
           if (!player.spells.noether.ongoing && player.spells.noether.learned) {
             launch(castNoether);
           }
         },
-        0: function() {
+        8: function() {
           if (!player.spells.brahe.ongoing && player.spells.brahe.learned) {
             launch(castBrahe);
           }
@@ -5329,8 +5460,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       answerInput.blur();
 
       setTimeout(function() {
-        document.onkeyup = function(e) {
-          spellObj[e.keyCode % 48]();
+        document.onkeyup = function(event) {
+          spellObj[event.keyCode % 48]();
         }
       }, 200);
     }
@@ -5445,6 +5576,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       monster = new Monster(catacombLevel);
       monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
       monsterImg.style.filter = "brightness(100%)";
+
       getProblem();
     }
 

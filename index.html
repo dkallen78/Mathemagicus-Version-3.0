@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+      Mathemagicus
+    </title>
+    <!--
+    <link rel="stylesheet" href="stylesheet.css">
+    <script src="script.js">
+    </script>
+    -->
+    <style>
+      body {
+        background-color: darkslategray;
+      }
+
+      main {
+        position: relative;
+        top: 0vh;
+        margin: 0 25vw;
+        width: calc(50vw - 4px);
+        background-color: whitesmoke;
+        border: 2px solid gray;
+        border-radius: 0 0 1vh 1vh;
+      }
+
+      header {
+        position: fixed;
+        width: calc(50vw - 3rem);
+        top: 0vh;
+        margin-left: -2px;
+        padding: 1.5rem;
+        background-color: dodgerblue;
+        border-radius: 0 0 .5rem .5rem;
+        font-size: 2rem;
+        text-align: center;
+        box-shadow: inset -.2rem -.2rem .3rem #0c3f71;
+      }
+
+      header a {
+        padding: .5rem;
+        border-radius: .5rem;
+        background-color: whitesmoke;
+        color: red;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: .5vh .5vh 1vh black,
+                    inset .05em .05em .1em white,
+                    inset -.05em -.05em .1em gray;
+        transition: all 500ms;
+      }
+
+      header a:hover {
+        box-shadow: .5vh .5vh 1vh black,
+                    inset .05em .05em .1em gray,
+                    inset -.05em -.05em .1em white;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 3rem;
+      }
+
+      #top {
+        padding-top: 6rem;
+      }
+
+      p {
+        padding: 0 1rem;
+        font-size: 1.6rem;
+        text-align: justify;
+      }
+
+      p a {
+        color: blue;
+        text-decoration: none;
+        transition: all 300ms;
+      }
+
+      p a:hover {
+        border-radius: .5rem;
+        color: red;
+      }
+
+      figure {
+        width: 36vw;
+        margin: auto;
+        font-size: 1.2rem;
+        text-align: center;
+      }
+
+      figcaption {
+        margin: .5rem;
+        border-top: 1px solid black;
+      }
+
+      img {
+        width: 35vw;
+        border-radius: 1vh;
+      }
+
+      .hr {
+        margin: 3rem 20rem 0;
+        border: 1px solid black;
+      }
+
+      footer {
+        width: calc(50vw - 2rem);
+        margin: 1rem 25vw;
+        padding: 1rem;
+        background-color: dodgerblue;
+        border-radius: .3rem;
+        text-align: center;
+      }
+
+      footer a {
+        padding: .3rem;
+        color: whitesmoke;
+        border: 1px solid black;
+        border-radius: .3rem;
+        text-decoration: none;
+        transition: all 300ms;
+      }
+
+      footer a:hover {
+        box-shadow: inset .05em .05em .1em white,
+                    inset -.05em -.05em .1em gray;
+      }
+
+    </style>
+  </head>
+  <body onload="getData()">
+    <main>
+      <header>
+        <a href="http://www.mathemagicus.com/mathemagicusV3.5.html">Play the Demo</a>
+      </header>
+      <h1 id="top">Why Mathemagicus?</h1>
+      <p>The idea behind Mathemagicus started in 2017 when I was a substitute teacher
+        in a Virginia school system. I spent a week in a middle school math intervention
+        classroom. The students couldn’t do a lot of the work because they lacked
+        a solid foundation in basic arithmetic. When a student used a calculator
+        to solve 6 × 3 I started working on Mathemagicus.</p>
+
+      <figure>
+        <img src="https://shadycrzygames.files.wordpress.com/2019/08/math-struggles-kid.jpg">
+        <figcaption>Math can be frustrating</figcaption>
+      </figure>
+
+      <p>Mathemagicus <em>is not intended to replace a teacher or teaching</em>. Its primary
+        purpose is to improve <strong>automaticity</strong> and <strong>mental math skills</strong> in basic arithmetic.
+        <a href="https://pdfs.semanticscholar.org/ec0c/9f36c6b73983ae21592c3ad1c381b7943dd9.pdf">It has been shown</a>
+        that automaticity is a strong predictor of subsequent mathematical
+        competence. The National Mathematics Advisory Council also <a href="https://www2.ed.gov/about/bdscomm/list/mathpanel/report/final-report.pdf">
+          stresses the importance</a>
+        of automaticity for learning more advanced mathematical concepts, and the
+        importance of computer assisted instruction in achieving it.</p>
+
+      <p>I started teaching as a substitute in 2012 and I’ve seen a lot of
+        computer programs to help teach math. The problem I saw with most of them
+        was that they weren’t fun. The students didn’t enjoy using them. </p>
+
+      <p>With Mathemagicus, I have set out to recreate some of the joy I got from
+        video games when I was growing up, and use that model to create a web application
+        to augment math instruction.</p>
+
+      <figure>
+        <img src="https://shadycrzygames.files.wordpress.com/2019/08/dragonwarrior.jpg">
+        <figcaption>Dragon Warrior from 1989</figcaption>
+      </figure>
+
+      <div class="hr"></div>
+
+      <h1>What is Mathemagicus?</h1>
+
+      <p>Mathemagicus is a role-playing game that lets students choose an avatar
+        to help the stricken town of Arithmeticia clear its catacombs of monsters.
+        Initially armed only with Fibonacci’s Decomposition Spell and a key to the
+        Addition Catacombs, the player/student must progress through the catacombs
+        defeating monsters using arithmetic.</p>
+
+      <figure>
+        <img src="https://shadycrzygames.files.wordpress.com/2019/08/fight.jpg">
+      </figure>
+
+      <p>As they progress, the player/student will unlock more difficult problems,
+        new spells to help them (both hint spells and fun spells), and keys to the
+        subtraction, multiplication, and division catacombs.</p>
+
+      <p>Mathemagicus is a work-in-progress and a proof-of-concept, so game features
+        can be added or removed any day. Check back often for more information on
+        our progress!</p>
+
+    </main>
+    <footer>
+      <a href="http://shadycrzygames.wordpress.com">Shadycrzy Games</a>
+      <a id="email"></a>
+    </footer>
+
+  </body>
+  <script type="text/javascript" language="javascript">
+    const getData = function() {
+      let link = document.getElementById("email");
+      let addy = "mailto:";
+      addy += "dkallen";
+      addy += (100 - 22).toString();
+      addy += "@";
+      addy += "gma";
+      addy += "il.";
+      addy += "com";
+      link.href = addy;
+      link.textContent = "Email me";
+    }
+  </script>
+</html>
