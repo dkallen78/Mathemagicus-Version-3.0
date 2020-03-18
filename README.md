@@ -16,6 +16,10 @@ I need to make a final boss so the player can have a sense of "beating" the game
 
 #### Short term
 
+Periodically increase player health
+
+Periodically increase player damage
+
 Find a good principle for subraction hints
 
 Put in a final boss
@@ -33,6 +37,14 @@ Library
 Sprites
 
 Make damage numbers sway
+
+## 2020.03.17
+
+### Update
+
+Today's project was implementing image preloading. I don't have it completely done but I've covered the worst case scenarios (ie the images that have been visibly slow to load when playing from the server and not the hard drive). It's a really neat technique and I put my own spin on it. But it works, the slowest images to load are now ready to go when they're needed.
+
+I also cleaned up my www.mathemagicus.com landing page so it looks better and is more inviting to educators. I'm happy w/ what I've gotten done today.
 
 ## 2020.03.16
 
