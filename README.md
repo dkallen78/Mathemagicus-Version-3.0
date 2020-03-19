@@ -6,7 +6,7 @@ As of now, all of my assets are borrowed from somewhere else so this is not suit
 
 Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm going to upload a .rar later.
 
-### Up next: Make a final boss
+### Up next: Thorough debug
 
 I need to make a final boss so the player can have a sense of "beating" the game. It's going to be a big fight with every kind of problem coming at the player. Maybe I'll give it 3 forms?
 
@@ -22,9 +22,6 @@ Periodically increase player damage
 
 Find a good principle for subraction hints
 
-Put in a final boss
-
-Put in the save/continue functionality
 
 #### Long term
 
@@ -37,6 +34,12 @@ Library
 Sprites
 
 Make damage numbers sway
+
+## 2020.03.18
+
+### Update
+
+I got the rest of the biggish things done! I made a boss that I'm reasonably happy with. I made a BASIC tutorial for the controls. I made a save and continue feature. I'm really pleased with myself. I also worked some more on my landing page for www.mathemagicus.com and converted almost all of my colors (I just rememberd one I missed) to hsl so I could have a more consistent visual theme. I need to put a special test button back in for testing and I need to address a few more short-term issues, but I can call this a complete game!
 
 ## 2020.03.17
 
