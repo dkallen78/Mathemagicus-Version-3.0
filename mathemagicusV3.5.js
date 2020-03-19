@@ -138,8 +138,8 @@ const preloadImages = function(images, path = false) {
     }
     imageBin[imageBin.length - 1].src = img;
   }
-  console.clear();
-  console.log(imageBin);
+  //console.clear();
+  //console.log(imageBin);
 }
 
 const preloadMenu = function(menuData) {
@@ -187,6 +187,10 @@ const parseMath = function(string) {
   if (htmlString.includes("_fr")) {
     htmlString = htmlString.replace(/_fr/g, "<span style=\"float:right;\">");
     htmlString = htmlString.replace(/fr_/g, "</span>");
+  }
+  if (htmlString.includes("_kb")) {
+    htmlString = htmlString.replace(/_kb/g, "<span class=\"kbd\">");
+    htmlString = htmlString.replace(/kb_/g, "</span>");
   }
   return "/HTML/" + htmlString;
 }
@@ -792,6 +796,40 @@ function menuSwitch(selectorOld, menuFunction) {
   }
 }
 
+const saveGame = function(player) {
+  let playerString = JSON.stringify(player);
+  window.localStorage.setItem("player", playerString);
+}
+
+const continueGame = function() {
+  let continueString = window.localStorage.getItem("player");
+  let playerSeed = JSON.parse(continueString);
+
+  player.name = playerSeed.name;
+  player.health = playerSeed.health;
+  player.maxHealth = playerSeed.maxHealth;;
+  player.damage = playerSeed.damage;
+  player.damageBoost = playerSeed.damageBoost;
+  player.langIndex = playerSeed.langIndex;
+
+  player.notification = playerSeed.notification;
+
+  player.triggers = playerSeed.triggers;
+
+  player.sprites = playerSeed.sprites;
+
+  player.stats = playerSeed.stats;
+
+  player.spells = playerSeed.spells;
+
+  player.addition = playerSeed.addition;
+  player.subtraction = playerSeed.subtraction;
+  player.multiplication = playerSeed.multiplication;
+  player.division = playerSeed.division;
+
+  overworld(player);
+}
+
 class ArrayIndex {
   //----------------------------------------------------//
   //An easier way of keeping track of array indices     //
@@ -953,7 +991,9 @@ class Player {
 
     this.triggers = {
       newGame: true,
-      firstSpell: null
+      firstSpell: null,
+      finalBoss: false,
+      gameBeat: false
     }
     //
     //Avatar sprites for the player
@@ -1090,13 +1130,15 @@ const test = function() {
   player.name = "Shady";
   player.health = 100
   player.maxHealth = 100;
-  player.damage = 1;
-  player.addition.level = 6;
+  player.damage = 50;
+  //player.triggers.finalBoss = true;
+  //player.triggers.gameBeat = true;
+  player.addition.level = 10;
   player.notification.fibonacciSpell = false;
   player.notification.additionKey = false;
-  player.subtraction.level = 6;
-  player.multiplication.level = 1;
-  player.division.level = 0;
+  player.subtraction.level = 11;
+  player.multiplication.level = 11;
+  player.division.level = 11;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
   player.spells.fibonacci.learned = true;
@@ -1452,6 +1494,8 @@ function gameStart() {
       return div;
     }
 
+
+
     document.body.appendChild(playArea);
 
     let titleDiv = makeDiv("titleDiv");
@@ -1461,13 +1505,15 @@ function gameStart() {
     //Puts the three menu options on the screen
     //
     let newGame = titleScreenButton("newGame", textData.newGame, "1", function() {
+      document.onkeyup = null;
       clearInterval(options);
       enterName();
     });
     let cont = titleScreenButton("continue", textData.continue, "2", function() {
       document.onkeyup = null;     1
       clearInterval(options);
-      test();
+      //test();
+      continueGame();
     });
     let options = titleScreenButton("options", "Options", "3", function() {
       newGame.onclick = "";
@@ -1475,6 +1521,11 @@ function gameStart() {
       options.onclick = "";
       optionMenu(player);
     });
+    let controls = titleScreenButton("controls", "?", "4", function() {
+      document.onkeyup = null;
+      clearInterval(options);
+      controlTutorial();
+    })
 
     //
     //Changes the language of the menu item "option"
@@ -1486,33 +1537,54 @@ function gameStart() {
       options.textContent = optionArray[optionIndex % optionArray.length];
     }, 2000);
 
-    let fragment = makeFragment(titleDiv, newGame, cont, options);
+    let fragment = makeFragment(titleDiv, newGame, cont, options, controls);
     playArea.appendChild(fragment);
     newGame.focus();
 
-    let startIndex = new ArrayIndex(0, 3);
+    let startIndex = new ArrayIndex(0, 4);
     let startOptions = {
       0: newGame,
       1: cont,
-      2: options
+      2: options,
+      3: controls
     }
 
     setTimeout(function() {
-      document.onkeyup = function(e) {
-        if (e.keyCode === 13) {
+      document.onkeyup = function(event) {
+        if (event.keyCode === 13) {
           document.onkeyup = null;
           clearInterval(options);
           startOptions[startIndex.now].onclick();
-        } else if (e.keyCode === 38) {         //up
+        } else if (event.keyCode === 38) {         //up
           startOptions[startIndex.sub(1)].focus();
-        } else if (e.keyCode === 40) {  //down
+        } else if (event.keyCode === 40) {  //down
           startOptions[startIndex.add(1)].focus();
         }
-
       }
     }, 200);
 
     document.body.style.filter = "opacity(100%)";
+  }
+
+  const controlTutorial = function() {
+
+
+    removeElement("titleDiv", "newGame", "continue", "options", "controls");
+
+    let tutorialTextDiv = makeDiv("tutorialTextDiv", "textBox");
+    let tutorialText = [
+      "Use the arrow keys to navigate menus.",
+      parseMath("Press _kbEnterkb_ to make a selection or advance through text."),
+      parseMath("Use the _kbSpace Barkb_ to _oSkipo_ text when available."),
+      parseMath("_kbEsckb_ returns you to the previous screen."),
+      "And other than number input, you can always use the mouse."
+    ];
+
+    playArea.appendChild(tutorialTextDiv);
+    showText(tutorialTextDiv, tutorialText, function() {
+      removeElement("tutorialTextDiv")
+      titleScreen();
+    });
   }
 
   function enterName() {
@@ -1520,7 +1592,7 @@ function gameStart() {
     //Makes the prompt for the player to enter their name //
     //----------------------------------------------------//
 
-    fadeOutElement("newGame", "continue", "options");
+    fadeOutElement("newGame", "continue", "options", "controls");
 
     //
     //Displays the "Enter your name" prompt
@@ -1542,6 +1614,7 @@ function gameStart() {
     let next = makeDiv("next", "startButtons");
     next.onclick = function() {
       next.onclick = null;
+      window.localStorage.clear();
       chooseCharacter();
     }
     next.textContent = textData.next;
@@ -1704,6 +1777,47 @@ function overworld(player) {
     //is levelButtonClicked                               //
     //----------------------------------------------------//
 
+    const finalCatacomb = function() {
+      const tellahDiv = makeCameoDiv("Tellah.gif");
+      const finalTextDiv = makeDiv("finalTextDiv", "textBox");
+
+      let finalText = [
+        `${player.name}! I'm so glad you're here`,
+        `The ground started rumbling a little while ago and we found a new catacomb.`,
+        `We've sent five wizards to investigate the new catacomb but none of them have returned.`,
+        `Please go down to investigate. If anyone can conquer this catacomb it's you.`
+      ];
+
+      let fragment = makeFragment(tellahDiv, finalTextDiv);
+      playArea.appendChild(fragment);
+
+      showText(finalTextDiv, finalText, function() {
+        removeElement("cameo", "finalTextDiv");
+        menuMaker(selectors, imgData, callback, index);
+      });
+
+    }
+
+    const lastDialog = function() {
+      const tellahDiv = makeCameoDiv("Tellah.gif");
+      const lastTextDiv = makeDiv("finalTextDiv", "textBox");
+
+      let lastText = [
+        `Thank goodness you made it back, ${player.name}!`,
+        `I knew if anyone could do it, it was you.`,
+        `Thanks to your hard work, the people of Arithmeticia can live in peace.`,
+      ];
+
+      let fragment = makeFragment(tellahDiv, lastTextDiv);
+      playArea.appendChild(fragment);
+
+      showText(lastTextDiv, lastText, function() {
+        removeElement("cameo", "finalTextDiv");
+        menuMaker(selectors, imgData, callback, index);
+      });
+
+    }
+
     if (player.addition.level) menuData.sprites[0][0] = "additionDoorOpen.gif";
     if (player.subtraction.level) menuData.sprites[1][0] = "subtractionDoorOpen.gif";
     if (player.multiplication.level) menuData.sprites[2][0] = "multiplicationDoorOpen.gif";
@@ -1711,7 +1825,17 @@ function overworld(player) {
     if (player.hasNotifications) {
       postNotifications();
     }
-    menuMaker(selectors, imgData, callback, index);
+
+    if (player.totalLevel === 44 && !player.triggers.finalBoss) {
+      menuData.sprites.splice(6, 0, ["finalDoor.gif", "Hidden Catacombs"]);
+      index = 6;
+      finalCatacomb();
+    } else if (player.triggers.finalBoss && !player.triggers.gameBeat) {
+      player.triggers.gameBeat = true;
+      lastDialog();
+    } else {
+      menuMaker(selectors, imgData, callback, index);
+    }
   }
 
   function menuSelection(imgData) {
@@ -1750,7 +1874,16 @@ function overworld(player) {
           .then(function(myJson) {
             monsterData = myJson;
             liberMathemagicus(monsterData);
-            //shadycrzy()
+          });
+        break;
+      case 6:     //Hidden Catacomb
+        fetch("./monsterData.json")
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson) {
+            monsterData = myJson;
+            catacombs(player, "?", 0, 11, monsterData)
           });
         break;
     }
@@ -3347,7 +3480,6 @@ function overworld(player) {
     //monsters so the book can display thier sprites      //
     //----------------------------------------------------//
 
-
     //
     //These two functions are left empty so they
     //can save a few lines in the book page functions
@@ -3723,9 +3855,8 @@ function overworld(player) {
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        checkKeys(e.keyCode, status, 2);
+      document.onkeyup = function(event) {
+        checkKeys(event.keyCode, status, 2);
       }
       //
       //This block makes and places the <div> and <image>
@@ -3768,8 +3899,10 @@ function overworld(player) {
       makeStats(p, "Division Level: ", player.division.level, player.division.totalAverage);
       status.appendChild(p);
 
-      const saveGame = makeButton(null, "Save Game", "saveGame");
-      status.appendChild(saveGame);
+      const savePlayerGame = makeButton(function() {
+        saveGame(player);
+      }, "Save Game", "saveGame");
+      status.appendChild(savePlayerGame);
 
       return status;
     }
@@ -4090,7 +4223,7 @@ function overworld(player) {
           setArrayValues(player.addition.monsters, monsterData.addition);
           makePageTitle("Addition Monsters", monsterList);
 
-          preloadImages([monsterData.addition.path + monsterData.addition.files[player.addition.monsters[0][0]]]);
+          preloadImages([mData["+"].path + mData["+"].files[player.addition.monsters[0][0]]]);
 
           pageRight = function() {turnPageRight(monsterList, monstersPage);}
           pageLeft = function() {
@@ -4104,8 +4237,8 @@ function overworld(player) {
           makePageTitle("Subtraction Monsters", monsterList)
           last = (player.addition.monsters.length - 1);
 
-          preloadImages([monsterData.addition.path + monsterData.addition.files[player.addition.monsters[last][0]]]);
-          preloadImages(["", monsterData.subtraction.path + monsterData.subtraction.files[player.subtraction.monsters[0][0]]]);
+          preloadImages([mData["+"].path + mData["+"].files[player.addition.monsters[last][0]]]);
+          preloadImages(["", mData["-"].path + mData["-"].files[player.subtraction.monsters[0][0]]]);
 
           pageRight = function() {
             turnPageRight(monsterList, monsterDetailPage, ["+", player.addition.monsters[last][0]]);
@@ -4124,8 +4257,8 @@ function overworld(player) {
 
           last = (player.subtraction.monsters.length - 1);
 
-          preloadImages([monsterData.subtraction.path + monsterData.subtraction.files[player.subtraction.monsters[last][0]]]);
-          preloadImages(["", monsterData.multiplication.path + monsterData.multiplication.files[player.multiplication.monsters[0][0]]]);
+          preloadImages([mData["-"].path + mData["-"].files[player.subtraction.monsters[last][0]]]);
+          preloadImages(["", mData["*"].path + mData["*"].files[player.multiplication.monsters[0][0]]]);
 
           pageRight = function() {
             turnPageRight(monsterList, monsterDetailPage, ["-", player.subtraction.monsters[last][0]]);
@@ -4142,8 +4275,8 @@ function overworld(player) {
           makePageTitle("Division Monsters", monsterList)
           last = (player.multiplication.monsters.length - 1);
 
-          preloadImages([monsterData.multiplication.path + monsterData.multiplication.files[player.multiplication.monsters[last][0]]]);
-          preloadImages(["", monsterData.division.path + monsterData.division.files[player.division.monsters[0][0]]]);
+          preloadImages([mData["*"].path + mData["*"].files[player.multiplication.monsters[last][0]]]);
+          preloadImages(["", mData["/"].path + mData["/"].files[player.division.monsters[0][0]]]);
 
           pageRight = function() {
             turnPageRight(monsterList, monsterDetailPage, ["*", player.multiplication.monsters[last][0]]);
@@ -4302,7 +4435,11 @@ function overworld(player) {
             let next = (findMonster(monsterArray, currentMonster[1]) + 1);
             pageLeft = function() {turnPageLeft(monsterDetail, monsterDetailPage, ["/", monsterArray[next][0]]);}
           } else {
-            pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
+            if (player.triggers.gameBeat) {
+              pageLeft = function() {turnPageLeft(monsterDetail, bossDetailPage);}
+            } else {
+              pageLeft = function() {turnPageLeft(monsterDetail, achievementsPage);}
+            }
           }
           turnButton[0].onclick = pageRight;
           turnButton[1].onclick = pageLeft;
@@ -4311,9 +4448,8 @@ function overworld(player) {
       //
       //Starts the event listener so the reader can navigate
       //with the arrow keys
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        checkKeys(e.keyCode, monsterDetail, 4.5);
+      document.onkeyup = function(event) {
+        checkKeys(event.keyCode, monsterDetail, 4.5);
       }
 
       makePageTitle((currentMonster[1] + 1) + ". " + monsterNames[currentMonster[1]], monsterDetail);
@@ -4410,6 +4546,66 @@ function overworld(player) {
 
       return monsterDetail;
     }
+
+    function bossDetailPage() {
+
+      let bossPage = makeDiv("bossPage", "bookPage");
+
+      let quickButtons = makeQuickButtons(bossPage);
+      let quickButton = quickButtons.getElementsByClassName("quickButtons");
+      quickButton[0].onclick = function() {turnPageRight(spell, contentsPage);}
+      quickButton[1].onclick = function() {turnPageRight(spell, statusPage);}
+      quickButton[2].onclick = function() {turnPageRight(spell, spellsPage);}
+      quickButton[3].onclick = function() {turnPageLeft(spell, monstersPage);}
+      quickButton[4].onclick = function() {turnPageLeft(spell, achievementsPage);}
+      //
+      //Makes the buttons to turn the pages
+      let pageTurnButtons = turnPageButtons(bossPage);
+      let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
+      let index = player.division.monsters.length - 1;
+      turnButton[0].onclick = function() {
+        turnPageRight(bossPage, monsterDetailPage, ["/", player.division.monsters[index][0]]);
+      }
+      turnButton[1].onclick = function() {
+        turnPageLeft(bossPage, achievementsPage);
+      }
+
+      //
+      //Starts the event listener so the reader can navigate
+      //with the arrow keys
+      document.onkeyup = function(event) {
+        checkKeys(event.keyCode, monsterDetail, 4.5);
+      }
+
+      makePageTitle("Dread Lord", bossPage);
+      //
+      //Number of monsters killed
+      p = document.createElement("p");
+      insertTextNode(p, "Number Killed: 1");
+      bossPage.appendChild(p);
+      //
+      //Level of monster
+      p = document.createElement("p");
+      insertTextNode(p, "Catacomb Boss");
+      bossPage.appendChild(p);
+
+      p = document.createElement("p");
+      insertTextNode(p, "Hit Points: 100");
+      bossPage.appendChild(p);
+
+      p = document.createElement("p");
+      insertTextNode(p, "Damage: 5");
+      bossPage.appendChild(p);
+
+      let bossDetailDiv = makeDiv("bossDetailDiv");
+      bossDetailDiv.style.border = "3px solid #d4af37";
+      let bossDetailImg = makeImg("./monsters/dreadLord.gif", "monsterImg");
+      bossDetailDiv.appendChild(bossDetailImg);
+      bossPage.appendChild(bossDetailDiv);
+
+      return bossPage;
+
+    }
     //
     //This function makes the achievements page
     function achievementsPage() {
@@ -4497,8 +4693,14 @@ function overworld(player) {
       let turnButton = pageTurnButtons.getElementsByClassName("turnPageButtons");
       if (Array.isArray(player.division.monsters[0])) {
         let index = player.division.monsters.length - 1;
-        pageRight = function() {
-          turnPageRight(achievementPage, monsterDetailPage, ["/", player.division.monsters[index][0]]);
+        if (player.triggers.gameBeat) {
+          pageRight = function() {
+            turnPageRight(achievementPage, bossDetailPage);
+          }
+        } else {
+          pageRight = function() {
+            turnPageRight(achievementPage, monsterDetailPage, ["/", player.division.monsters[index][0]]);
+          }
         }
       } else if (Array.isArray(player.multiplication.monsters[0])) {
         let index = player.multiplication.monsters.length - 1;
@@ -4673,11 +4875,11 @@ function overworld(player) {
 
     fadeTransition(fragment, playArea);
 
-    let mnstr = {
+    let mData = {
       "+": monsterData.addition,
       "-": monsterData.subtraction,
-      "×": monsterData.multiplication,
-      "÷": monsterData.division,
+      "*": monsterData.multiplication,
+      "/": monsterData.division,
     }
 
     //
@@ -4746,7 +4948,7 @@ function overworld(player) {
       ["subtractionDoorClosed.gif", "Subtraction Catacombs"],
       ["multiplicationDoorClosed.gif", "Multiplication Catacombs"],
       ["divisionDoorClosed.gif", "Division Catacombs"],
-      ["guildDoors1.gif", "Mages' Guild"],
+      ["guildDoor.gif", "Mages' Guild"],
       ["book.gif", "Liber Mathemagicus"]
     ],
     path: "./doors/",
@@ -4772,6 +4974,8 @@ function getTerms(type, level, operation) {
   //Gets the terms to a problem based on the player's   //
   //level and the type of problem                       //
   //----------------------------------------------------//
+
+
 
   let constant1 = null;
   let constant2 = null;
@@ -4902,6 +5106,27 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           this.name = monsterData.division.names[this.index];
           break;
       }
+
+      let monsterImg = document.getElementById("monsterImg");
+      monsterImg.src = this.src;
+      monsterImg.title = this.name;
+    }
+  }
+
+  class DreadLord {
+    constructor() {
+      this.level = 11;
+      this.index = 36;
+      this.hp = 100;
+      this.maxHp = this.hp;
+      this.damage = 5;
+
+      let monsterDiv = document.getElementById("monsterDiv");
+      monsterDiv.style.height = "200px";
+      monsterDiv.style.marginTop = "-50px";
+
+      this.src = "./monsters/dreadLord.gif";
+      this.name = "Dread Lord";
 
       let monsterImg = document.getElementById("monsterImg");
       monsterImg.src = this.src;
@@ -5067,7 +5292,11 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     //----------------------------------------------------//
 
     let div = makeDiv("", "textBox");
-    insertTextNode(div, "Prepare yourself to fight monsters!");
+    if (operation === "?") {
+      insertTextNode(div, "Be careful, this catacomb looks more dangerous than the others!");
+    } else {
+      insertTextNode(div, "Prepare yourself to fight monsters!");
+    }
     insertLineBreak(div, 2);
     insertButton(div, "Go!", makeDungeonScreen);
 
@@ -5293,6 +5522,24 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         answerInput.focus();
       }
 
+      if (player.totalLevel === 44 && !player.triggers.gameBeat) {
+        let op = getRandomNumber(1, 4);
+        switch (op) {
+          case 1:
+            operation = "addition";
+            break;
+          case 2:
+            operation = "subtraction";
+            break;
+          case 3:
+            operation = "multiplication";
+            break;
+          case 4:
+            operation = "division";
+            break;
+        }
+      }
+
       player.spells.huygens.ongoing = false;
       player.stats.spellActive = false;
       let problemDiv = document.getElementById("problemDiv");
@@ -5365,6 +5612,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         answerInput.focus();
         removeElement("useSpellMenu");
         spellMenuActive = false;
+        playerImg.parentNode.onclick = showSpellMenu
       }
 
       const launch = function(spell) {
@@ -5429,6 +5677,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         }
       }
 
+      spellMenuActive = true;
+      playerImg.parentNode.onclick = closeSpellMenu;
       let spellMenu = makeDiv("useSpellMenu");
       let answerInput = document.getElementById("answerInput");
 
@@ -5534,16 +5784,25 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       checkForNotifications();
 
-      current[operation].level++;
+      if (current[operation].level < 11) {
+        current[operation].level++;
+      }
+
       current[operation].runningAverage = [];
       let problemDiv = document.getElementById("problemDiv");
       if (current[operation].level > 10) {
-        problemDiv.textContent = `You did it ${player.name}! You've definitely mastered addition!`;
+        if (player.totalLevel === 44 && !player.triggers.finalBoss) {
+          player.triggers.finalBoss = true;
+          problemDiv.textContent = `You did it ${player.name}! You've saved us all!`;
+        } else {
+          problemDiv.textContent = `You did it ${player.name}! You've definitely mastered ${operation}!`;
+        }
       } else {
         problemDiv.textContent = `I think you're strong enough for Level ${current[operation].level} !`;
+        insertLineBreak(problemDiv, 2);
+        insertButton(problemDiv, "Continue", nextMonster, "continue", "yesNoButtons");
       }
-      insertLineBreak(problemDiv, 2);
-      insertButton(problemDiv, "Continue", nextMonster, "continue", "yesNoButtons");
+
       insertTextNode(problemDiv, " ");
       insertButton(problemDiv, "Return to Surface", function() {
         overworld(player);
@@ -5620,7 +5879,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         case 32:  //Space key, spell menu
           event.preventDefault();
           if (!spellMenuActive && !player.stats.spellActive) {
-            spellMenuActive = true;
+            //spellMenuActive = true;
             showSpellMenu(answer);
           }
           break;
@@ -5774,12 +6033,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
         player.stats.monstersKilled++;
         player.damageBoost = 0;
-        processMonster();
+        if (player.totalLevel < 44 || player.triggers.gameBeat) {
+          processMonster();
+        }
         problemDiv.innerHTML = `Great job ${player.name}, you defeated the ${monster.name}!<br /><br />`;
 
         if (monster.maxHp >= 10) {
           setTimeout(levelUp, 1000);
-        } else if (player.passingAverage(current[operation].runningAverage)) {
+        } else if (player.passingAverage(current[operation].runningAverage) && current[operation].level < 11) {
           if (current[operation].level % 2 === 0) {
             setTimeout(bossFight, 1000);
           } else {
@@ -7364,15 +7625,23 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let problemDiv = document.getElementById("problemDiv");
     playArea.insertBefore(levelDiv, problemDiv);
 
-    let monster = new Monster(catacombLevel, current[operation]);
-    //let monsterInterval = 0;
+
     let terms = null;
     let playerImg = document.getElementById("playerImg");
     playerImg.title = player.name;
     let spellMenuActive = false;
+    playerImg.parentNode.onclick = showSpellMenu;
+
     let ansInput = `<input type="number" id="answerInput"></input>`;
     let dblBreak = `<br /><br />`;
     let timer = new Timer(timerValue);
+
+    let monster = null;
+    if (operation === "?") {
+      monster = new DreadLord();
+    } else {
+      monster = new Monster(catacombLevel, current[operation]);
+    }
 
     getProblem();
 
