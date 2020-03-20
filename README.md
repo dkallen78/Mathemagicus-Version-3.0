@@ -8,9 +8,7 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 ### Up next: Thorough debug
 
-I need to make a final boss so the player can have a sense of "beating" the game. It's going to be a big fight with every kind of problem coming at the player. Maybe I'll give it 3 forms?
 
-![](https://impossiblehq.com/wp-content/uploads/2013/04/Final-Form.jpg)
 
 ### Notes to self:
 
@@ -22,6 +20,7 @@ Periodically increase player damage
 
 Find a good principle for subraction hints
 
+Put in a test() function on the title screen
 
 #### Long term
 
@@ -34,6 +33,12 @@ Library
 Sprites
 
 Make damage numbers sway
+
+## 2020.03.19
+
+### Update
+
+Nothing big today. I put in some new bits to wait until a monster's image is loaded before showing the next problem. It works how I wanted it to, but I still need to speed up the image loading. The nuclear option is loading all monsters for a catacomb every time it's visited. Hopefully tomorrow I'll take on the hints. We'll see how motivated I am.
 
 ## 2020.03.18
 
