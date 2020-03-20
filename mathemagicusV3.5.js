@@ -156,6 +156,20 @@ const preloadMenu = function(menuData) {
   preloadImages(imgs);
 }
 
+const monsterImgLoad = function(monster, callback) {
+  let img = new Image();
+  img.src = monster.src;
+  img.onload = function() {
+    let monsterImg = document.getElementById("monsterImg");
+    monsterImg.src = monster.src;
+    monsterImg.title = monster.name;
+    monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
+    monsterImg.style.filter = "brightness(100%)";
+
+    callback();
+  }
+}
+
 const parseMath = function(string) {
   //----------------------------------------------------//
   //Poorly named function that parses my custom         //
@@ -224,7 +238,7 @@ function removeElement() {
   //Removes any number of elements passed in as         //
   //arguments from their parent element                 //
   //string-> arguments[0+]: id of the elements          //
-  //to be removed                                        //
+  //to be removed                                       //
   //----------------------------------------------------//
 
   for (let i = 0; i < arguments.length; i++) {
@@ -799,6 +813,7 @@ function menuSwitch(selectorOld, menuFunction) {
 const saveGame = function(player) {
   let playerString = JSON.stringify(player);
   window.localStorage.setItem("player", playerString);
+  window.localStorage.setItem("save", "true");
 }
 
 const continueGame = function() {
@@ -1494,12 +1509,12 @@ function gameStart() {
       return div;
     }
 
-
-
     document.body.appendChild(playArea);
 
     let titleDiv = makeDiv("titleDiv");
-    titleDiv.textContent = "Mathemagicus";
+      titleDiv.textContent = "Mathemagicus";
+    let fragment = document.createDocumentFragment();
+      fragment.appendChild(titleDiv);
 
     //
     //Puts the three menu options on the screen
@@ -1509,23 +1524,30 @@ function gameStart() {
       clearInterval(options);
       enterName();
     });
-    let cont = titleScreenButton("continue", textData.continue, "2", function() {
-      document.onkeyup = null;     1
-      clearInterval(options);
-      //test();
-      continueGame();
-    });
+      fragment.appendChild(newGame);
+    if (window.localStorage.getItem("save") === "true") {
+      let cont = titleScreenButton("continue", textData.continue, "2", function() {
+        document.onkeyup = null;     1
+        clearInterval(options);
+        //test();
+        continueGame();
+      });
+        fragment.appendChild(cont);
+    }
     let options = titleScreenButton("options", "Options", "3", function() {
-      newGame.onclick = "";
-      cont.onclick = "";
-      options.onclick = "";
+      let buttons = document.getElementsByClassName("startbuttons");
+      for (let i = 0; i < buttons.length; i++) {
+        buttons[i].onclick = null;
+      }
       optionMenu(player);
     });
+      fragment.appendChild(options);
     let controls = titleScreenButton("controls", "?", "4", function() {
       document.onkeyup = null;
       clearInterval(options);
       controlTutorial();
     })
+      fragment.appendChild(controls);
 
     //
     //Changes the language of the menu item "option"
@@ -1537,16 +1559,15 @@ function gameStart() {
       options.textContent = optionArray[optionIndex % optionArray.length];
     }, 2000);
 
-    let fragment = makeFragment(titleDiv, newGame, cont, options, controls);
     playArea.appendChild(fragment);
     newGame.focus();
 
-    let startIndex = new ArrayIndex(0, 4);
-    let startOptions = {
-      0: newGame,
-      1: cont,
-      2: options,
-      3: controls
+    let buttons = document.getElementsByClassName("startbuttons");
+
+    let startIndex = new ArrayIndex(0, buttons.length);
+    let startOptions = {};
+    for (let i = 0; i < buttons.length; i++) {
+      startOptions[i] = buttons[i];
     }
 
     setTimeout(function() {
@@ -1568,8 +1589,10 @@ function gameStart() {
 
   const controlTutorial = function() {
 
-
-    removeElement("titleDiv", "newGame", "continue", "options", "controls");
+    let divs = playArea.childNodes;
+    for (let i = divs.length - 1; i >= 0; i--) {
+      removeElement(divs[i].id);
+    }
 
     let tutorialTextDiv = makeDiv("tutorialTextDiv", "textBox");
     let tutorialText = [
@@ -1577,7 +1600,8 @@ function gameStart() {
       parseMath("Press _kbEnterkb_ to make a selection or advance through text."),
       parseMath("Use the _kbSpace Barkb_ to _oSkipo_ text when available."),
       parseMath("_kbEsckb_ returns you to the previous screen."),
-      "And other than number input, you can always use the mouse."
+      "And other than number input, you can always use the mouse to make your selections "+
+          "and navigate the menus."
     ];
 
     playArea.appendChild(tutorialTextDiv);
@@ -1592,32 +1616,35 @@ function gameStart() {
     //Makes the prompt for the player to enter their name //
     //----------------------------------------------------//
 
-    fadeOutElement("newGame", "continue", "options", "controls");
+    let buttons = document.getElementsByClassName("startbuttons");
+    for (let i = 0; i < buttons.length; i++) {
+      fadeOutElement(buttons[i].id);
+    }
 
     //
     //Displays the "Enter your name" prompt
     //
     let enterNameDiv = makeDiv("enterNameDiv", "clearBox");
-    enterNameDiv.style.filter = "opacity(0%)";
-    enterNameDiv.textContent = textData.enterName;
-    insertLineBreak(enterNameDiv);
+      enterNameDiv.style.filter = "opacity(0%)";
+      enterNameDiv.textContent = textData.enterName;
+      insertLineBreak(enterNameDiv);
 
     //
     //Displays the text input box and next button
     //
     let nameTextBox = document.createElement("input");
-    nameTextBox.type = "text";
-    nameTextBox.id = "nameTextBox";
+      nameTextBox.type = "text";
+      nameTextBox.id = "nameTextBox";
     enterNameDiv.appendChild(nameTextBox);
-    insertLineBreak(enterNameDiv);
+      insertLineBreak(enterNameDiv);
 
     let next = makeDiv("next", "startButtons");
-    next.onclick = function() {
+      next.onclick = function() {
       next.onclick = null;
       window.localStorage.clear();
       chooseCharacter();
     }
-    next.textContent = textData.next;
+      next.textContent = textData.next;
 
     let fragment = makeFragment(enterNameDiv, next);
 
@@ -5106,10 +5133,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           this.name = monsterData.division.names[this.index];
           break;
       }
-
-      let monsterImg = document.getElementById("monsterImg");
-      monsterImg.src = this.src;
-      monsterImg.title = this.name;
     }
   }
 
@@ -5173,10 +5196,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           this.name = monsterData.division.names[this.index];
           break;
       }
-
-      let monsterImg = document.getElementById("monsterImg");
-      monsterImg.src = this.src;
-      monsterImg.title = this.name;
     }
   }
 
@@ -5833,10 +5852,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       document.onkeyup = null;
       monster = new Monster(catacombLevel);
-      monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
-      monsterImg.style.filter = "brightness(100%)";
-
-      getProblem();
+      monsterImgLoad(monster, getProblem);
     }
 
     const bossFight = function() {
@@ -5847,18 +5863,17 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       //----------------------------------------------------//
 
       monster = new Boss();
-      monsterHealthBarFront.style.height = ((monster.hp / monster.maxHp) * 110) + "px";
-      monsterImg.style.filter = "brightness(100%)";
+      monsterImgLoad(monster, function() {
+        let problemDiv = document.getElementById("problemDiv");
+        clearElement(problemDiv);
+        problemDiv.textContent = "This monster doesn't seem like the others...";
 
-      let problemDiv = document.getElementById("problemDiv");
-      clearElement(problemDiv);
-      problemDiv.textContent = "This monster doesn't seem like the others...";
-
-      let flash = new ScreenFlash("playAreaWhite");
-      flash.flash = setInterval(function() {
-        flash.screenFlash();
-      }, 100);
-      setTimeout(getProblem, 2000);
+        let flash = new ScreenFlash("playAreaWhite");
+        flash.flash = setInterval(function() {
+          flash.screenFlash();
+        }, 100);
+        setTimeout(getProblem, 2000);
+      })
     }
 
     const checkKeyPress = function(event, answer) {
@@ -6070,6 +6085,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         if (monster.hp) {
           getProblem();
         } else {
+          let deadMonster = monster;
           killMonster();
         }
       }, 600);
@@ -7636,15 +7652,16 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let dblBreak = `<br /><br />`;
     let timer = new Timer(timerValue);
 
+
+
     let monster = null;
     if (operation === "?") {
       monster = new DreadLord();
+      getProblem();
     } else {
       monster = new Monster(catacombLevel, current[operation]);
+      monsterImgLoad(monster, getProblem);
     }
-
-    getProblem();
-
   }
 
   let playArea = document.getElementById("playArea");
