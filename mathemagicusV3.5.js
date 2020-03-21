@@ -1148,12 +1148,12 @@ const test = function() {
   player.damage = 50;
   //player.triggers.finalBoss = true;
   //player.triggers.gameBeat = true;
-  player.addition.level = 10;
+  player.addition.level = 3;
   player.notification.fibonacciSpell = false;
   player.notification.additionKey = false;
-  player.subtraction.level = 11;
-  player.multiplication.level = 11;
-  player.division.level = 11;
+  player.subtraction.level = 3;
+  player.multiplication.level = 0;
+  player.division.level = 0;
   player.sprites.path = "./mages/";
   player.sprites.files = ["mage5.gif", "mage5fight.gif", "mage5hurt.gif", "mage5dead.gif", "Cat Mage"];
   player.spells.fibonacci.learned = true;
@@ -1572,14 +1572,16 @@ function gameStart() {
 
     setTimeout(function() {
       document.onkeyup = function(event) {
-        if (event.keyCode === 13) {
+        if (event.key === "Enter") {
           document.onkeyup = null;
           clearInterval(options);
           startOptions[startIndex.now].onclick();
-        } else if (event.keyCode === 38) {         //up
+        } else if (event.key === "ArrowUp") {         //up
           startOptions[startIndex.sub(1)].focus();
-        } else if (event.keyCode === 40) {  //down
+        } else if (event.key === "ArrowDown") {  //down
           startOptions[startIndex.add(1)].focus();
+        } else if (event.key === "Escape") {
+          test();
         }
       }
     }, 200);
@@ -5211,6 +5213,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     "division": player.division
   }
 
+  let ansTest = null;
+
   const makeDungeonScreen = function() {
     //----------------------------------------------------//
     //Puts all of the elements that make up the catacomb  //
@@ -5533,10 +5537,14 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         timer.startTimer();
 
         setTimeout(function() {
-          document.onkeyup = function() {
+          document.onkeyup = function(event) {
             checkKeyPress(event, answer);
           }
         }, 200);
+
+        playerImg.parentNode.onclick = function(event) {
+          showSpellMenu(answer);
+        }
 
         answerInput.focus();
       }
@@ -5718,6 +5726,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           }
         }
       }
+
       let menuItem = makeDiv("10", "menuItem");
       menuItem.onclick = function() {
         closeSpellMenu();
@@ -5803,6 +5812,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       checkForNotifications();
 
+      let text = "";
       if (current[operation].level < 11) {
         current[operation].level++;
       }
@@ -5817,7 +5827,15 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           problemDiv.textContent = `You did it ${player.name}! You've definitely mastered ${operation}!`;
         }
       } else {
-        problemDiv.textContent = `I think you're strong enough for Level ${current[operation].level} !`;
+        if (player.totalLevel % 20 === 0) {
+          text = "<br />Your magic seems stronger... You should try using it on more monsters.";
+          player.damage++;
+        } else if (player.totalLevel % 10 === 0) {
+          text = "<br />You seem stronger than before... You can probably withstand more attacks."
+          player.maxHealth += 5;
+          player.health = player.maxHealth;
+        }
+        problemDiv.innerHTML = `I think you're strong enough for Level ${current[operation].level}!${text}`;
         insertLineBreak(problemDiv, 2);
         insertButton(problemDiv, "Continue", nextMonster, "continue", "yesNoButtons");
       }
@@ -5830,8 +5848,8 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       setTimeout(function() {
         let rtrn = document.getElementById("return");
         let cntn = document.getElementById("continue");
-        document.onkeyup = function(e) {
-          if (e.keyCode === 38 || e.keyCode === 40) {
+        document.onkeyup = function(event) {
+          if (event.keyCode === 38 || event.keyCode === 40) {
             let active = document.activeElement;
             if (active.id === "return") {
               cntn.focus();
@@ -5881,24 +5899,23 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       //Checks if a specific key was pressed                //
       //----------------------------------------------------//
 
-      var key = event.which;
-      switch(key) {
-        case 13: //Enter key, check answer
+      switch(event.code) {
+        case "Enter": //Enter key, check answer
           checkAnswer(answer);
           break;
-        case 27:  //ESC key, leave dungeon
+        case "Escape":  //ESC key, leave dungeon
           clearInterval(timer.time);
           document.onkeypress = null;
           overworld(player);
           break;
-        case 32:  //Space key, spell menu
+        case "Space":  //Space key, spell menu
           event.preventDefault();
           if (!spellMenuActive && !player.stats.spellActive) {
             //spellMenuActive = true;
             showSpellMenu(answer);
           }
           break;
-        case 97:  //saving for testing for now
+        case "KeyA":  //saving for testing for now
           event.preventDefault();
           //save for testing
 
@@ -6268,15 +6285,23 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
         minuend1 -= minuend2;
         subtrahend1 -= subtrahend2;
 
+        //
+        //if the ones place of the sub is greater
+        //than the ones place of the min...
         if (subtrahend2 > minuend2) {
           subtrahend1 += subtrahend2;
           subtrahend2 = 0;
         }
 
+        //
+        //if the sub is 1 digit...
         if (!subtrahend1) {
-          hintString += minuend1 + " + ";
+          hintString += `${minuend1} + `;
+        //
+        //if the ones place of the sub and the min
+        //are both zero...
         } else if (!minuend2 && !subtrahend2) {
-          hintString += minuend1 + " - ";
+          hintString += `${minuend1} - `;
         } else {
           hintString += `(${minuend1} - ${redSpan}${subtrahend1}</span>) + `;
         }
@@ -7267,7 +7292,6 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
 
       timer.stopTime();
       player.spells.fermat.ongoing = true;
-      buttonsOff = true;
 
       hintDiv.innerHTML = "You cast Fermet's Polymorph Monster!";
       hintDiv.style.visibility = "visible";
@@ -7294,6 +7318,10 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
           monsterDiv.style.transform = "rotateY(-180deg)";
           monster = new Monster(newMonsterLevel);
           monsterDiv.style.transform = "rotateY(-360deg)";
+          let monsterImg = document.getElementById("monsterImg");
+          monsterImg.src = monster.src;
+          monsterImg.title = monster.name;
+          player.spells.fermat.ongoing = false;
 
           if (timerValue && !player.spells.huygens.ongoing) {
             timer.time = setInterval(function() {
@@ -7641,18 +7669,13 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
     let problemDiv = document.getElementById("problemDiv");
     playArea.insertBefore(levelDiv, problemDiv);
 
-
     let terms = null;
     let playerImg = document.getElementById("playerImg");
     playerImg.title = player.name;
     let spellMenuActive = false;
-    playerImg.parentNode.onclick = showSpellMenu;
-
     let ansInput = `<input type="number" id="answerInput"></input>`;
     let dblBreak = `<br /><br />`;
     let timer = new Timer(timerValue);
-
-
 
     let monster = null;
     if (operation === "?") {
