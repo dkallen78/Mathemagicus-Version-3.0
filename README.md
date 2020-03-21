@@ -14,13 +14,7 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 
 #### Short term
 
-Periodically increase player health
-
-Periodically increase player damage
-
-Find a good principle for subraction hints
-
-Put in a test() function on the title screen
+Find a better principle for subraction hints
 
 #### Long term
 
@@ -33,6 +27,12 @@ Library
 Sprites
 
 Make damage numbers sway
+
+## 2020.03.20
+
+### Update
+
+I found a pretty big bug that had to do with accidentally passing an event instead of a variable. I also found a few smaller bugs that were much easier to fix. I put in an increment to the player's damage (+1 after levels 20 and 40) and health (+5 after levels 10 and 30). I started to look at the subtraction hints and I stopped pretty quickly. They're not bad, but they have a few issues that I need to work out. I think I'm going to have to rewrite it because untangling it intimidates me. Is this tech debt?
 
 ## 2020.03.19
 
