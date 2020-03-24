@@ -9,7 +9,6 @@ Included as of now (2019/07/29) are the .html, .js, .css, and assett files. I'm 
 ### Up next: Thorough debug
 
 
-
 ### Notes to self:
 
 #### Short term
@@ -27,6 +26,12 @@ Library
 Sprites
 
 Make damage numbers sway
+
+## 2020.03.23
+
+### Update
+
+I've been chilling on Mathemagicus for a bit because I wanted to put in some work on other projects that I've had on the backburner. But today I put in a little "back" button that someone recommended I put into the initial screens. I'm not entirely happy with it but it works like it's supposed to. Baby steps.
 
 ## 2020.03.20
 
