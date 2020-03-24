@@ -1281,14 +1281,14 @@ const test = function() {
   playArea.insertBefore(optionBox, titleDiv);
 }*/
 
-function gameStart() {
+const gameStart = function() {
   //----------------------------------------------------//
   //Handles everything before the "game" like giving    //
   //yourself a name, an avatar, and introducing the     //
   //game world                                          //
   //----------------------------------------------------//
 
-  function shadycrzy() {
+  const shadycrzy = function() {
     //----------------------------------------------------//
     //Makes and animates the intro screen for the game    //
     //then calls the titleScreen() functions              //
@@ -1351,7 +1351,7 @@ function gameStart() {
     });
   }
 
-  function optionMenu(player) {
+  const optionMenu = function(player) {
     //----------------------------------------------------//
     //Makes the option menu and puts it on the screen     //
     //player-> player: the player data type where the     //
@@ -1481,7 +1481,7 @@ function gameStart() {
     playArea.insertBefore(optionBox, titleDiv);
   }
 
-  function titleScreen() {
+  const titleScreen = function() {
     //----------------------------------------------------//
     //Makes the title screen with the buttons:            //
     //New Game: calls the enterName() function            //
@@ -1613,7 +1613,7 @@ function gameStart() {
     });
   }
 
-  function enterName() {
+  const enterName = function() {
     //----------------------------------------------------//
     //Makes the prompt for the player to enter their name //
     //----------------------------------------------------//
@@ -1622,10 +1622,10 @@ function gameStart() {
     for (let i = 0; i < buttons.length; i++) {
       fadeOutElement(buttons[i].id);
     }
+    if (document.getElementById("titleDiv")) {fadeOutElement("titleDiv")}
 
     //
     //Displays the "Enter your name" prompt
-    //
     let enterNameDiv = makeDiv("enterNameDiv", "clearBox");
       enterNameDiv.style.filter = "opacity(0%)";
       enterNameDiv.textContent = textData.enterName;
@@ -1633,7 +1633,6 @@ function gameStart() {
 
     //
     //Displays the text input box and next button
-    //
     let nameTextBox = document.createElement("input");
       nameTextBox.type = "text";
       nameTextBox.id = "nameTextBox";
@@ -1648,13 +1647,20 @@ function gameStart() {
     }
       next.textContent = textData.next;
 
-    let fragment = makeFragment(enterNameDiv, next);
+    let back = makeDiv("back");
+      back.onclick = function() {
+        document.onkeyup = null;
+        clearElement(playArea);
+        titleScreen();
+      };
+      back.textContent = textData.back;
+
+    let fragment = makeFragment(enterNameDiv, next, back);
 
     preloadImages(["Tellah.gif", "./mages/mage0.gif"]);
 
     //
     //This puts it all into the playArea and puts the focus on the nameTextBox
-    //
     setTimeout(function() {
       playArea.appendChild(fragment);
       nameTextBox.focus();
@@ -1663,18 +1669,20 @@ function gameStart() {
 
     //
     //Listens for the enter key
-    //
     setTimeout(function() {
       document.onkeyup = function(event) {
         if (event.key === "Enter") {
           document.onkeyup = null;
           chooseCharacter();
+        } else if (event.key === "Escape") {
+          document.onkeyup = null;
+          back.click();
         };
       }
     }, 100);
   }
 
-  function chooseCharacter() {
+  const chooseCharacter = function() {
     //----------------------------------------------------//
     //Makes the character select screen for the player    //
     //----------------------------------------------------//
@@ -1699,12 +1707,22 @@ function gameStart() {
       storyIntro();
     }
 
+    const checkKey = function(event) {
+      if (event.key === "Escape") {
+        document.onkeyup = null;
+        document.removeEventListener("keyup", checkKey);
+        clearElement(playArea);
+        enterName();
+      }
+    }
+
     //
     //Saves the player's name
     //
     player.name = document.getElementById("nameTextBox").value
 
-    removeElement("titleDiv", "enterNameDiv", "next");
+    clearElement(playArea);
+    //removeElement("titleDiv", "enterNameDiv", "next");
 
     let tellahDiv = makeCameoDiv("Tellah.gif");
 
@@ -1737,21 +1755,34 @@ function gameStart() {
     let introText = textData.chooseCharacter1 + player.name + textData.chooseCharacter2;
     introTextDiv.textContent = introText;
 
-    let fragment = makeFragment(tellahDiv, introTextDiv);
+    let back = makeDiv("back");
+      back.textContent = textData.back;
+      back.onclick = function() {
+        document.onkeyup = null;
+        clearElement(playArea);
+        enterName();
+      };
+
+    document.addEventListener("keyup", checkKey);
+
+
+
+    let fragment = makeFragment(tellahDiv, introTextDiv, back);
     playArea.appendChild(fragment);
     menuMaker(avatarMenuSelectors, mageData, saveCharacterData);
   }
 
-  function storyIntro() {
+  const storyIntro = function() {
     //----------------------------------------------------//
-    //Establishes the basic "plot" of the gameStart       //
+    //Establishes the basic "plot" of the game            //
     //----------------------------------------------------//
 
     const introTextDiv = document.getElementById("introTextDiv");
 
+    removeElement("back");
+
     //
     //a button that lets the player skip the game intro
-    //
     let skipDiv = makeSkipButton(overworld, player);
     playArea.appendChild(skipDiv);
 
@@ -1797,13 +1828,13 @@ function overworld(player) {
   function launchOverworldMenu(selectors, imgData, callback, index = 0) {
     //----------------------------------------------------//
     //Makes sure the correct sprites display when the     //
-    //player uses the overworld menu                      //
+    //  player uses the overworld menu                    //
     //MenuSelector-> selector: the class and id info      //
-    //for the elements in the menu                        //
+    //  for the elements in the menu                      //
     //object-> imgData: contains the info for where       //
-    //to find the image assets to load                    //
+    //  to find the image assets to load                  //
     //function-> callback: called whenever a menu item    //
-    //is levelButtonClicked                               //
+    //  is clicked                                        //
     //----------------------------------------------------//
 
     const finalCatacomb = function() {
@@ -1824,7 +1855,6 @@ function overworld(player) {
         removeElement("cameo", "finalTextDiv");
         menuMaker(selectors, imgData, callback, index);
       });
-
     }
 
     const lastDialog = function() {
@@ -1844,7 +1874,6 @@ function overworld(player) {
         removeElement("cameo", "finalTextDiv");
         menuMaker(selectors, imgData, callback, index);
       });
-
     }
 
     if (player.addition.level) menuData.sprites[0][0] = "additionDoorOpen.gif";
@@ -1874,7 +1903,7 @@ function overworld(player) {
     //which image was clicked                             //
     //----------------------------------------------------//
 
-    document.onkeyup = "";
+    document.onkeyup = null;
     menuData.index = imgData.index;
     switch(imgData.index) {
       case 0:     //Addition Catacomb

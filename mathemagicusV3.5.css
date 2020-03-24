@@ -234,6 +234,7 @@ Styles the Mathemagicus title on the initial screen*/
                0px 4px black,
                -2px 0px black,
                0px -2px black;
+  transition: all 500ms;
 }
 /*
 Styles my two start buttons: "New Game" and "Continue"*/
@@ -295,7 +296,27 @@ Changes the background color of the buttons when hovered*/
 
 }
 
+#back {
+  display: table;
+  width: auto;
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  padding: 0 5px;
+  font-size: 1.3rem;
+  border-bottom: 3px solid rgba(0, 0, 0, 0);
+  border-top: 3px solid rgba(0, 0, 0, 0);
+  transition: all 500ms;
+}
 
+#back:hover {
+  border-bottom: 3px solid red;
+  border-top: 3px solid black;
+  color: red;
+  box-shadow: 0px 3px black,
+              0px -3px red;
+  border-radius: 10px;
+}
 
 .kbd {
   padding: 0 3px;
