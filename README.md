@@ -1,4 +1,4 @@
-# Mathemagicus-Version-3.0
+# [Mathemagicus-Version-3.5](https://dkallen78.github.io/Mathemagicus-Version-3.0/mathemagicusV3.5.html)
 
 This is an updated version of Mathemagicus. I hope this is the final proof-of-concept before I have something comercially viable.
 
