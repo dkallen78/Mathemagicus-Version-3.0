@@ -5929,6 +5929,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
       //----------------------------------------------------//
 
       switch(event.code) {
+        case "NumpadEnter":
         case "Enter": //Enter key, check answer
           checkAnswer(answer);
           break;
@@ -5944,7 +5945,7 @@ function catacombs(player, operation, timerValue, catacombLevel, monsterData) {
             showSpellMenu(answer);
           }
           break;
-        case "KeyA":  //saving for testing for now
+        case "a":  //saving for testing for now
           event.preventDefault();
           //save for testing
 
